@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Game Card">
+<meta name="theme-color" content="#0A1E3C">
 <title>Saints — Game Card Builder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -13,12 +17,12 @@
   --purple:#5B2D8E;--purp-l:#F3EEFF;
   --lgray:#F4F4F4;--mgray:#999;--dgray:#333;
 }
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#E0E0E0;min-height:100vh;font-size:14px;color:var(--dgray);}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#E0E0E0;min-height:100vh;font-size:14px;color:var(--dgray);padding-bottom:env(safe-area-inset-bottom);}
 button{font-family:inherit;cursor:pointer;}
 input,select{font-family:inherit;}
 
 /* ── TOPBAR ── */
-.topbar{background:var(--navy);border-bottom:4px solid var(--gold);padding:13px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;}
+.topbar{background:var(--navy);border-bottom:4px solid var(--gold);padding:13px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;padding-top:max(13px,calc(13px + env(safe-area-inset-top)));}
 .topbar-title{color:#fff;font-weight:bold;font-size:17px;flex:1;}
 .topbar-eyebrow{color:var(--gold);font-size:8px;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:2px;}
 
@@ -134,6 +138,52 @@ input,select{font-family:inherit;}
 .card-footer{border-top:1px solid var(--gold);padding:5px 14px;text-align:center;}
 .card-footer-text{color:#bbb;font-size:8px;}
 .card-no-plays{padding:48px;text-align:center;color:#bbb;font-size:14px;}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  /* Topbar */
+  .topbar{padding:10px 12px;gap:7px;}
+  .topbar-eyebrow{display:none;}
+  .topbar-title{font-size:14px;}
+  .topbar-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* Home */
+  .content{margin:14px auto;padding:0 12px;}
+  .plan-card{flex-direction:column;align-items:flex-start;gap:8px;}
+  .plan-card-actions{width:100%;justify-content:flex-end;}
+  .plan-name{font-size:14px;}
+
+  /* Builder */
+  .builder-content{padding:0 10px 60px;}
+  #opp-input{width:130px!important;}
+  #date-input{width:120px!important;}
+
+  /* Groups & plays */
+  .grp-row{padding:8px 10px;min-height:44px;}
+  .grp-name{font-size:12px;}
+  .play-main{min-height:40px;}
+  .play-cb{width:18px;height:18px;}
+  .add-player-btn{padding:4px 10px;font-size:12px;}
+  .player-chip{font-size:12px;padding:3px 8px;}
+
+  /* Roster modal — full width on phone */
+  .modal-panel{width:100vw!important;}
+
+  /* Print preview controls */
+  .print-controls{flex-wrap:wrap;gap:7px;}
+  .print-controls-title{flex:100%;order:-1;font-size:13px;}
+
+  /* Card body single column */
+  .card-body{grid-template-columns:1fr!important;}
+}
+
+/* Ensure tap targets are at least 44px */
+@media(max-width:600px){
+  .btn,.btn-sm,.btn-gold,.btn-ghost,.btn-navy,.btn-ghost-sm,.btn-navy-sm,.btn-danger-sm{
+    min-height:36px;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .grp-toggle{min-height:30px;padding:4px 10px;}
+}
 
 /* ── PRINT MEDIA ── */
 @media print{
