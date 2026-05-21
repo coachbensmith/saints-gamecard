@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>Saints — Game Card Builder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -105,10 +105,79 @@ input,select{font-family:inherit;}
 .warn-bar{background:#fff8e1;border:1px solid #f5d04a;border-radius:5px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:#7a5900;display:flex;gap:8px;align-items:center;}
 @media print{
   .no-print{display:none!important;}
+  body{background:#fff;margin:0;-webkit-text-size-adjust:none;text-size-adjust:none;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  @page{margin:0.3in;size:letter portrait;}
+  .print-area{max-width:100%;width:100%;margin:0;box-shadow:none;}
+  .card-hdr{padding:5pt 8pt;border-bottom-width:2pt;}
+  .card-eyebrow{font-size:5.5pt;letter-spacing:1pt;margin-bottom:1pt;}
+  .card-title{font-size:10pt;}
+  .card-opp{font-size:10pt;}
+  .card-date{font-size:7pt;margin-top:1pt;}
+  .card-coach{font-size:6pt;margin-top:0;}
+  .card-body{padding:5pt 6pt;gap:5pt;}
+  .card-col{font-size:6pt;border-radius:2pt;border-width:0.5pt;}
+  .card-sec-hdr{padding:2pt 5pt;border-bottom-width:1.5pt;}
+  .card-sec-label{font-size:5.5pt;letter-spacing:1pt;}
+  .card-grp-hdr{padding:2pt 4pt;border-bottom-width:0.5pt;border-left-width:2pt;}
+  .card-grp-code{font-size:5.5pt;min-width:22pt;}
+  .card-grp-name{font-size:7.5pt;}
+  .card-sub-hdr{padding:1.5pt 4pt 1.5pt 7pt;border-left-width:1.5pt;}
+  .card-sub-code{font-size:5.5pt;}
+  .card-sub-name{font-size:6.5pt;}
+  .card-play{padding:1.5pt 4pt 1.5pt 8pt;border-bottom-width:0.25pt;}
+  .card-play.indent{padding-left:10pt;}
+  .card-play-line{gap:3pt;}
+  .card-play-code{font-size:5.5pt;min-width:24pt;}
+  .card-play-name{font-size:7pt;}
+  .card-players{display:none;}
+  .card-footer{padding:2pt 8pt;}
+  .card-footer-text{font-size:5.5pt;}
+}
   body{background:#fff;}
   .print-area{max-width:100%;margin:0;box-shadow:none;}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  @page{margin:0.4in;size:letter;}
+  @page{margin:0.25in;size:letter;}
+
+  /* ── Compact header ── */
+  .card-hdr{padding:5px 10px;border-bottom-width:3px;}
+  .card-eyebrow{font-size:5.5px;letter-spacing:2px;margin-bottom:1px;}
+  .card-title{font-size:11px;}
+  .card-opp{font-size:10px;}
+  .card-date{font-size:8px;margin-top:1px;}
+  .card-coach{font-size:7px;margin-top:0;}
+
+  /* ── Body & columns ── */
+  .card-body{padding:5px 6px;gap:5px;}
+  .card-col{font-size:6.5px;border-radius:2px;}
+
+  /* ── Section headers ── */
+  .card-sec-hdr{padding:2px 5px;border-bottom-width:1.5px;}
+  .card-sec-label{font-size:5.5px;letter-spacing:1.5px;}
+
+  /* ── Group headers ── */
+  .card-grp-hdr{padding:2px 4px;border-bottom-width:0.5px;border-left-width:2px;}
+  .card-grp-code{font-size:5.5px;min-width:22px;}
+  .card-grp-name{font-size:7.5px;}
+
+  /* ── Sub headers ── */
+  .card-sub-hdr{padding:1px 4px 1px 7px;border-left-width:1.5px;}
+  .card-sub-code{font-size:5.5px;}
+  .card-sub-name{font-size:7px;}
+
+  /* ── Play rows ── */
+  .card-play{padding:1px 4px 1px 8px;border-bottom-width:0.25px;}
+  .card-play.indent{padding-left:10px;}
+  .card-play-line{gap:3px;}
+  .card-play-code{font-size:5.5px;min-width:24px;}
+  .card-play-name{font-size:6.5px;}
+
+  /* ── Player chips — hidden to save space ── */
+  .card-players{display:none;}
+
+  /* ── Footer ── */
+  .card-footer{padding:2px 8px;}
+  .card-footer-text{font-size:5.5px;}
 }
 </style>
 </head>
