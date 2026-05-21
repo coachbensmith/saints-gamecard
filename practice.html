@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>Saints — Practice Plan Builder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -153,10 +153,78 @@ textarea.inp{resize:vertical;min-height:52px;}
 /* PRINT */
 @media print{
   .no-print{display:none!important;}
+  body{background:#fff;margin:0;-webkit-text-size-adjust:none;text-size-adjust:none;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  @page{margin:0.3in;size:letter portrait;}
+  .print-wrap{max-width:100%;width:100%;margin:0;box-shadow:none;}
+
+  /* Page 1 — practice plan table */
+  .print-hdr{padding:6pt 10pt;border-bottom-width:3pt;}
+  .print-hdr-left .eyebrow{font-size:5.5pt;letter-spacing:1pt;margin-bottom:1pt;}
+  .print-hdr-left .title{font-size:10pt;}
+  .print-hdr-right .opp{font-size:9pt;}
+  .print-hdr-right .sub{font-size:6.5pt;margin-top:1pt;}
+  .print-body{padding:6pt 8pt;}
+  .plan-table{font-size:6.5pt;margin-bottom:8pt;}
+  .plan-table th{padding:3pt 5pt;font-size:5.5pt;letter-spacing:0.5pt;}
+  .plan-table td{padding:2.5pt 5pt;vertical-align:middle;}
+  .plan-table td.clock{font-size:10pt;}
+  .plan-table td.dur{font-size:7.5pt;}
+  .team-goal-print{font-size:6.5pt;}
+  .print-section-hdr{padding:3pt 6pt;font-size:7pt;letter-spacing:1pt;margin-bottom:5pt;}
+  .print-footer{padding:3pt 10pt;}
+  .print-footer-text{font-size:5.5pt;}
+
+  /* Page 2 — groups & stats */
+  .print-groups{gap:6pt;margin-bottom:8pt;}
+  .print-group{padding:4pt 7pt;}
+  .print-group-name{font-size:7pt;margin-bottom:2pt;}
+  .print-group-players{font-size:6.5pt;}
+  .stats-table{font-size:6.5pt;}
+  .stats-table th{padding:3pt 5pt;font-size:5.5pt;}
+  .stats-table td{padding:2.5pt 5pt;}
+}
   body{background:#fff;margin:0;}
   .print-wrap{max-width:100%;margin:0;box-shadow:none;}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  @page{margin:0.4in;size:letter;}
+  @page{margin:0.25in;size:letter;}
+
+  /* ── Compact header ── */
+  .print-hdr{padding:5px 10px;border-bottom-width:3px;}
+  .print-hdr-left .eyebrow{font-size:5.5px;letter-spacing:2px;margin-bottom:1px;}
+  .print-hdr-left .title{font-size:11px;}
+  .print-hdr-right .opp{font-size:9px;}
+  .print-hdr-right .sub{font-size:7px;margin-top:1px;}
+
+  /* ── Plan table ── */
+  .print-body{padding:5px 6px;}
+  .plan-table{font-size:6.5px;margin-bottom:8px;}
+  .plan-table th{padding:2px 4px;font-size:5.5px;letter-spacing:0.5px;}
+  .plan-table td{padding:2px 4px;border-bottom-width:0.25px;}
+  .plan-table td.clock{font-size:11px;}
+  .plan-table td.dur{font-size:8px;}
+
+  /* ── Section headers ── */
+  .print-section-hdr{padding:2px 5px;font-size:6px;letter-spacing:1px;margin-bottom:4px;}
+
+  /* ── Groups ── */
+  .print-groups{gap:5px;margin-bottom:6px;}
+  .print-group{padding:3px 6px;}
+  .print-group-name{font-size:6.5px;margin-bottom:2px;}
+  .print-group-players{font-size:7px;}
+
+  /* ── Attendance & stats table ── */
+  .stats-table{font-size:6.5px;}
+  .stats-table th{padding:2px 4px;font-size:5.5px;}
+  .stats-table td{padding:2px 4px;border-bottom-width:0.25px;}
+
+  /* ── Teams ── */
+  .print-footer{padding:2px 8px;}
+  .print-footer-text{font-size:5.5px;}
+
+  /* ── Page 2 mini header ── */
+  div[style*="page-break-before"]{padding-top:0 !important;}
+  div[style*="page-break-before"] > div{padding:5px 10px;border-radius:0;margin-bottom:8px;}
 }
 .print-wrap{background:#fff;max-width:980px;margin:18px auto;box-shadow:0 2px 16px rgba(0,0,0,.12);}
 .print-hdr{background:var(--navy);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--gold);}
