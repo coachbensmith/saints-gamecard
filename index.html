@@ -2,11 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Game Card">
-<meta name="theme-color" content="#0A1E3C">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saints — Game Card Builder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -17,18 +13,13 @@
   --purple:#5B2D8E;--purp-l:#F3EEFF;
   --lgray:#F4F4F4;--mgray:#999;--dgray:#333;
 }
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#E0E0E0;min-height:100vh;font-size:14px;color:var(--dgray);padding-bottom:env(safe-area-inset-bottom);}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#E0E0E0;min-height:100vh;font-size:14px;color:var(--dgray);}
 button{font-family:inherit;cursor:pointer;}
 input,select{font-family:inherit;}
-
-/* ── TOPBAR ── */
-.topbar{background:var(--navy);border-bottom:4px solid var(--gold);padding:13px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;padding-top:max(13px,calc(13px + env(safe-area-inset-top)));}
+.topbar{background:var(--navy);border-bottom:4px solid var(--gold);padding:13px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;}
 .topbar-title{color:#fff;font-weight:bold;font-size:17px;flex:1;}
 .topbar-eyebrow{color:var(--gold);font-size:8px;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:2px;}
-
-/* ── BUTTONS ── */
-.btn{border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:bold;cursor:pointer;transition:opacity .15s;}
-.btn:hover{opacity:.85;}
+.btn{border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:bold;cursor:pointer;}
 .btn-gold{background:var(--gold);color:var(--navy);}
 .btn-navy{background:var(--navy);color:#fff;}
 .btn-ghost{background:transparent;border:1px solid var(--gold);color:var(--gold);}
@@ -36,13 +27,9 @@ input,select{font-family:inherit;}
 .btn-navy-sm{background:var(--navy);color:#fff;padding:4px 10px;font-size:12px;}
 .btn-danger-sm{background:#dc2626;color:#fff;padding:4px 10px;font-size:12px;}
 .btn-sm{padding:5px 12px;font-size:12px;}
-
-/* ── INPUTS ── */
 .inp{border:1px solid #ddd;border-radius:4px;padding:6px 10px;font-size:13px;outline:none;background:#fff;}
 .inp-dark{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:5px 10px;font-size:13px;outline:none;}
 .inp-dark::placeholder{color:rgba(255,255,255,.45);}
-
-/* ── HOME ── */
 .content{max-width:860px;margin:26px auto;padding:0 18px;}
 .section-label{color:var(--navy);font-weight:bold;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
 .plan-card{background:#fff;border:1px solid #ddd;border-left:4px solid var(--gold);border-radius:5px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:8px;}
@@ -52,28 +39,17 @@ input,select{font-family:inherit;}
 .empty-state{text-align:center;padding:64px 0;color:#888;}
 .empty-icon{font-size:44px;margin-bottom:12px;}
 .empty-title{font-size:18px;font-weight:bold;color:var(--navy);margin-bottom:6px;}
-.empty-sub{font-size:13px;margin-bottom:20px;}
-
-/* ── BUILDER ── */
-.builder-content{max-width:820px;margin:18px auto;padding:0 14px 40px;}
-.warn-bar{background:#fff8e1;border:1px solid #f5d04a;border-radius:5px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:#7a5900;display:flex;gap:8px;align-items:center;}
-.warn-bar a{color:var(--navy);font-weight:bold;cursor:pointer;text-decoration:underline;}
 .section-block{margin-bottom:14px;border-radius:5px;overflow:hidden;border:1px solid #d5d5d5;box-shadow:0 1px 4px rgba(0,0,0,.07);}
 .sec-hdr{padding:7px 13px;display:flex;align-items:center;gap:6px;border-bottom-width:2.5px;border-bottom-style:solid;}
-.sec-hdr-label{font-weight:bold;font-size:10px;letter-spacing:2px;text-transform:uppercase;}
 .grp-row{padding:6px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #ddd;cursor:pointer;user-select:none;}
-.grp-arrow{color:#aaa;font-size:10px;width:10px;flex-shrink:0;}
 .grp-code{font-weight:bold;font-size:10px;min-width:48px;}
 .grp-name{font-weight:bold;font-size:13px;color:var(--navy);flex:1;}
 .grp-toggle{font-size:10px;color:#777;padding:2px 7px;border:1px solid #ccc;border-radius:3px;background:#fff;cursor:pointer;}
-.grp-count{font-size:11px;color:var(--mgray);min-width:32px;text-align:right;}
 .sub-hdr{padding:4px 12px 4px 26px;display:flex;align-items:center;gap:6px;background:#f0f0f0;border-bottom:1px solid #e0e0e0;border-left-width:2.5px;border-left-style:solid;}
-.sub-code{font-weight:bold;font-size:10px;}
-.sub-name{color:var(--navy);font-weight:bold;font-size:11px;}
 .play-row{border-bottom:1px solid #f0f0f0;}
 .play-main{padding:5px 12px;display:flex;align-items:center;gap:8px;}
 .play-main.indent{padding-left:40px;}
-.play-cb{accent-color:var(--navy);cursor:pointer;width:14px;height:14px;flex-shrink:0;}
+.play-cb{cursor:pointer;width:14px;height:14px;flex-shrink:0;}
 .play-code{font-size:10px;min-width:50px;}
 .play-name{font-size:13px;flex:1;}
 .play-name.ctr{font-style:italic;color:var(--purple);}
@@ -85,34 +61,22 @@ input,select{font-family:inherit;}
 .chip-x{cursor:pointer;opacity:.55;font-size:10px;line-height:1;border:none;background:none;color:#fff;padding:0;}
 .add-player-btn{background:none;border:1px dashed var(--gold);color:var(--gold);border-radius:3px;padding:2px 8px;font-size:11px;cursor:pointer;}
 .player-select{border:1px solid var(--gold);border-radius:3px;padding:3px 7px;font-size:12px;outline:none;}
-.no-players-note{color:#ccc;font-size:11px;}
-
-/* ── ROSTER MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-start;justify-content:flex-end;}
 .modal-panel{background:#fff;width:320px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.18);display:flex;flex-direction:column;}
 .modal-hdr{background:var(--navy);padding:13px 16px;border-bottom:3px solid var(--gold);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .modal-hdr-title{color:#fff;font-weight:bold;font-size:14px;}
 .modal-form{padding:13px 14px;border-bottom:1px solid #eee;background:#fafafa;flex-shrink:0;}
 .modal-form-title{font-weight:bold;font-size:11px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
-.modal-row{display:flex;gap:6px;margin-bottom:7px;}
 .modal-err{color:#c00;font-size:11px;margin-top:6px;}
 .roster-list{flex:1;overflow-y:auto;}
 .roster-type-hdr{padding:5px 14px;font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:var(--mgray);background:#f5f5f5;border-top:1px solid #eee;border-bottom:1px solid #eee;}
 .roster-player{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid #f5f5f5;}
 .roster-num{background:var(--navy);color:var(--gold);font-weight:bold;font-size:12px;border-radius:3px;padding:2px 6px;margin-right:10px;min-width:32px;text-align:center;}
-.roster-name{flex:1;font-size:13px;color:var(--navy);font-weight:500;}
-.roster-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:2px 4px;}
-.roster-empty{text-align:center;color:#bbb;padding:32px;font-size:13px;}
-
-/* ── PRINT VIEW ── */
 .print-controls{background:var(--navy);padding:10px 18px;display:flex;gap:10px;align-items:center;border-bottom:3px solid var(--gold);}
-.print-controls-title{color:#fff;font-weight:bold;flex:1;}
 .print-area{background:#fff;max-width:1000px;margin:20px auto;box-shadow:0 2px 16px rgba(0,0,0,.15);}
 .card-hdr{background:var(--navy);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--gold);}
-.card-hdr-left{}
 .card-eyebrow{color:var(--gold);font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;}
 .card-title{color:#fff;font-size:17px;font-weight:bold;}
-.card-hdr-right{text-align:right;}
 .card-opp{color:var(--gold);font-weight:bold;font-size:15px;}
 .card-date{color:rgba(255,255,255,.65);font-size:11px;margin-top:2px;}
 .card-coach{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px;}
@@ -138,77 +102,30 @@ input,select{font-family:inherit;}
 .card-footer{border-top:1px solid var(--gold);padding:5px 14px;text-align:center;}
 .card-footer-text{color:#bbb;font-size:8px;}
 .card-no-plays{padding:48px;text-align:center;color:#bbb;font-size:14px;}
-
-/* ── MOBILE ── */
-@media(max-width:600px){
-  /* Topbar */
-  .topbar{padding:10px 12px;gap:7px;}
-  .topbar-eyebrow{display:none;}
-  .topbar-title{font-size:14px;}
-  .topbar-actions{display:flex;gap:6px;flex-wrap:wrap;}
-
-  /* Home */
-  .content{margin:14px auto;padding:0 12px;}
-  .plan-card{flex-direction:column;align-items:flex-start;gap:8px;}
-  .plan-card-actions{width:100%;justify-content:flex-end;}
-  .plan-name{font-size:14px;}
-
-  /* Builder */
-  .builder-content{padding:0 10px 60px;}
-  #opp-input{width:130px!important;}
-  #date-input{width:120px!important;}
-
-  /* Groups & plays */
-  .grp-row{padding:8px 10px;min-height:44px;}
-  .grp-name{font-size:12px;}
-  .play-main{min-height:40px;}
-  .play-cb{width:18px;height:18px;}
-  .add-player-btn{padding:4px 10px;font-size:12px;}
-  .player-chip{font-size:12px;padding:3px 8px;}
-
-  /* Roster modal — full width on phone */
-  .modal-panel{width:100vw!important;}
-
-  /* Print preview controls */
-  .print-controls{flex-wrap:wrap;gap:7px;}
-  .print-controls-title{flex:100%;order:-1;font-size:13px;}
-
-  /* Card body single column */
-  .card-body{grid-template-columns:1fr!important;}
-}
-
-/* Ensure tap targets are at least 44px */
-@media(max-width:600px){
-  .btn,.btn-sm,.btn-gold,.btn-ghost,.btn-navy,.btn-ghost-sm,.btn-navy-sm,.btn-danger-sm{
-    min-height:36px;display:inline-flex;align-items:center;justify-content:center;
-  }
-  .grp-toggle{min-height:30px;padding:4px 10px;}
-}
-
-/* ── PRINT MEDIA ── */
+.warn-bar{background:#fff8e1;border:1px solid #f5d04a;border-radius:5px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:#7a5900;display:flex;gap:8px;align-items:center;}
 @media print{
   .no-print{display:none!important;}
   body{background:#fff;}
   .print-area{max-width:100%;margin:0;box-shadow:none;}
-  .card-play,.card-grp-hdr,.card-sec-hdr,.card-sub-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:0.4in;size:letter;}
 }
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// ─── SYSTEM DATA ──────────────────────────────────────────────────────────────
 const SYSTEM=[
   {id:'primary',label:'Primary Transition',color:'#C9A84C',bg:'#FEFCE8',groups:[
     {id:'pistol',code:'"1"',name:'Pistol',plays:[
-      {id:'p11',code:'"11"',name:'Give — Baseline Drive'},
-      {id:'p12',code:'"12"',name:'Keep — Middle Drive'},
-      {id:'p13',code:'"13"',name:'Flare Screen — Shoot / Drive'},
-      {id:'p14',code:'"14"',name:'Drift Pass — Shoot / Pass'},
-      {id:'p15',code:'"15"',name:'Extra Pass — Shoot / Drive'},
+      {id:'p11',code:'"11"',name:'Give - Baseline Drive'},
+      {id:'p12',code:'"12"',name:'Keep - Middle Drive'},
+      {id:'p13',code:'"13"',name:'Flare Screen - Shoot / Drive'},
+      {id:'p14',code:'"14"',name:'Drift Pass - Shoot / Pass'},
+      {id:'p15',code:'"15"',name:'Extra Pass - Shoot / Drive'},
     ]},
     {id:'twoside',code:'"2"',name:'Two-Side',plays:[
-      {id:'p21',code:'"21"',name:'Extra Pass — Shot'},
+      {id:'p21',code:'"21"',name:'Extra Pass - Shot'},
       {id:'p22',code:'"22"',name:'Open Ball Screen'},
       {id:'p23',code:'"23"',name:'Stagger Twirl'},
       {id:'p24',code:'"24"',name:'Strong Ball Screen'},
@@ -218,33 +135,33 @@ const SYSTEM=[
   {id:'secondary',label:'Secondary Break',color:'#1A5C3A',bg:'#EBF7F0',groups:[
     {id:'delay',code:'"5"',name:'Delay',subs:[
       {id:'s51',code:'"51"',name:'Single Away',plays:[
-        {id:'s51a',code:'—',name:'Curl'},
-        {id:'s51b',code:'—',name:'Twist'},
-        {id:'s51c',code:'—',name:'Touch'},
+        {id:'s51a',code:'--',name:'Curl'},
+        {id:'s51b',code:'--',name:'Twist'},
+        {id:'s51c',code:'--',name:'Touch'},
         {id:'s51d',code:'CTR',name:'Counter: Gut Zoom',ctr:true},
       ]},
       {id:'s52',code:'"52"',name:'Chase Over',plays:[
-        {id:'s52a',code:'—',name:'Split'},
-        {id:'s52b',code:'—',name:'Zero'},
-        {id:'s52c',code:'—',name:'Zoom'},
+        {id:'s52a',code:'--',name:'Split'},
+        {id:'s52b',code:'--',name:'Zero'},
+        {id:'s52c',code:'--',name:'Zoom'},
         {id:'s52d',code:'CTR',name:'Counter: Double Drag',ctr:true},
       ]},
       {id:'s53',code:'"53"',name:'Zoom DHO',plays:[
-        {id:'s53a',code:'—',name:'Give'},
-        {id:'s53b',code:'—',name:'Next'},
-        {id:'s53c',code:'—',name:'Slip'},
+        {id:'s53a',code:'--',name:'Give'},
+        {id:'s53b',code:'--',name:'Next'},
+        {id:'s53c',code:'--',name:'Slip'},
         {id:'s53d',code:'CTR',name:'Counter: Back Door',ctr:true},
       ]},
       {id:'s54',code:'"54"',name:'Stack',plays:[
-        {id:'s54a',code:'—',name:'Veer'},
-        {id:'s54b',code:'—',name:'Flare'},
-        {id:'s54c',code:'—',name:'Point'},
+        {id:'s54a',code:'--',name:'Veer'},
+        {id:'s54b',code:'--',name:'Flare'},
+        {id:'s54c',code:'--',name:'Point'},
         {id:'s54d',code:'CTR',name:'Counter: Flat Screen',ctr:true},
       ]},
       {id:'s55',code:'"55"',name:'Ram',plays:[
-        {id:'s55a',code:'—',name:'Spain'},
-        {id:'s55b',code:'—',name:'Pin'},
-        {id:'s55c',code:'—',name:'Ghost'},
+        {id:'s55a',code:'--',name:'Spain'},
+        {id:'s55b',code:'--',name:'Pin'},
+        {id:'s55c',code:'--',name:'Ghost'},
         {id:'s55d',code:'CTR',name:'Counter: High Low',ctr:true},
       ]},
     ]},
@@ -259,20 +176,20 @@ const SYSTEM=[
     ]},
   ]},
   {id:'continuity',label:'Continuity Offense',color:'#1D4E89',bg:'#EBF2FB',groups:[
-    {id:'chin',code:'—',name:'Chin "Circuit"',color:'#1D4E89',bg:'#EBF2FB',plays:[
-      {id:'ch1',code:'—',name:'Slot Entry'},
-      {id:'ch2',code:'—',name:'Back Screen'},
-      {id:'ch3',code:'—',name:'Wing Entry'},
-      {id:'ch4',code:'—',name:'Flare Screen'},
-      {id:'ch5',code:'—',name:'Screener Pops'},
-      {id:'ch6',code:'—',name:'Ball Reversal'},
+    {id:'chin',code:'--',name:'Chin "Circuit"',color:'#1D4E89',bg:'#EBF2FB',plays:[
+      {id:'ch1',code:'--',name:'Slot Entry'},
+      {id:'ch2',code:'--',name:'Back Screen'},
+      {id:'ch3',code:'--',name:'Wing Entry'},
+      {id:'ch4',code:'--',name:'Flare Screen'},
+      {id:'ch5',code:'--',name:'Screener Pops'},
+      {id:'ch6',code:'--',name:'Ball Reversal'},
     ]},
-    {id:'open',code:'—',name:'"Open" Ball Screen',color:'#C9A84C',bg:'#FEFCE8',plays:[
+    {id:'open',code:'--',name:'"Open" Ball Screen',color:'#C9A84C',bg:'#FEFCE8',plays:[
       {id:'op1',code:'Memphis',name:'Spread Dribble Entry'},
       {id:'op2',code:'Laker',name:'Triangle Wing Entry'},
       {id:'op3',code:'Philly',name:'Horns Iverson Entry'},
     ]},
-    {id:'strong',code:'—',name:'"Strong" Ball Screen',color:'#5B2D8E',bg:'#F3EEFF',plays:[
+    {id:'strong',code:'--',name:'"Strong" Ball Screen',color:'#5B2D8E',bg:'#F3EEFF',plays:[
       {id:'st1',code:'UCLA',name:'1-4 High Wing Entry'},
       {id:'st2',code:'Kansas',name:'3-Out 2-In Flex Entry'},
       {id:'st3',code:'Houston',name:'Box-Set Floppy Entry'},
@@ -289,29 +206,86 @@ const SYSTEM=[
       {id:'h7',code:'Lift',name:'Elevator Screen'},
     ]},
   ]},
+  {id:'ob',label:'Out of Bounds',color:'#0E7490',bg:'#ECFEFF',groups:[
+    {id:'slob',code:'SLOB',name:'Sideline',plays:[
+      {id:'sl1',code:'Box',name:'Box Set'},
+      {id:'sl2',code:'Zipper',name:'Zipper Cut'},
+      {id:'sl3',code:'Stack',name:'Stack'},
+      {id:'sl4',code:'Floppy',name:'Floppy'},
+      {id:'sl5',code:'Double',name:'Double Screen'},
+      {id:'sl6',code:'Chin',name:'Chin Action'},
+    ]},
+    {id:'blob',code:'BLOB',name:'Baseline',plays:[
+      {id:'bl1',code:'Box',name:'Box Set'},
+      {id:'bl2',code:'Diamond',name:'Diamond'},
+      {id:'bl3',code:'Horns',name:'Horns Look'},
+      {id:'bl4',code:'Stack',name:'Stack'},
+      {id:'bl5',code:'Floppy',name:'Floppy'},
+      {id:'bl6',code:'Special',name:'Special / Trick'},
+    ]},
+    {id:'elob',code:'ELOB',name:'Endline',plays:[
+      {id:'el1',code:'Safe',name:'Safe - Outlet Wide'},
+      {id:'el2',code:'Push',name:'Push - Advance Ball'},
+      {id:'el3',code:'Stack',name:'Stack - Cross & Go'},
+      {id:'el4',code:'Reset',name:'Reset - Bring to Half'},
+    ]},
+  ]},
+  {id:'zone',label:'Zone Offense',color:'#C2410C',bg:'#FFF7ED',groups:[
+    {id:'zone23',code:'2-3',name:'vs. 2-3 Zone',plays:[
+      {id:'z1',code:'Skip',name:'Skip Pass Attack'},
+      {id:'z2',code:'Hi-Lo',name:'High-Low'},
+      {id:'z3',code:'Pen',name:'Dribble Penetration'},
+      {id:'z4',code:'Corner',name:'Corner Attack'},
+      {id:'z5',code:'Short',name:'Short Corner'},
+      {id:'z6',code:'Flash',name:'Flash Mid'},
+      {id:'z7',code:'BD',name:'Back Door'},
+    ]},
+    {id:'zone131',code:'1-3-1',name:'vs. 1-3-1 Zone',plays:[
+      {id:'z8',code:'Base',name:'Baseline Runner'},
+      {id:'z9',code:'Over',name:'Overload'},
+      {id:'z10',code:'Flash',name:'Flash High'},
+      {id:'z11',code:'Corner',name:'Corner Exchange'},
+    ]},
+    {id:'zone32',code:'3-2',name:'vs. 3-2 / Match',plays:[
+      {id:'z12',code:'Split',name:'Gap Split'},
+      {id:'z13',code:'Elbow',name:'Elbow Entry'},
+      {id:'z14',code:'Wheel',name:'Wheel Action'},
+    ]},
+  ]},
+  {id:'press',label:'Press Break',color:'#9B1C1C',bg:'#FEF2F2',groups:[
+    {id:'pb-full',code:'Full',name:'Full-Court Press',plays:[
+      {id:'pb1',code:'1-4',name:'1-4 Diamond Break'},
+      {id:'pb2',code:'2-2-1',name:'2-2-1 Outlet Break'},
+      {id:'pb3',code:'Man',name:'vs. Man Full Press'},
+      {id:'pb4',code:'Side',name:'Sideline Trap Break'},
+      {id:'pb5',code:'Ball',name:'Ball-Line Advance'},
+    ]},
+    {id:'pb-half',code:'Half',name:'Half-Court Trap',plays:[
+      {id:'pb6',code:'1-2-2',name:'1-2-2 Trap Break'},
+      {id:'pb7',code:'2-3',name:'2-3 Trap Break'},
+      {id:'pb8',code:'Skip',name:'Skip & Attack'},
+      {id:'pb9',code:'Reset',name:'Reset - Dribble Out'},
+    ]},
+  ]},
 ];
 
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
 const SK={roster:'bd_roster_v1',plans:'bd_plans_v1'};
 const load=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
 const persist=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
 const S={
   roster:load(SK.roster)||[],
   plans:load(SK.plans)||[],
   view:'home',
   plan:null,
   showRoster:false,
-  openGroups:{},   // groupId -> bool
   confirmDel:null,
+  openGroups:{},
   showDropFor:null,
   savedMsg:false,
-  // roster form
   rNum:'',rName:'',rType:'varsity',rErr:'',
 };
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 const fmtDate=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch{return d||'';}};
@@ -329,7 +303,6 @@ function setState(patch){
   window.scrollTo(0,sy);
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
 function render(){
   let html='';
   if(S.view==='home')    html=renderHome();
@@ -340,29 +313,27 @@ function render(){
   attachHandlers();
 }
 
-// ─── HOME VIEW ────────────────────────────────────────────────────────────────
 function renderHome(){
   const plans=[...S.plans];
   return`
   <div class="topbar">
     <div style="flex:1">
-      <span class="topbar-eyebrow">Bishop Dwenger High School · Fort Wayne, Indiana</span>
-      <span class="topbar-title">Boys' Basketball — Game Card Builder</span>
+      <span class="topbar-eyebrow">Bishop Dwenger High School &middot; Fort Wayne, Indiana</span>
+      <span class="topbar-title">Boys' Basketball &mdash; Game Card Builder</span>
     </div>
-    <button class="btn btn-ghost btn-sm" data-a="open-roster">👥 Roster${S.roster.length?` (${S.roster.length})`:''}</button>
-    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Save all game plans and roster to a file">⬆ Export</button>
-    <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Load a previously exported file">⬇ Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
+    <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster${S.roster.length?' ('+S.roster.length+')':''}</button>
+    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export all data">&#11014; Export</button>
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Import exported file">&#11015; Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
     <button class="btn btn-gold" data-a="new-plan">+ New Game Plan</button>
   </div>
   <div class="content">
     ${plans.length===0?`
       <div class="empty-state">
-        <div class="empty-icon">📋</div>
+        <div class="empty-icon">&#128203;</div>
         <div class="empty-title">No game plans yet</div>
-        <div class="empty-sub">Build your first game plan for the season.</div>
+        <div style="margin-bottom:18px;font-size:13px">Build your first game plan for the season.</div>
         <button class="btn btn-gold" data-a="new-plan">+ New Game Plan</button>
-      </div>
-    `:`
+      </div>`:`
       <div class="section-label">Saved Game Plans (${plans.length})</div>
       ${plans.map(p=>{
         const n=selCount(p);
@@ -372,12 +343,12 @@ function renderHome(){
             <div class="plan-meta">${p.date?fmtDate(p.date):'No date'} &middot; ${n} play${n!==1?'s':''} selected &middot; Saved ${fmtDate(p.updatedAt.split('T')[0])}</div>
           </div>
           <div class="plan-card-actions">
-            <button class="btn btn-ghost-sm" data-a="print-plan" data-id="${p.id}">🖨 Print</button>
+            <button class="btn btn-ghost-sm" data-a="print-plan" data-id="${p.id}">&#128424; Print</button>
             <button class="btn btn-navy-sm" data-a="edit-plan" data-id="${p.id}">Edit</button>
             ${S.confirmDel===p.id?`
               <button class="btn btn-danger-sm" data-a="confirm-del" data-id="${p.id}">Delete</button>
-              <button class="btn btn-ghost-sm" data-a="cancel-del">Cancel</button>
-            `:`<button class="btn btn-ghost-sm" data-a="ask-del" data-id="${p.id}">✕</button>`}
+              <button class="btn btn-ghost-sm" data-a="cancel-del">Cancel</button>`
+            :`<button class="btn btn-ghost-sm" data-a="ask-del" data-id="${p.id}">&#10005;</button>`}
           </div>
         </div>`;
       }).join('')}
@@ -385,22 +356,21 @@ function renderHome(){
   </div>`;
 }
 
-// ─── BUILDER VIEW ─────────────────────────────────────────────────────────────
 function renderBuilder(){
   const p=S.plan;
   const n=selCount(p);
   return`
   <div class="topbar">
-    <button class="btn btn-ghost btn-sm" data-a="go-home">← Back</button>
+    <button class="btn btn-ghost btn-sm" data-a="go-home">&larr; Back</button>
     <input class="inp-dark" id="opp-input" placeholder="Opponent" value="${esc(p.opponent||'')}" style="width:170px;">
     <input class="inp-dark" id="date-input" type="date" value="${esc(p.date||'')}" style="width:140px;">
     <span style="color:rgba(255,255,255,.4);font-size:12px;flex:1;">${n} play${n!==1?'s':''} selected</span>
-    <button class="btn btn-ghost btn-sm" data-a="open-roster">👥 Roster</button>
-    <button class="btn btn-ghost btn-sm" data-a="go-print">🖨 Preview</button>
-    <button class="btn btn-gold btn-sm" id="save-btn" data-a="save-plan" style="min-width:68px">${S.savedMsg?'✓ Saved':'Save'}</button>
+    <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster</button>
+    <button class="btn btn-ghost btn-sm" data-a="go-print">&#128424; Preview</button>
+    <button class="btn btn-gold btn-sm" id="save-btn" data-a="save-plan" style="min-width:68px">${S.savedMsg?'&#10003; Saved':'Save'}</button>
   </div>
-  <div class="builder-content">
-    ${S.roster.length===0?`<div class="warn-bar">⚠️ No roster yet — <a data-a="open-roster">add players</a> to assign them to plays.</div>`:''}
+  <div class="content">
+    ${S.roster.length===0?`<div class="warn-bar">&#9888;&#65039; No roster yet &mdash; <a data-a="open-roster" style="color:var(--navy);font-weight:bold;cursor:pointer;text-decoration:underline">add players</a> to assign them to plays.</div>`:''}
     ${SYSTEM.map(sec=>renderSectionBlock(sec)).join('')}
   </div>`;
 }
@@ -408,7 +378,7 @@ function renderBuilder(){
 function renderSectionBlock(sec){
   return`<div class="section-block">
     <div class="sec-hdr" style="background:#0A1E3C;border-color:${sec.color}">
-      <span class="sec-hdr-label" style="color:${sec.color}">${esc(sec.label)}</span>
+      <span style="color:${sec.color};font-weight:bold;font-size:10px;letter-spacing:2px;text-transform:uppercase">${esc(sec.label)}</span>
     </div>
     ${sec.groups.map(grp=>renderGroupBlock(grp,sec)).join('')}
   </div>`;
@@ -423,11 +393,11 @@ function renderGroupBlock(grp,sec){
   const open=isOpen(grp.id);
   return`
   <div class="grp-row" style="background:${bg};border-color:#ddd;border-left:3.5px solid ${color}" data-a="toggle-grp-open" data-gid="${grp.id}">
-    <span class="grp-arrow">${open?'▾':'▸'}</span>
+    <span style="color:#aaa;font-size:10px;width:10px">${open?'&#9662;':'&#9658;'}</span>
     <span class="grp-code" style="color:${color}">${esc(grp.code)}</span>
     <span class="grp-name">${esc(grp.name)}</span>
-    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}">${allOn?'Deselect All':'Select All'}</button>
-    <span class="grp-count">${sn}/${ids.length}</span>
+    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}" onclick="event.stopPropagation()">${allOn?'Deselect All':'Select All'}</button>
+    <span style="font-size:11px;color:var(--mgray);min-width:32px;text-align:right">${sn}/${ids.length}</span>
   </div>
   ${open?(grp.subs
     ?grp.subs.map(sub=>renderSubBlock(sub,color)).join('')
@@ -438,8 +408,8 @@ function renderGroupBlock(grp,sec){
 function renderSubBlock(sub,color){
   return`
   <div class="sub-hdr" style="border-color:${color}">
-    <span class="sub-code" style="color:${color}">${esc(sub.code)}</span>
-    <span class="sub-name">${esc(sub.name)}</span>
+    <span style="font-weight:bold;font-size:10px;color:${color}">${esc(sub.code)}</span>
+    <span style="color:var(--navy);font-weight:bold;font-size:11px">${esc(sub.name)}</span>
   </div>
   ${sub.plays.map((play,i)=>renderPlayRow(play,color,i%2===1,true)).join('')}`;
 }
@@ -450,7 +420,6 @@ function renderPlayRow(play,color,alt,indent){
   const bg=play.ctr?'#f3eeff':alt?'#fafafa':'#fff';
   const available=S.roster.filter(r=>!assigned.includes(r.id)).sort((a,b)=>a.number-b.number);
   const showDrop=S.showDropFor===play.id;
-
   return`<div class="play-row" style="background:${bg}">
     <div class="play-main${indent?' indent':''}">
       <input type="checkbox" class="play-cb" ${sel?'checked':''} style="accent-color:${color}" data-a="toggle-play" data-pid="${play.id}">
@@ -461,19 +430,18 @@ function renderPlayRow(play,color,alt,indent){
       <span class="assign-label">Players:</span>
       ${assigned.map(rid=>{
         const pl=S.roster.find(r=>r.id===rid);
-        return pl?`<span class="player-chip">#${pl.number} ${esc(pl.name)}<button class="chip-x" data-a="remove-player" data-pid="${play.id}" data-rid="${rid}">✕</button></span>`:'';
+        return pl?`<span class="player-chip">#${pl.number} ${esc(pl.name)}<button class="chip-x" data-a="remove-player" data-pid="${play.id}" data-rid="${rid}">&#10005;</button></span>`:'';
       }).join('')}
       ${!showDrop&&available.length>0?`<button class="add-player-btn" data-a="show-drop" data-pid="${play.id}">+ Player</button>`:''}
       ${showDrop?`<select class="player-select" data-a="assign-player" data-pid="${play.id}">
-        <option value="">Select player…</option>
+        <option value="">Select player...</option>
         ${available.map(r=>`<option value="${r.id}">#${r.number} ${esc(r.name)}</option>`).join('')}
       </select>`:''}
-      ${S.roster.length===0?`<span class="no-players-note">No players in roster</span>`:''}
+      ${S.roster.length===0?`<span style="color:#ccc;font-size:11px">No players in roster</span>`:''}
     </div>`:''}
   </div>`;
 }
 
-// ─── ROSTER MODAL ─────────────────────────────────────────────────────────────
 function renderRosterModal(){
   const sorted=[...S.roster].sort((a,b)=>a.number-b.number);
   const varsity=sorted.filter(p=>p.type==='varsity');
@@ -481,19 +449,19 @@ function renderRosterModal(){
   return`<div class="modal-overlay" id="modal-overlay">
     <div class="modal-panel">
       <div class="modal-hdr">
-        <span class="modal-hdr-title">👥 Roster (${S.roster.length}/15)</span>
+        <span class="modal-hdr-title">&#128101; Roster (${S.roster.length}/15)</span>
         <div style="display:flex;gap:7px">
           <button class="btn btn-gold btn-sm" data-a="save-roster">Save Roster</button>
-          <button class="btn btn-ghost btn-sm" data-a="close-roster">✕</button>
+          <button class="btn btn-ghost btn-sm" data-a="close-roster">&#10005;</button>
         </div>
       </div>
       <div class="modal-form">
         <div class="modal-form-title">Add Player</div>
-        <div class="modal-row">
+        <div style="display:flex;gap:6px;margin-bottom:7px">
           <input class="inp" id="r-num" placeholder="#" value="${esc(S.rNum)}" maxlength="2" style="width:48px;text-align:center">
           <input class="inp" id="r-name" placeholder="Full name" value="${esc(S.rName)}" style="flex:1">
         </div>
-        <div class="modal-row">
+        <div style="display:flex;gap:6px">
           <select class="inp" id="r-type" style="flex:1">
             <option value="varsity" ${S.rType==='varsity'?'selected':''}>Varsity</option>
             <option value="jv" ${S.rType==='jv'?'selected':''}>JV / Reserve</option>
@@ -503,25 +471,24 @@ function renderRosterModal(){
         ${S.rErr?`<div class="modal-err">${esc(S.rErr)}</div>`:''}
       </div>
       <div class="roster-list">
-        ${sorted.length===0?`<div class="roster-empty">No players yet</div>`:''}
+        ${sorted.length===0?`<div style="text-align:center;color:#bbb;padding:32px;font-size:13px">No players yet</div>`:''}
         ${varsity.length?`<div class="roster-type-hdr">Varsity</div>${varsity.map(p=>`
           <div class="roster-player">
             <span class="roster-num">#${p.number}</span>
-            <span class="roster-name">${esc(p.name)}</span>
-            <button class="roster-del" data-a="del-player" data-rid="${p.id}">✕</button>
+            <span style="flex:1;font-size:13px;color:var(--navy);font-weight:500">${esc(p.name)}</span>
+            <button style="background:none;border:none;color:#ccc;cursor:pointer;font-size:15px" data-a="del-player" data-rid="${p.id}">&#10005;</button>
           </div>`).join('')}`:''}
         ${jv.length?`<div class="roster-type-hdr">JV / Reserve</div>${jv.map(p=>`
           <div class="roster-player">
             <span class="roster-num">#${p.number}</span>
-            <span class="roster-name">${esc(p.name)}</span>
-            <button class="roster-del" data-a="del-player" data-rid="${p.id}">✕</button>
+            <span style="flex:1;font-size:13px;color:var(--navy);font-weight:500">${esc(p.name)}</span>
+            <button style="background:none;border:none;color:#ccc;cursor:pointer;font-size:15px" data-a="del-player" data-rid="${p.id}">&#10005;</button>
           </div>`).join('')}`:''}
       </div>
     </div>
   </div>`;
 }
 
-// ─── PRINT VIEW ───────────────────────────────────────────────────────────────
 function renderPrint(){
   const p=S.plan;
   const getPlayers=pid=>(p.selections[pid]||[]).map(id=>S.roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
@@ -539,61 +506,79 @@ function renderPrint(){
   }).filter(Boolean);
 
   const total=selCount(p);
-  const cols=Math.min(activeSecs.length,3)||1;
+  const BACK_IDS=['ob','zone','press'];
+  const frontSecs=activeSecs.filter(s=>!BACK_IDS.includes(s.id));
+  const backSecs=activeSecs.filter(s=>BACK_IDS.includes(s.id));
+  const frontCols=Math.min(frontSecs.length,3)||1;
+  const backCols=Math.min(backSecs.length,3)||1;
+
+  const renderSecs=secs=>secs.map(sec=>{
+    const sc=sec.color;
+    return`<div class="card-col">
+      <div class="card-sec-hdr" style="background:#0A1E3C;border-color:${sc}">
+        <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
+      </div>
+      ${sec.groups.map(grp=>{
+        const gc=grp.color||sec.color;
+        const gb=grp.bg||sec.bg;
+        return`<div>
+          <div class="card-grp-hdr" style="background:${gb};border-color:${gc}">
+            <span class="card-grp-code" style="color:${gc}">${esc(grp.code)}</span>
+            <span class="card-grp-name">${esc(grp.name)}</span>
+          </div>
+          ${grp.subs?grp.subs.map(sub=>`
+            <div class="card-sub-hdr" style="border-color:${sc}">
+              <span class="card-sub-code" style="color:${sc}">${esc(sub.code)}</span>
+              <span class="card-sub-name">${esc(sub.name)}</span>
+            </div>
+            ${sub.plays.map((pl,i)=>renderCardPlay(pl,sc,i%2===1,true,getPlayers(pl.id))).join('')}
+          `).join('')
+          :grp.plays.map((pl,i)=>renderCardPlay(pl,gc,i%2===1,false,getPlayers(pl.id))).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  const cardHdr=sub=>`
+    <div class="card-hdr">
+      <div>
+        <div class="card-eyebrow">Bishop Dwenger High School &middot; Fort Wayne, Indiana</div>
+        <div class="card-title">Boys' Basketball &mdash; Offensive Game Card${sub?' <span style="font-size:11px;opacity:.6">'+sub+'</span>':''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="card-opp">vs. ${p.opponent?esc(p.opponent):'&mdash;'}</div>
+        <div class="card-date">${p.date?fmtDate(p.date):'&mdash;'}</div>
+        <div class="card-coach">Ben Smith &middot; Head Coach</div>
+      </div>
+    </div>`;
+
+  const footer=`<div class="card-footer"><span class="card-footer-text">Bishop Dwenger Boys' Basketball &middot; Offensive Game Card &middot; Ben Smith &middot; Head Coach</span></div>`;
 
   return`
   <div class="print-controls no-print">
-    <button class="btn btn-ghost btn-sm" data-a="go-builder">← Back</button>
-    <span class="print-controls-title">${p.opponent?esc(p.opponent):'Game Plan'} — Print Preview
-      ${total===0?'<span style="color:#f99;font-size:12px;margin-left:10px">⚠ No plays selected</span>':''}</span>
-    <button class="btn btn-gold" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn btn-ghost btn-sm" data-a="go-builder">&larr; Back</button>
+    <span style="color:#fff;font-weight:bold;flex:1">${p.opponent?esc(p.opponent):'Game Plan'} &mdash; Print Preview
+      ${total===0?'<span style="color:#f99;font-size:12px;margin-left:10px">&#9888; No plays selected</span>':''}</span>
+    <button class="btn btn-gold" onclick="window.print()">&#128424; Print / Save PDF</button>
   </div>
   <div class="print-area">
-    <div class="card-hdr">
-      <div class="card-hdr-left">
-        <div class="card-eyebrow">Bishop Dwenger High School · Fort Wayne, Indiana</div>
-        <div class="card-title">Boys' Basketball — Offensive Game Card</div>
-      </div>
-      <div class="card-hdr-right">
-        <div class="card-opp">vs. ${p.opponent?esc(p.opponent):'—'}</div>
-        <div class="card-date">${p.date?fmtDate(p.date):'—'}</div>
-        <div class="card-coach">Ben Smith · Head Coach</div>
-      </div>
-    </div>
+    ${cardHdr('')}
     ${total===0
       ?`<div class="card-no-plays">No plays selected for this game plan.</div>`
-      :`<div class="card-body" style="grid-template-columns:repeat(${cols},1fr)">
-        ${activeSecs.map(sec=>{
-          const sc=sec.color;
-          return`<div class="card-col">
-            <div class="card-sec-hdr" style="background:#0A1E3C;border-color:${sc}">
-              <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
-            </div>
-            ${sec.groups.map(grp=>{
-              const gc=grp.color||sec.color;
-              const gb=grp.bg||sec.bg;
-              return`<div>
-                <div class="card-grp-hdr" style="background:${gb};border-color:${gc}">
-                  <span class="card-grp-code" style="color:${gc}">${esc(grp.code)}</span>
-                  <span class="card-grp-name">${esc(grp.name)}</span>
-                </div>
-                ${grp.subs?grp.subs.map(sub=>`
-                  <div class="card-sub-hdr" style="border-color:${sc}">
-                    <span class="card-sub-code" style="color:${sc}">${esc(sub.code)}</span>
-                    <span class="card-sub-name">${esc(sub.name)}</span>
-                  </div>
-                  ${sub.plays.map((pl,i)=>renderCardPlay(pl,sc,i%2===1,true,getPlayers(pl.id))).join('')}
-                `).join('')
-                :grp.plays.map((pl,i)=>renderCardPlay(pl,gc,i%2===1,false,getPlayers(pl.id))).join('')}
-              </div>`;
-            }).join('')}
-          </div>`;
-        }).join('')}
-      </div>`
+      :`<div class="card-body" style="grid-template-columns:repeat(${frontCols},1fr)">
+          ${renderSecs(frontSecs)}
+        </div>
+        ${footer}
+        <div style="page-break-before:always;break-before:page">
+          ${cardHdr('(OB &middot; Zone &middot; Press)')}
+          ${backSecs.length===0
+            ?`<div class="card-no-plays" style="font-size:12px;padding:24px">No OB / Zone / Press plays selected.</div>`
+            :`<div class="card-body" style="grid-template-columns:repeat(${backCols},1fr)">
+                ${renderSecs(backSecs)}
+              </div>`}
+          ${footer}
+        </div>`
     }
-    <div class="card-footer">
-      <span class="card-footer-text">Bishop Dwenger Boys' Basketball · Offensive Game Card · Ben Smith · Head Coach</span>
-    </div>
   </div>`;
 }
 
@@ -609,28 +594,18 @@ function renderCardPlay(play,color,alt,indent,players){
   </div>`;
 }
 
-// ─── EVENT HANDLERS ───────────────────────────────────────────────────────────
 function attachHandlers(){
-  // Builder inputs — update state without re-render
   const opp=document.getElementById('opp-input');
   const dt=document.getElementById('date-input');
   if(opp) opp.addEventListener('input',e=>{S.plan.opponent=e.target.value;});
   if(dt)  dt.addEventListener('input',e=>{S.plan.date=e.target.value;});
-
-  // Roster form inputs
   const rn=document.getElementById('r-num');
   const rname=document.getElementById('r-name');
   const rtype=document.getElementById('r-type');
   if(rn)    rn.addEventListener('input',e=>{S.rNum=e.target.value.replace(/\D/,'');});
-  if(rname) rname.addEventListener('input',e=>{S.rName=e.target.value;});
+  if(rname){rname.addEventListener('input',e=>{S.rName=e.target.value;});
+            rname.addEventListener('keydown',e=>{if(e.key==='Enter')doAddPlayer();});}
   if(rtype) rtype.addEventListener('change',e=>{S.rType=e.target.value;});
-  if(rname) rname.addEventListener('keydown',e=>{if(e.key==='Enter')doAddPlayer();});
-
-  // Import file input
-  const impFile=document.getElementById('import-file');
-  if(impFile) impFile.addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);});
-
-  // Player dropdown
   document.querySelectorAll('[data-a="assign-player"]').forEach(el=>{
     el.addEventListener('change',e=>{
       const pid=el.dataset.pid;
@@ -642,35 +617,30 @@ function attachHandlers(){
       setState({plan:{...S.plan,selections:sel},showDropFor:null});
     });
   });
-
+  const impFile=document.getElementById('import-file');
+  if(impFile) impFile.addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);});
 }
 
 function handleClick(e){
-  // Close modal when clicking the overlay backdrop directly
   if(e.target.id==='modal-overlay'){setState({showRoster:false});return;}
   const el=e.target.closest('[data-a]');
   if(!el)return;
   const a=el.dataset.a;
-
-  if(a==='export-data'){doExport();}
-  else if(a==='new-plan'){setState({plan:mkPlan(),view:'builder',openGroups:{},showDropFor:null,savedMsg:false});}
+  if(a==='new-plan')     setState({plan:mkPlan(),view:'builder',openGroups:{},showDropFor:null,savedMsg:false});
   else if(a==='edit-plan'){const p=S.plans.find(x=>x.id===el.dataset.id);setState({plan:{...p},view:'builder',openGroups:{},showDropFor:null,savedMsg:false});}
   else if(a==='print-plan'){const p=S.plans.find(x=>x.id===el.dataset.id);setState({plan:{...p},view:'print'});}
-  else if(a==='ask-del'){setState({confirmDel:el.dataset.id});}
-  else if(a==='cancel-del'){setState({confirmDel:null});}
-  else if(a==='confirm-del'){
-    const plans=S.plans.filter(p=>p.id!==el.dataset.id);
-    setState({plans,confirmDel:null});
-  }
+  else if(a==='ask-del')    setState({confirmDel:el.dataset.id});
+  else if(a==='cancel-del') setState({confirmDel:null});
+  else if(a==='confirm-del'){setState({plans:S.plans.filter(p=>p.id!==el.dataset.id),confirmDel:null});}
   else if(a==='open-roster'){setState({showRoster:true,rNum:'',rName:'',rType:'varsity',rErr:''});}
   else if(a==='close-roster'){setState({showRoster:false});}
   else if(a==='save-roster'){persist(SK.roster,S.roster);setState({showRoster:false});}
-  else if(a==='add-player'){doAddPlayer();}
-  else if(a==='del-player'){setState({roster:S.roster.filter(r=>r.id!==el.dataset.rid)});}
-  else if(a==='go-home'){setState({view:'home',plan:null});}
-  else if(a==='go-builder'){setState({view:'builder'});}
-  else if(a==='go-print'){setState({view:'print'});}
-  else if(a==='save-plan'){doSavePlan();}
+  else if(a==='add-player') doAddPlayer();
+  else if(a==='del-player') setState({roster:S.roster.filter(r=>r.id!==el.dataset.rid)});
+  else if(a==='go-home')    setState({view:'home',plan:null});
+  else if(a==='go-builder') setState({view:'builder'});
+  else if(a==='go-print')   setState({view:'print'});
+  else if(a==='save-plan')  doSavePlan();
   else if(a==='toggle-grp-open'){
     const og={...S.openGroups};
     og[el.dataset.gid]=!isOpen(el.dataset.gid);
@@ -695,7 +665,8 @@ function handleClick(e){
     sel[pid]=(sel[pid]||[]).filter(x=>x!==rid);
     setState({plan:{...S.plan,selections:sel}});
   }
-  else if(a==='show-drop'){setState({showDropFor:el.dataset.pid});}
+  else if(a==='show-drop')  setState({showDropFor:el.dataset.pid});
+  else if(a==='export-data') doExport();
 }
 
 function doAddPlayer(){
@@ -714,18 +685,13 @@ function doSavePlan(){
   setTimeout(()=>setState({savedMsg:false}),2200);
 }
 
-// ─── EXPORT / IMPORT ─────────────────────────────────────────────────────────
 function doExport(){
   const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;
-  a.download='saints-gamecard-'+new Date().toISOString().split('T')[0]+'.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  a.href=url;a.download='saints-gamecard-'+new Date().toISOString().split('T')[0]+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 
 function doImport(file){
@@ -733,25 +699,15 @@ function doImport(file){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!Array.isArray(data.roster)||!Array.isArray(data.plans)){
-        alert('Invalid file. Please use a file exported from the Saints Game Card Builder.');
-        return;
-      }
-      const msg=
-        'Import '+data.plans.length+' game plan(s) and '+data.roster.length+' player(s)?\n\n'+
-        'This will replace your current data. Export first if you want to keep it.';
-      if(confirm(msg)){
-        setState({roster:data.roster,plans:data.plans});
-      }
-    }catch{
-      alert('Could not read file. Make sure it is a valid Saints Game Card export (.json).');
-    }
+      if(!Array.isArray(data.roster)||!Array.isArray(data.plans)){alert('Invalid file.');return;}
+      const msg='Import '+data.plans.length+' game plan(s) and '+data.roster.length+' player(s)?\n\nThis will replace your current data.';
+      if(confirm(msg)){setState({roster:data.roster,plans:data.plans});}
+    }catch{alert('Could not read file.');}
   };
   reader.readAsText(file);
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('click', handleClick);
+document.addEventListener('click',handleClick);
 render();
 </script>
 </body>
