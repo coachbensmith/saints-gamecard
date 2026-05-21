@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saints — Practice Plan Builder</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0A1E3C;--gold:#C9A84C;--gold-l:#FEFCE8;
+  --green:#1A5C3A;--green-l:#EBF7F0;
+  --blue:#1D4E89;--blue-l:#EBF2FB;
+  --purple:#5B2D8E;--purp-l:#F3EEFF;
+  --red:#8B1A1A;--red-l:#FEF2F2;
+  --teal:#0F766E;--teal-l:#F0FDFA;
+  --orange:#92400E;--orange-l:#FFFBEB;
+  --lgray:#F4F4F4;--mgray:#999;--dgray:#333;
+}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#E0E0E0;min-height:100vh;font-size:14px;color:var(--dgray);}
+button,input,select,textarea{font-family:inherit;}
+
+/* TOPBAR */
+.topbar{background:var(--navy);border-bottom:4px solid var(--gold);padding:12px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:50;}
+.topbar-eyebrow{color:var(--gold);font-size:8px;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:2px;}
+.topbar-title{color:#fff;font-weight:bold;font-size:17px;}
+
+/* BUTTONS */
+.btn{border:none;border-radius:4px;padding:7px 14px;font-size:13px;font-weight:bold;cursor:pointer;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-ghost{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.btn-ghost-sm{background:transparent;border:1px solid #ccc;color:#555;padding:4px 9px;font-size:12px;font-weight:normal;}
+.btn-navy-sm{background:var(--navy);color:#fff;padding:4px 9px;font-size:12px;}
+.btn-danger-sm{background:#dc2626;color:#fff;padding:4px 9px;font-size:12px;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.btn-icon{background:transparent;border:none;cursor:pointer;padding:3px 5px;font-size:14px;color:#aaa;}
+.btn-icon:hover{color:var(--navy);}
+
+/* INPUTS */
+.inp{border:1px solid #ddd;border-radius:4px;padding:6px 10px;font-size:13px;outline:none;background:#fff;}
+.inp-dark{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:5px 10px;font-size:13px;outline:none;}
+.inp-dark::placeholder{color:rgba(255,255,255,.4);}
+.inp-sm{padding:4px 8px;font-size:12px;border:1px solid #ddd;border-radius:3px;background:#fff;}
+textarea.inp{resize:vertical;min-height:52px;}
+
+/* CONTENT AREA */
+.content{max-width:900px;margin:22px auto;padding:0 16px;}
+.section-label{color:var(--navy);font-weight:bold;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+
+/* HOME PLAN CARDS */
+.plan-card{background:#fff;border:1px solid #ddd;border-left:4px solid var(--gold);border-radius:5px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:8px;}
+.plan-name{font-weight:bold;font-size:15px;color:var(--navy);}
+.plan-meta{color:var(--mgray);font-size:11px;margin-top:3px;}
+.plan-actions{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.empty-state{text-align:center;padding:60px 0;color:#888;}
+.empty-icon{font-size:44px;margin-bottom:12px;}
+.empty-title{font-size:18px;font-weight:bold;color:var(--navy);margin-bottom:6px;}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:2px solid #ddd;margin-bottom:16px;}
+.tab{padding:8px 18px;font-size:13px;font-weight:bold;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;color:#999;}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+
+/* SEGMENT ROWS */
+.seg-list{display:flex;flex-direction:column;gap:6px;}
+.seg-card{background:#fff;border:1px solid #ddd;border-radius:5px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.seg-main{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;}
+.seg-clock{font-size:19px;font-weight:bold;color:var(--navy);min-width:60px;font-variant-numeric:tabular-nums;font-family:'Courier New',monospace;}
+.seg-name{font-weight:bold;font-size:13px;color:var(--navy);flex:1;}
+.seg-dur{font-size:12px;color:var(--mgray);white-space:nowrap;}
+.seg-tag{font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-left:4px;}
+.seg-team-tag{background:var(--gold-l);color:var(--orange);border:1px solid #f5d04a;}
+.seg-detail{padding:10px 12px 12px 80px;border-top:1px solid #f0f0f0;background:#fafafa;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.seg-detail-full{grid-column:1/-1;}
+.detail-label{font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:var(--mgray);margin-bottom:3px;}
+.detail-val{font-size:12px;color:var(--dgray);}
+.seg-controls{display:flex;gap:2px;align-items:center;}
+
+/* TOTALS BAR */
+.totals-bar{background:var(--navy);color:#fff;border-radius:5px;padding:9px 14px;display:flex;align-items:center;gap:16px;margin-bottom:12px;font-size:12px;}
+.totals-item{display:flex;flex-direction:column;align-items:center;}
+.totals-num{font-size:18px;font-weight:bold;color:var(--gold);font-family:'Courier New',monospace;}
+.totals-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:1px;}
+.totals-warn{color:#f99;font-size:11px;flex:1;}
+
+/* ROSTER TAB */
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:18px;}
+.att-card{border:1px solid #ddd;border-radius:5px;padding:8px 10px;display:flex;align-items:center;gap:8px;background:#fff;}
+.att-num{background:var(--navy);color:var(--gold);font-weight:bold;font-size:11px;border-radius:3px;padding:2px 5px;min-width:28px;text-align:center;}
+.att-name{font-size:12px;font-weight:500;color:var(--navy);flex:1;}
+.att-btn{font-size:11px;font-weight:bold;padding:3px 7px;border:none;border-radius:3px;cursor:pointer;}
+.att-present{background:#dcfce7;color:#166534;}
+.att-limited{background:#fef9c3;color:#854d0e;}
+.att-absent{background:#fee2e2;color:#991b1b;}
+
+/* GROUPS */
+.groups-config{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.group-block{border:1px solid #ddd;border-radius:5px;background:#fff;overflow:hidden;margin-bottom:8px;}
+.group-hdr{background:var(--lgray);padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #ddd;}
+.group-members{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;min-height:36px;}
+.group-chip{background:var(--navy);color:#fff;font-size:11px;border-radius:3px;padding:2px 8px;}
+.player-assign-row{display:flex;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid #f5f5f5;background:#fff;}
+.player-assign-row:last-child{border-bottom:none;}
+
+/* SHOOTING STATS TABLE */
+.stats-table{width:100%;border-collapse:collapse;background:#fff;border-radius:5px;overflow:hidden;border:1px solid #ddd;font-size:12px;}
+.stats-table th{background:var(--navy);color:#fff;padding:7px 8px;text-align:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:bold;}
+.stats-table th.left{text-align:left;}
+.stats-table td{padding:6px 8px;text-align:center;border-bottom:1px solid #f0f0f0;}
+.stats-table td.left{text-align:left;font-weight:500;color:var(--navy);}
+.stats-table tr:last-child td{border-bottom:none;}
+.stats-table tr.total-row td{background:var(--lgray);font-weight:bold;color:var(--navy);border-top:2px solid #ddd;}
+.stats-table tr.absent-row td{opacity:.4;}
+.stat-inp{width:42px;text-align:center;border:1px solid #ddd;border-radius:3px;padding:3px 4px;font-size:12px;}
+.pct-cell{color:var(--mgray);font-size:11px;}
+
+/* LIBRARY VIEW */
+.lib-card{background:#fff;border:1px solid #ddd;border-left:4px solid var(--green);border-radius:5px;padding:10px 14px;margin-bottom:7px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.lib-name{font-weight:bold;font-size:13px;color:var(--navy);}
+.lib-meta{font-size:11px;color:var(--mgray);margin-top:2px;}
+.cat-badge{display:inline-block;font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-right:4px;}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:#fff;border-radius:6px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal-hdr{background:var(--navy);padding:13px 16px;border-bottom:3px solid var(--gold);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-radius:6px 6px 0 0;}
+.modal-hdr-title{color:#fff;font-weight:bold;font-size:14px;}
+.modal-body{overflow-y:auto;padding:16px;flex:1;}
+.modal-footer{padding:12px 16px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;}
+.field{margin-bottom:13px;}
+.field-label{font-size:11px;font-weight:bold;color:var(--navy);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.toggle-group{display:flex;border:1px solid #ddd;border-radius:4px;overflow:hidden;}
+.toggle-opt{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:bold;cursor:pointer;border:none;background:#fff;color:#999;}
+.toggle-opt.active{background:var(--navy);color:#fff;}
+.drill-list{border:1px solid #ddd;border-radius:4px;max-height:200px;overflow-y:auto;}
+.drill-opt{padding:8px 10px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:12px;}
+.drill-opt:hover{background:var(--lgray);}
+.drill-opt.selected{background:var(--blue-l);font-weight:bold;color:var(--navy);}
+.drill-opt:last-child{border-bottom:none;}
+
+/* ROSTER SIDE PANEL */
+.side-panel{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-start;justify-content:flex-end;}
+.side-body{background:#fff;width:320px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.18);display:flex;flex-direction:column;}
+.side-hdr{background:var(--navy);padding:13px 16px;border-bottom:3px solid var(--gold);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.side-hdr-title{color:#fff;font-weight:bold;font-size:14px;}
+.side-form{padding:13px 14px;border-bottom:1px solid #eee;background:#fafafa;flex-shrink:0;}
+.side-form-title{font-weight:bold;font-size:11px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+.roster-type-hdr{padding:5px 14px;font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:var(--mgray);background:#f5f5f5;border-top:1px solid #eee;border-bottom:1px solid #eee;}
+.roster-player{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid #f5f5f5;}
+.roster-num{background:var(--navy);color:var(--gold);font-weight:bold;font-size:12px;border-radius:3px;padding:2px 5px;margin-right:10px;min-width:30px;text-align:center;}
+
+/* PRINT */
+@media print{
+  .no-print{display:none!important;}
+  body{background:#fff;margin:0;}
+  .print-wrap{max-width:100%;margin:0;box-shadow:none;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:0.4in;size:letter;}
+}
+.print-wrap{background:#fff;max-width:980px;margin:18px auto;box-shadow:0 2px 16px rgba(0,0,0,.12);}
+.print-hdr{background:var(--navy);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--gold);}
+.print-hdr-left .eyebrow{color:var(--gold);font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;}
+.print-hdr-left .title{color:#fff;font-size:16px;font-weight:bold;}
+.print-hdr-right{text-align:right;}
+.print-hdr-right .opp{color:var(--gold);font-weight:bold;font-size:13px;}
+.print-hdr-right .sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:2px;}
+.print-body{padding:12px 14px;}
+.plan-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:11px;}
+.plan-table th{background:var(--navy);color:#fff;padding:6px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase;}
+.plan-table th.center{text-align:center;}
+.plan-table td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:top;}
+.plan-table td.clock{font-family:'Courier New',monospace;font-size:14px;font-weight:bold;color:var(--navy);text-align:center;white-space:nowrap;}
+.plan-table td.dur{text-align:center;font-weight:bold;color:var(--navy);}
+.plan-table tr:nth-child(even) td{background:#fafafa;}
+.plan-table tr.team-row td{background:var(--gold-l);}
+.team-goal-print{font-weight:bold;color:var(--orange);font-size:10px;}
+.print-section-hdr{background:var(--lgray);padding:5px 8px;border-left:3px solid var(--gold);font-weight:bold;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:8px;}
+.print-groups{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.print-group{border:1px solid #ddd;border-radius:4px;padding:6px 10px;min-width:120px;}
+.print-group-name{font-weight:bold;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:4px;}
+.print-group-players{font-size:10px;color:var(--dgray);}
+.print-footer{border-top:1px solid var(--gold);padding:5px 14px;text-align:center;}
+.print-footer-text{color:#bbb;font-size:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ── CATEGORIES ────────────────────────────────────────────────────────────────
+const CATEGORIES=['Warmup','Ball Handling','Passing','Shooting','Finishing','Offense','Defense','Rebounding','Conditioning','Scrimmage','Team','Special Situations','Other'];
+const CAT_COLOR={
+  'Warmup':'#92400E','Ball Handling':'#1D4E89','Shooting':'#1A5C3A',
+  'Offense':'#0A1E3C','Defense':'#8B1A1A','Conditioning':'#5B2D8E',
+  'Passing':'#0369A1','Finishing':'#B45309','Scrimmage':'#0F766E','Special Situations':'#C9A84C','Other':'#666'
+};
+const CAT_BG={
+  'Warmup':'#FFFBEB','Ball Handling':'#EBF2FB','Shooting':'#EBF7F0',
+  'Offense':'#E8EDF5','Defense':'#FEF2F2','Conditioning':'#F3EEFF',
+  'Passing':'#E0F2FE','Finishing':'#FEF3C7','Scrimmage':'#F0FDFA','Special Situations':'#FEFCE8','Other':'#F4F4F4'
+};
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const SK={roster:'bd_roster_v1',plans:'bd_pp_plans_v1',library:'bd_pp_library_v1'};
+const load=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
+const persist=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const S={
+  roster:load(SK.roster)||[],
+  plans:load(SK.plans)||[],
+  library:load(SK.library)||[],
+  view:'home',      // home | builder | library | print
+  plan:null,
+  builderTab:'plan',// plan | roster
+  showRoster:false,
+  confirmDel:null,
+  savedMsg:false,
+  expandedSegs:{},
+  libFilter:'All',
+  showAddPair:false,
+  pairForm:{p1:'',p2:''},
+  // seg modal
+  showSegModal:false,
+  editSegId:null,
+  segForm:{type:'custom',drillId:null,name:'',duration:'10',setup:'',emphasis:'',isTeam:false,teamGoal:''},
+  // lib modal
+  showLibModal:false,
+  editDrillId:null,
+  drillForm:{name:'',category:'Warmup',defaultDuration:'10',defaultSetup:'',defaultEmphasis:'',isTeamDrill:false},
+  // roster form
+  rNum:'',rName:'',rType:'varsity',rErr:'',
+  // groups config
+  numGroups:2,
+  groupNames:['Group 1','Group 2','Group 3','Group 4'],
+};
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const fmtDate=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}catch{return d||'';}};
+const fmtScore=mins=>{const m=Math.max(0,Math.round(mins));return m.toString().padStart(2,'0')+':00';};
+const pct=(m,a)=>a>0?Math.round(m/a*100)+'%':'—';
+
+function mkPlan(){
+  const mkGing=(name,n)=>({id:uid(),name,groups:Array.from({length:n},(_,i)=>({id:uid(),name:'Group '+(i+1),playerIds:[]}))});
+  return{id:uid(),date:'',startTime:'',totalMinutes:90,location:'',notes:'',segments:[],
+    attendance:{},partners:[],groups:[],teams:{navy:[],white:[],gold:[]},
+    shootingStats:{},createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+}
+function mkSeg(){
+  return{id:uid(),type:'custom',drillId:null,name:'',duration:10,setup:'',emphasis:'',isTeam:false,teamGoal:''};
+}
+function calcScoreboards(segs,total){
+  const times=[];let elapsed=0;
+  for(const s of segs){times.push(total-elapsed);elapsed+=parseInt(s.duration)||0;}
+  return times;
+}
+function totalUsed(segs){return segs.reduce((a,s)=>a+(parseInt(s.duration)||0),0);}
+
+function setState(patch){
+  const sy=window.scrollY;
+  Object.assign(S,patch);
+  if(patch.roster!==undefined)persist(SK.roster,S.roster);
+  if(patch.plans!==undefined)persist(SK.plans,S.plans);
+  if(patch.library!==undefined)persist(SK.library,S.library);
+  render();
+  window.scrollTo(0,sy);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  let html='';
+  if(S.view==='home')    html=renderHome();
+  if(S.view==='builder') html=renderBuilder();
+  if(S.view==='library') html=renderLibrary();
+  if(S.view==='print')   html=renderPrint();
+  if(S.showRoster)       html+=renderRosterPanel();
+  if(S.showSegModal)     html+=renderSegModal();
+  if(S.showLibModal)     html+=renderLibModal();
+  document.getElementById('app').innerHTML=html;
+  attachHandlers();
+}
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const plans=[...S.plans];
+  return`
+  <div class="topbar">
+    <div style="flex:1">
+      <span class="topbar-eyebrow">Bishop Dwenger High School · Fort Wayne, Indiana</span>
+      <span class="topbar-title">Boys' Basketball — Practice Plan Builder</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" data-a="open-roster">👥 Roster${S.roster.length?` (${S.roster.length})`:''}</button>
+    <button class="btn btn-ghost btn-sm" data-a="go-library">📚 Drill Library${S.library.length?` (${S.library.length})`:''}</button>
+    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export all data">⬆ Export</button>
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Import exported file">⬇ Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
+    <button class="btn btn-gold" data-a="new-plan">+ New Plan</button>
+  </div>
+  <div class="content">
+    ${plans.length===0?`
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No practice plans yet</div>
+        <div style="margin-bottom:18px;font-size:13px">Build your first practice plan.</div>
+        <button class="btn btn-gold" data-a="new-plan">+ New Plan</button>
+      </div>`:`
+      <div class="section-label">Practice Plans (${plans.length})</div>
+      ${plans.map(p=>{
+        const used=totalUsed(p.segments);
+        const segs=p.segments.length;
+        return`<div class="plan-card">
+          <div>
+            <div class="plan-name">${p.date?fmtDate(p.date):'<span style="color:#bbb">No date set</span>'}${p.location?` <span style="color:var(--mgray);font-size:12px;font-weight:normal">· ${esc(p.location)}</span>`:''}</div>
+            <div class="plan-meta">${p.totalMinutes} min total · ${segs} segment${segs!==1?'s':''} · ${used} min planned${used>p.totalMinutes?` <span style="color:#dc2626">⚠ ${used-p.totalMinutes} over</span>`:''}</div>
+          </div>
+          <div class="plan-actions">
+            <button class="btn btn-ghost-sm" data-a="print-plan" data-id="${p.id}">🖨 Print</button>
+            <button class="btn btn-navy-sm" data-a="edit-plan" data-id="${p.id}">Edit</button>
+            ${S.confirmDel===p.id?`
+              <button class="btn btn-danger-sm" data-a="confirm-del" data-id="${p.id}">Delete</button>
+              <button class="btn btn-ghost-sm" data-a="cancel-del">Cancel</button>`
+            :`<button class="btn btn-ghost-sm" data-a="ask-del" data-id="${p.id}">✕</button>`}
+          </div>
+        </div>`;
+      }).join('')}
+    `}
+  </div>`;
+}
+
+// ── BUILDER ───────────────────────────────────────────────────────────────────
+function renderBuilder(){
+  const p=S.plan;
+  const used=totalUsed(p.segments);
+  const over=used>parseInt(p.totalMinutes||0);
+  return`
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" data-a="go-home">← Back</button>
+    <input class="inp-dark" id="date-inp" type="date" value="${esc(p.date||'')}" style="width:140px">
+    <input class="inp-dark" id="time-inp" type="time" value="${esc(p.startTime||'')}" style="width:110px" title="Practice start time">
+    <input class="inp-dark" id="loc-inp" placeholder="Location" value="${esc(p.location||'')}" style="width:140px">
+    <div style="display:flex;align-items:center;gap:5px">
+      <input class="inp-dark" id="total-inp" type="number" min="1" max="240" value="${p.totalMinutes||90}" style="width:58px;text-align:center">
+      <span style="color:rgba(255,255,255,.4);font-size:12px">min</span>
+    </div>
+    <span style="color:${over?'#f99':'rgba(255,255,255,.4)'};font-size:12px;flex:1">${used}/${p.totalMinutes||0} min planned${over?` (${used-(p.totalMinutes||0)} over)`:''}</span>
+    <button class="btn btn-ghost btn-sm" data-a="open-roster">👥 Roster</button>
+    <button class="btn btn-ghost btn-sm" data-a="go-print">🖨 Preview</button>
+    <button class="btn btn-gold btn-sm" id="save-btn" data-a="save-plan" style="min-width:68px">${S.savedMsg?'✓ Saved':'Save'}</button>
+  </div>
+  <div class="content">
+    <div class="tab-bar">
+      <div class="tab${S.builderTab==='plan'?' active':''}" data-a="tab" data-tab="plan">Practice Plan</div>
+      <div class="tab${S.builderTab==='roster'?' active':''}" data-a="tab" data-tab="roster">Roster Day</div>
+    </div>
+    ${S.builderTab==='plan'?renderPlanTab():renderRosterTab()}
+  </div>`;
+}
+
+function renderPlanTab(){
+  const p=S.plan;
+  const segs=p.segments;
+  const times=calcScoreboards(segs,parseInt(p.totalMinutes)||0);
+  const used=totalUsed(segs);
+  const remaining=(parseInt(p.totalMinutes)||0)-used;
+  return`
+    <div class="totals-bar">
+      <div class="totals-item"><span class="totals-num">${fmtScore(parseInt(p.totalMinutes)||0)}</span><span class="totals-lbl">Total</span></div>
+      <div class="totals-item"><span class="totals-num">${used}</span><span class="totals-lbl">Min Used</span></div>
+      <div class="totals-item"><span class="totals-num" style="color:${remaining<0?'#f99':remaining===0?'#86efac':'var(--gold)'}">${remaining}</span><span class="totals-lbl">Remaining</span></div>
+      <div class="totals-item"><span class="totals-num">${segs.length}</span><span class="totals-lbl">Segments</span></div>
+      ${remaining<0?`<span class="totals-warn">⚠ Plan exceeds total time by ${Math.abs(remaining)} min</span>`:''}
+    </div>
+    <div class="seg-list">
+      ${segs.length===0?`<div style="text-align:center;padding:40px 0;color:#aaa;font-size:13px">No segments yet — add one below</div>`:''}
+      ${segs.map((seg,i)=>{
+        const open=S.expandedSegs[seg.id]!==false;
+        const color=seg.type==='library'?(CAT_COLOR[seg.category]||'#666'):'#0A1E3C';
+        return`<div class="seg-card" style="border-left:4px solid ${color}">
+          <div class="seg-main" data-a="toggle-seg" data-sid="${seg.id}">
+            <span class="seg-clock">${fmtScore(times[i])}</span>
+            <span class="seg-name">${esc(seg.name)||'<span style="color:#bbb">Unnamed</span>'}</span>
+            ${seg.isTeam?`<span class="seg-tag seg-team-tag">Team</span>`:''}
+            <span class="seg-dur">${seg.duration} min</span>
+            <div class="seg-controls">
+              ${i>0?`<button class="btn-icon" data-a="move-up" data-idx="${i}" title="Move up">↑</button>`:''}
+              ${i<segs.length-1?`<button class="btn-icon" data-a="move-down" data-idx="${i}" title="Move down">↓</button>`:''}
+              <button class="btn-icon" data-a="edit-seg" data-sid="${seg.id}" title="Edit">✏️</button>
+              <button class="btn-icon" data-a="del-seg" data-sid="${seg.id}" title="Delete" style="color:#ccc">✕</button>
+            </div>
+            <span style="color:#ccc;font-size:11px;margin-left:4px">${open?'▾':'▸'}</span>
+          </div>
+          ${open?`<div class="seg-detail">
+            <div>
+              <div class="detail-label">Setup / Equipment</div>
+              <div class="detail-val">${esc(seg.setup)||'<span style="color:#ccc">—</span>'}</div>
+            </div>
+            <div>
+              <div class="detail-label">Emphasis / Goal</div>
+              <div class="detail-val">${esc(seg.emphasis)||'<span style="color:#ccc">—</span>'}</div>
+            </div>
+            ${seg.isTeam?`<div class="seg-detail-full">
+              <div class="detail-label">Team Goal</div>
+              <div class="detail-val" style="font-weight:bold;color:var(--orange)">${esc(seg.teamGoal)||'<span style="color:#ccc;font-weight:normal">—</span>'}</div>
+            </div>`:''}
+          </div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-ghost" data-a="open-add-seg" style="flex:1">+ Add from Library</button>
+      <button class="btn btn-navy" data-a="open-add-seg-custom" style="flex:1">+ Add Custom</button>
+    </div>`;
+}
+
+// ── ROSTER DAY TAB ────────────────────────────────────────────────────────────
+function renderRosterTab(){
+  const p=S.plan;
+  const roster=[...S.roster].sort((a,b)=>a.number-b.number);
+  if(roster.length===0){
+    return`<div style="text-align:center;padding:40px 0;color:#aaa;font-size:13px">
+      No players in roster. <button class="btn btn-ghost btn-sm" data-a="open-roster" style="margin-top:8px">Add players</button></div>`;
+  }
+  const att=p.attendance||{};
+  const getAtt=pid=>att[pid]||'present';
+  const presentPlayers=roster.filter(r=>getAtt(r.id)!=='absent');
+
+  // ── Attendance ────────────────────────────────────────────────────────────
+  const attHtml=`
+    <div class="section-label">Attendance</div>
+    <div class="att-grid" style="margin-bottom:22px">
+      ${roster.map(pl=>{
+        const status=getAtt(pl.id);
+        return`<div class="att-card" style="border-left:3px solid ${status==='present'?'#16a34a':status==='limited'?'#ca8a04':'#dc2626'}">
+          <span class="att-num">#${pl.number}</span>
+          <span class="att-name">${esc(pl.name)}</span>
+          <button class="att-btn att-${status}" data-a="cycle-att" data-pid="${pl.id}" title="Click to cycle status">${status==='present'?'✓':status==='limited'?'~':'✗'}</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // ── Partners ──────────────────────────────────────────────────────────────
+  const partners=p.partners||[];
+  const pairedIds=partners.flatMap(pair=>pair.playerIds||[]);
+  const availForPair=presentPlayers.filter(pl=>!pairedIds.includes(pl.id));
+  const partnersHtml=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-label" style="margin-bottom:0">Partners</div>
+      ${!S.showAddPair?`<button class="btn btn-navy btn-sm" data-a="show-add-pair">+ Add Pair</button>`:''}
+    </div>
+    ${partners.length===0&&!S.showAddPair?`<div style="color:#aaa;font-size:12px;margin-bottom:8px">No pairs yet.</div>`:''}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;margin-bottom:10px">
+      ${partners.map(pair=>{
+        const pls=pair.playerIds.map(pid=>roster.find(r=>r.id===pid)).filter(Boolean);
+        return`<div style="border:1px solid #ddd;border-radius:5px;padding:8px 12px;background:#fff;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+          <div style="flex:1">
+            ${pls.map(pl=>`<span style="background:var(--navy);color:#fff;font-size:11px;border-radius:3px;padding:2px 7px;display:inline-block;margin:2px">#${pl.number} ${esc(pl.name)}</span>`).join('<span style="color:#aaa;font-size:11px;margin:0 2px">+</span>')}
+          </div>
+          <button class="btn-icon" data-a="del-pair" data-pairid="${pair.id}" style="color:#ccc;font-size:13px">✕</button>
+        </div>`;
+      }).join('')}
+    </div>
+    ${S.showAddPair?`
+      <div style="border:1px solid var(--gold);border-radius:5px;padding:10px 12px;background:var(--gold-l);margin-bottom:12px">
+        <div style="font-size:11px;font-weight:bold;color:var(--navy);margin-bottom:8px">New Pair</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select class="inp" id="pair-p1" style="flex:1;min-width:120px">
+            <option value="">Player 1…</option>
+            ${availForPair.map(pl=>`<option value="${pl.id}" ${S.pairForm.p1===pl.id?'selected':''}>#${pl.number} ${esc(pl.name)}</option>`).join('')}
+          </select>
+          <span style="color:#aaa;font-weight:bold">+</span>
+          <select class="inp" id="pair-p2" style="flex:1;min-width:120px">
+            <option value="">Player 2…</option>
+            ${availForPair.filter(pl=>pl.id!==S.pairForm.p1).map(pl=>`<option value="${pl.id}" ${S.pairForm.p2===pl.id?'selected':''}>#${pl.number} ${esc(pl.name)}</option>`).join('')}
+          </select>
+          <button class="btn btn-gold btn-sm" data-a="add-pair">Add</button>
+          <button class="btn btn-ghost-sm" data-a="cancel-add-pair">Cancel</button>
+        </div>
+      </div>`:''}
+    <div style="margin-bottom:20px"></div>`;
+
+  // ── Groups ─────────────────────────────────────────────────────────────────
+  const groups=p.groups||[];
+  const groupsHtml=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-label" style="margin-bottom:0">Groups</div>
+      <button class="btn btn-navy btn-sm" data-a="add-group">+ Add Group</button>
+    </div>
+    ${groups.length===0?`<div style="color:#aaa;font-size:12px;margin-bottom:8px">No groups yet.</div>`:''}
+    ${groups.map(grp=>`
+      <div style="border:1px solid #ddd;border-radius:5px;overflow:hidden;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+        <div style="background:var(--lgray);padding:6px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #ddd">
+          <input class="inp-sm" id="grp-name-${grp.id}" data-grpid="${grp.id}" value="${esc(grp.name)}" placeholder="Group name" style="font-weight:bold;flex:1">
+          <span style="font-size:11px;color:var(--mgray)">${(grp.playerIds||[]).length} player${(grp.playerIds||[]).length!==1?'s':''}</span>
+          <button class="btn-icon" data-a="del-group" data-grpid="${grp.id}" style="color:#ccc">✕</button>
+        </div>
+        <div style="padding:8px 10px;display:flex;flex-wrap:wrap;gap:5px;min-height:36px;background:#fff">
+          ${(grp.playerIds||[]).map(pid=>{
+            const pl=roster.find(r=>r.id===pid);
+            return pl?`<span class="group-chip">#${pl.number} ${esc(pl.name)}&nbsp;<span data-a="remove-from-group" data-pid="${pid}" data-grpid="${grp.id}" style="cursor:pointer;opacity:.6;font-size:10px">✕</span></span>`:'';
+          }).join('')}
+        </div>
+      </div>`).join('')}
+    ${groups.length>0?`
+      <div style="border:1px solid #ddd;border-radius:5px;background:#fff;margin-bottom:20px">
+        <div style="padding:6px 12px;background:var(--lgray);border-bottom:1px solid #eee;font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:var(--mgray)">Assign Players to Groups</div>
+        ${presentPlayers.map(pl=>{
+          const inGrp=groups.find(g=>(g.playerIds||[]).includes(pl.id));
+          return`<div class="player-assign-row">
+            <span class="att-num">#${pl.number}</span>
+            <span style="flex:1;font-size:12px;font-weight:500;color:var(--navy)">${esc(pl.name)}</span>
+            <select class="inp-sm" data-a="assign-group" data-pid="${pl.id}">
+              <option value="">— Unassigned —</option>
+              ${groups.map(g=>`<option value="${g.id}" ${inGrp&&inGrp.id===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}
+            </select>
+          </div>`;
+        }).join('')}
+      </div>`:'<div style="margin-bottom:20px"></div>'}`;
+
+  // ── Shooting Stats ────────────────────────────────────────────────────────
+  const stats=p.shootingStats||{};
+  const getStat=(pid,cat,field)=>(stats[pid]&&stats[pid][cat]?stats[pid][cat][field]:0)||0;
+  let teamFTM=0,teamFTA=0,teamTPM=0,teamTPA=0;
+  presentPlayers.forEach(pl=>{
+    teamFTM+=getStat(pl.id,'ft','makes');
+    teamFTA+=getStat(pl.id,'ft','attempts');
+    teamTPM+=getStat(pl.id,'tp','makes');
+    teamTPA+=getStat(pl.id,'tp','attempts');
+  });
+
+  // ── Teams ──────────────────────────────────────────────────────────────────
+  const teams=p.teams||{navy:[],white:[],gold:[]};
+  const navyIds=teams.navy||[];
+  const whiteIds=teams.white||[];
+  const getTeam=pid=>navyIds.includes(pid)?'navy':whiteIds.includes(pid)?'white':(p.teams?.gold||[]).includes(pid)?'gold':'';
+  const teamsHtml=`
+    <div class="section-label" style="margin-bottom:10px">Teams</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="border:2px solid #0A1E3C;border-radius:6px;overflow:hidden">
+        <div style="background:#0A1E3C;padding:7px 12px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#fff;font-weight:bold;font-size:13px">🟦 Navy Team</span>
+          <span style="color:rgba(255,255,255,.55);font-size:11px">${navyIds.length} player${navyIds.length!==1?'s':''}</span>
+        </div>
+        <div style="padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:44px;background:#E8EDF5">
+          ${navyIds.map(pid=>{
+            const pl=roster.find(r=>r.id===pid);
+            return pl?`<span style="background:#0A1E3C;color:#fff;font-size:11px;border-radius:3px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px">#${pl.number} ${esc(pl.name)}<span data-a="remove-from-team" data-pid="${pid}" data-team="navy" style="cursor:pointer;opacity:.6;font-size:10px">✕</span></span>`:'';
+          }).join('')}
+        </div>
+      </div>
+      <div style="border:2px solid #64748B;border-radius:6px;overflow:hidden">
+        <div style="background:#64748B;padding:7px 12px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#fff;font-weight:bold;font-size:13px">⚪ White Team</span>
+          <span style="color:rgba(255,255,255,.55);font-size:11px">${whiteIds.length} player${whiteIds.length!==1?'s':''}</span>
+        </div>
+        <div style="padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:44px;background:#F8FAFC">
+          ${whiteIds.map(pid=>{
+            const pl=roster.find(r=>r.id===pid);
+            return pl?`<span style="background:#64748B;color:#fff;font-size:11px;border-radius:3px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px">#${pl.number} ${esc(pl.name)}<span data-a="remove-from-team" data-pid="${pid}" data-team="white" style="cursor:pointer;opacity:.6;font-size:10px">✕</span></span>`:'';
+          }).join('')}
+        </div>
+      </div>
+      <div style="border:2px solid #C9A84C;border-radius:6px;overflow:hidden">
+        <div style="background:#C9A84C;padding:7px 12px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#0A1E3C;font-weight:bold;font-size:13px">🟡 Gold Team</span>
+          <span style="color:rgba(10,30,60,.55);font-size:11px">${(p.teams?.gold||[]).length} player${(p.teams?.gold||[]).length!==1?'s':''}</span>
+        </div>
+        <div style="padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:44px;background:#FEFCE8">
+          ${(p.teams?.gold||[]).map(pid=>{
+            const pl=roster.find(r=>r.id===pid);
+            return pl?`<span style="background:#C9A84C;color:#0A1E3C;font-size:11px;border-radius:3px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;font-weight:bold">#${pl.number} ${esc(pl.name)}<span data-a="remove-from-team" data-pid="${pid}" data-team="gold" style="cursor:pointer;opacity:.6;font-size:10px">✕</span></span>`:'';
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div style="border:1px solid #ddd;border-radius:5px;background:#fff;margin-bottom:20px">
+      <div style="padding:6px 12px;background:var(--lgray);border-bottom:1px solid #eee;font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:var(--mgray)">Assign Players to Teams</div>
+      ${presentPlayers.map(pl=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid #f5f5f5">
+          <span class="att-num">#${pl.number}</span>
+          <span style="flex:1;font-size:12px;font-weight:500;color:var(--navy)">${esc(pl.name)}</span>
+          <select class="inp-sm" data-a="assign-team" data-pid="${pl.id}">
+            <option value="" ${getTeam(pl.id)===''?'selected':''}>— Unassigned —</option>
+            <option value="navy" ${getTeam(pl.id)==='blue'?'selected':''}>🟦 Navy</option>
+            <option value="white" ${getTeam(pl.id)==='white'?'selected':''}>⚪ White</option>
+            <option value="gold" ${getTeam(pl.id)==='gold'?'selected':''}>🟡 Gold</option>
+          </select>
+        </div>`).join('')}
+    </div>`;
+
+  const statsHtml=`
+    <div class="section-label">Shooting Stats</div>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th class="left" colspan="2">Player</th>
+          <th colspan="3">Free Throws</th>
+          <th colspan="3">3-Pointers</th>
+        </tr>
+        <tr>
+          <th class="left">#</th><th class="left">Name</th>
+          <th>Makes</th><th>Att</th><th>%</th>
+          <th>Makes</th><th>Att</th><th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${roster.map(pl=>{
+          const absent=getAtt(pl.id)==='absent';
+          const ftm=getStat(pl.id,'ft','makes'),fta=getStat(pl.id,'ft','attempts');
+          const tpm=getStat(pl.id,'tp','makes'),tpa=getStat(pl.id,'tp','attempts');
+          return`<tr class="${absent?'absent-row':''}">
+            <td class="left">${pl.number}</td>
+            <td class="left">${esc(pl.name)}</td>
+            <td><input type="number" class="stat-inp" min="0" data-stat="ft-makes" data-pid="${pl.id}" value="${ftm}" ${absent?'disabled':''}></td>
+            <td><input type="number" class="stat-inp" min="0" data-stat="ft-attempts" data-pid="${pl.id}" value="${fta}" ${absent?'disabled':''}></td>
+            <td class="pct-cell">${absent?'—':pct(ftm,fta)}</td>
+            <td><input type="number" class="stat-inp" min="0" data-stat="tp-makes" data-pid="${pl.id}" value="${tpm}" ${absent?'disabled':''}></td>
+            <td><input type="number" class="stat-inp" min="0" data-stat="tp-attempts" data-pid="${pl.id}" value="${tpa}" ${absent?'disabled':''}></td>
+            <td class="pct-cell">${absent?'—':pct(tpm,tpa)}</td>
+          </tr>`;
+        }).join('')}
+        <tr class="total-row">
+          <td colspan="2" class="left">Team Total</td>
+          <td>${teamFTM}</td><td>${teamFTA}</td><td class="pct-cell">${pct(teamFTM,teamFTA)}</td>
+          <td>${teamTPM}</td><td>${teamTPA}</td><td class="pct-cell">${pct(teamTPM,teamTPA)}</td>
+        </tr>
+      </tbody>
+    </table>`;
+
+  return attHtml+partnersHtml+groupsHtml+teamsHtml+statsHtml;
+}
+
+// ── LIBRARY VIEW ──────────────────────────────────────────────────────────────
+function renderLibrary(){
+  const filter=S.libFilter;
+  const drills=S.library.filter(d=>filter==='All'||d.category===filter);
+  return`
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" data-a="go-home">← Back</button>
+    <span class="topbar-title" style="flex:1">📚 Drill Library</span>
+    <button class="btn btn-gold" data-a="open-add-drill">+ Add Drill</button>
+  </div>
+  <div class="content">
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+      ${['All',...CATEGORIES].map(c=>`<button class="btn ${filter===c?'btn-navy':'btn-ghost-sm'} btn-sm" data-a="lib-filter" data-cat="${c}">${c}</button>`).join('')}
+    </div>
+    ${drills.length===0?`<div style="text-align:center;padding:40px 0;color:#aaa;font-size:13px">${S.library.length===0?'No drills yet — add your first one.':'No drills in this category.'}</div>`:''}
+    ${drills.map(d=>{
+      const color=CAT_COLOR[d.category]||'#666';
+      const bg=CAT_BG[d.category]||'#f5f5f5';
+      return`<div class="lib-card" style="border-color:${color}">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+            <span class="cat-badge" style="background:${bg};color:${color}">${d.category}</span>
+            ${d.isTeamDrill?`<span class="cat-badge seg-team-tag">Team Drill</span>`:''}
+          </div>
+          <div class="lib-name">${esc(d.name)}</div>
+          <div class="lib-meta">
+            ${d.defaultDuration} min
+            ${d.defaultSetup?` · Setup: ${esc(d.defaultSetup)}`:''}
+            ${d.defaultEmphasis?` · ${esc(d.defaultEmphasis)}`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="btn btn-ghost-sm" data-a="edit-drill" data-did="${d.id}">Edit</button>
+          <button class="btn btn-ghost-sm" data-a="del-drill" data-did="${d.id}">✕</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── PRINT VIEW ────────────────────────────────────────────────────────────────
+function renderPrint(){
+  const p=S.plan;
+  const segs=p.segments;
+  const times=calcScoreboards(segs,parseInt(p.totalMinutes)||0);
+  const roster=[...S.roster].sort((a,b)=>a.number-b.number);
+  const att=p.attendance||{};
+  const getAtt=pid=>att[pid]||'present';
+  const presentPlayers=roster.filter(r=>getAtt(r.id)!=='absent');
+  const groups=p.groups||[];
+  const stats=p.shootingStats||{};
+  const getStat=(pid,cat,field)=>(stats[pid]&&stats[pid][cat]?stats[pid][cat][field]:0)||0;
+  let teamFTM=0,teamFTA=0,teamTPM=0,teamTPA=0;
+  presentPlayers.forEach(pl=>{
+    teamFTM+=getStat(pl.id,'ft','makes'); teamFTA+=getStat(pl.id,'ft','attempts');
+    teamTPM+=getStat(pl.id,'tp','makes'); teamTPA+=getStat(pl.id,'tp','attempts');
+  });
+
+  return`
+  <div class="no-print" style="background:var(--navy);padding:10px 18px;display:flex;gap:10px;align-items:center;border-bottom:3px solid var(--gold)">
+    <button class="btn btn-ghost btn-sm" data-a="go-builder">← Back</button>
+    <span style="color:#fff;font-weight:bold;flex:1">${p.date?fmtDate(p.date):'Practice Plan'} — Print Preview</span>
+    <button class="btn btn-gold" onclick="window.print()">🖨 Print / Save PDF</button>
+  </div>
+  <div class="print-wrap">
+    <div class="print-hdr">
+      <div class="print-hdr-left">
+        <div class="eyebrow">Bishop Dwenger High School · Fort Wayne, Indiana</div>
+        <div class="title">Boys' Basketball — Practice Plan</div>
+      </div>
+      <div class="print-hdr-right">
+        <div class="opp">${p.date?fmtDate(p.date):'—'}${p.location?' · '+esc(p.location):''}</div>
+        <div class="sub">${p.startTime?'Start: '+p.startTime+' &nbsp;·&nbsp; ':''}Total: ${p.totalMinutes||0} min &nbsp;·&nbsp; Ben Smith · Head Coach</div>
+      </div>
+    </div>
+    <div class="print-body">
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th class="center" style="width:70px">Clock</th>
+            <th>Segment</th>
+            <th class="center" style="width:44px">Min</th>
+            <th style="width:180px">Setup / Equipment</th>
+            <th>Emphasis / Goal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${segs.map((seg,i)=>`
+            <tr class="${seg.isTeam?'team-row':''}">
+              <td class="clock">${fmtScore(times[i])}</td>
+              <td><strong>${esc(seg.name)}</strong>${seg.isTeam?` <span class="team-goal-print">★ TEAM</span>`:''}</td>
+              <td class="dur">${seg.duration}</td>
+              <td style="font-size:10px">${esc(seg.setup)||'—'}</td>
+              <td style="font-size:10px">${esc(seg.emphasis)||''}${seg.isTeam&&seg.teamGoal?`<br><strong style="color:var(--orange)">Goal: ${esc(seg.teamGoal)}</strong>`:''}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+
+      ${(p.groupings||[]).some(ging=>ging.groups.some(g=>(g.playerIds||[]).length>0))?`
+        <div class="print-section-hdr">Groupings</div>
+        ${(p.groupings||[]).map(ging=>`
+          <div style="margin-bottom:10px">
+            <div style="font-weight:bold;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin-bottom:4px">${esc(ging.name)}</div>
+            <div class="print-groups">
+              ${ging.groups.filter(g=>(g.playerIds||[]).length>0).map(g=>`
+                <div class="print-group">
+                  <div class="print-group-name">${esc(g.name)}</div>
+                  <div class="print-group-players">${(g.playerIds||[]).map(pid=>{
+                    const pl=roster.find(r=>r.id===pid);
+                    return pl?`#${pl.number} ${pl.name}`:'';
+                  }).filter(Boolean).join(', ')}</div>
+                </div>`).join('')}
+            </div>
+          </div>`).join('')}`:''}
+
+      <div style="page-break-before:always;break-before:page;padding-top:12px">
+        <div style="background:var(--navy);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);margin-bottom:12px;border-radius:4px">
+          <span style="color:#fff;font-weight:bold;font-size:13px">Boys&#39; Basketball — Roster &amp; Groups</span>
+          <span style="color:var(--gold);font-size:11px">${p.date?fmtDate(p.date):''}${p.location?' · '+esc(p.location):''}</span>
+        </div>
+      </div>
+      ${(p.partners||[]).length>0?`
+        <div class="print-section-hdr">Partners</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          ${(p.partners||[]).map(pair=>{
+            const pls=pair.playerIds.map(pid=>roster.find(r=>r.id===pid)).filter(Boolean);
+            return`<div style="border:1px solid #ddd;border-radius:3px;padding:4px 10px;font-size:10px;background:#fff">${pls.map(pl=>`#${pl.number} ${pl.name}`).join(' + ')}</div>`;
+          }).join('')}
+        </div>`:''}
+      ${(p.groups||[]).length>0?`
+        <div class="print-section-hdr">Groups</div>
+        <div class="print-groups" style="margin-bottom:12px">
+          ${(p.groups||[]).map(g=>`
+            <div class="print-group">
+              <div class="print-group-name">${esc(g.name)}</div>
+              <div class="print-group-players">${(g.playerIds||[]).map(pid=>{const pl=roster.find(r=>r.id===pid);return pl?`#${pl.number} ${pl.name}`:''}).filter(Boolean).join(', ')||'—'}</div>
+            </div>`).join('')}
+        </div>`:''}
+      ${((p.teams?.navy||[]).length>0||(p.teams?.white||[]).length>0||(p.teams?.gold||[]).length>0)?`
+        <div class="print-section-hdr">Teams</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="border:1.5px solid #0A1E3C;border-radius:4px;overflow:hidden">
+            <div style="background:#0A1E3C;padding:5px 10px"><span style="color:#fff;font-weight:bold;font-size:11px">🟦 Navy Team</span></div>
+            <div style="padding:6px 10px;font-size:10px">${(p.teams?.navy||[]).map(pid=>{const pl=roster.find(r=>r.id===pid);return pl?`#${pl.number} ${pl.name}`:''}).filter(Boolean).join(' · ')||'—'}</div>
+          </div>
+          <div style="border:1.5px solid #64748B;border-radius:4px;overflow:hidden">
+            <div style="background:#64748B;padding:5px 10px"><span style="color:#fff;font-weight:bold;font-size:11px">⚪ White Team</span></div>
+            <div style="padding:6px 10px;font-size:10px">${(p.teams?.white||[]).map(pid=>{const pl=roster.find(r=>r.id===pid);return pl?`#${pl.number} ${pl.name}`:''}).filter(Boolean).join(' · ')||'—'}</div>
+          </div>
+          <div style="border:1.5px solid #C9A84C;border-radius:4px;overflow:hidden">
+            <div style="background:#C9A84C;padding:5px 10px"><span style="color:#0A1E3C;font-weight:bold;font-size:11px">🟡 Gold Team</span></div>
+            <div style="padding:6px 10px;font-size:10px">${(p.teams?.gold||[]).map(pid=>{const pl=roster.find(r=>r.id===pid);return pl?`#${pl.number} ${pl.name}`:''}).filter(Boolean).join(' · ')||'—'}</div>
+          </div>
+        </div>`:''}
+      ${roster.length>0?`
+        <div class="print-section-hdr">Attendance &amp; Shooting Stats</div>
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th class="left" style="width:26px">#</th>
+              <th class="left">Player</th>
+              <th>Att</th>
+              <th>FT M</th><th>FT A</th><th>FT %</th>
+              <th>3P M</th><th>3P A</th><th>3P %</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${roster.map(pl=>{
+              const status=getAtt(pl.id);
+              const absent=status==='absent';
+              const ftm=getStat(pl.id,'ft','makes'),fta=getStat(pl.id,'ft','attempts');
+              const tpm=getStat(pl.id,'tp','makes'),tpa=getStat(pl.id,'tp','attempts');
+              return`<tr>
+                <td class="left">${pl.number}</td>
+                <td class="left">${esc(pl.name)}${status==='limited'?' <em style="font-size:9px;color:#ca8a04">(Ltd)</em>':''}</td>
+                <td>${absent?'✗':'✓'}</td>
+                <td>${absent?'—':ftm}</td><td>${absent?'—':fta}</td><td>${absent?'—':pct(ftm,fta)}</td>
+                <td>${absent?'—':tpm}</td><td>${absent?'—':tpa}</td><td>${absent?'—':pct(tpm,tpa)}</td>
+              </tr>`;
+            }).join('')}
+            <tr class="total-row">
+              <td colspan="3" class="left">Team Total</td>
+              <td>${teamFTM}</td><td>${teamFTA}</td><td>${pct(teamFTM,teamFTA)}</td>
+              <td>${teamTPM}</td><td>${teamTPA}</td><td>${pct(teamTPM,teamTPA)}</td>
+            </tr>
+          </tbody>
+        </table>`:''}
+    </div>
+    <div class="print-footer">
+      <span class="print-footer-text">Bishop Dwenger Boys' Basketball · Practice Plan · Ben Smith · Head Coach</span>
+    </div>
+  </div>`;
+}
+
+// ── SEGMENT MODAL ─────────────────────────────────────────────────────────────
+function renderSegModal(){
+  const f=S.segForm;
+  const editing=!!S.editSegId;
+  const filteredLib=S.library.filter(d=>f.libCat&&f.libCat!=='All'?d.category===f.libCat:true);
+  return`<div class="overlay" id="seg-overlay">
+    <div class="modal">
+      <div class="modal-hdr">
+        <span class="modal-hdr-title">${editing?'Edit Segment':'Add Segment'}</span>
+        <button class="btn btn-ghost btn-sm" data-a="close-seg-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <div class="toggle-group">
+            <button class="toggle-opt${f.type==='library'?' active':''}" data-a="seg-type" data-t="library">From Library</button>
+            <button class="toggle-opt${f.type==='custom'?' active':''}" data-a="seg-type" data-t="custom">Custom</button>
+          </div>
+        </div>
+        ${f.type==='library'?`
+          <div class="field">
+            <div class="field-label">Category Filter</div>
+            <select class="inp" id="lib-cat-filter" style="width:100%">
+              <option value="All">All Categories</option>
+              ${CATEGORIES.map(c=>`<option value="${c}" ${f.libCat===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Select Drill</div>
+            ${S.library.length===0?`<div style="color:#aaa;font-size:12px;padding:10px 0">No drills in library yet. <a href="#" data-a="go-library-from-modal" style="color:var(--navy)">Add drills first.</a></div>`:`
+            <div class="drill-list">
+              ${filteredLib.length===0?`<div style="padding:10px;color:#aaa;font-size:12px">No drills in this category</div>`:''}
+              ${filteredLib.map(d=>`<div class="drill-opt${f.drillId===d.id?' selected':''}" data-a="pick-drill" data-did="${d.id}">
+                <strong>${esc(d.name)}</strong> <span style="color:var(--mgray);font-size:11px">(${d.category} · ${d.defaultDuration} min)</span>
+              </div>`).join('')}
+            </div>`}
+          </div>`:''}
+        <div class="field">
+          <div class="field-label">Segment Name</div>
+          <input class="inp" id="seg-name" value="${esc(f.name)}" placeholder="e.g. Dynamic Warmup" style="width:100%">
+        </div>
+        <div class="field-row" style="margin-bottom:13px">
+          <div class="field">
+            <div class="field-label">Duration (min)</div>
+            <input class="inp" id="seg-dur" type="number" min="1" max="120" value="${esc(f.duration)}" style="width:100%">
+          </div>
+          <div class="field">
+            <div class="field-label">Team Drill</div>
+            <div class="toggle-group" style="margin-top:0">
+              <button class="toggle-opt${!f.isTeam?' active':''}" data-a="seg-team" data-v="false">No</button>
+              <button class="toggle-opt${f.isTeam?' active':''}" data-a="seg-team" data-v="true">Yes</button>
+            </div>
+          </div>
+        </div>
+        ${f.isTeam?`<div class="field">
+          <div class="field-label">Team Goal</div>
+          <input class="inp" id="seg-goal" value="${esc(f.teamGoal)}" placeholder="e.g. 40/50 FT makes as a team" style="width:100%">
+        </div>`:''}
+        <div class="field">
+          <div class="field-label">Setup / Equipment</div>
+          <input class="inp" id="seg-setup" value="${esc(f.setup)}" placeholder="e.g. 4 cones, 1 ball per player" style="width:100%">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-label">Emphasis / Goal</div>
+          <input class="inp" id="seg-emphasis" value="${esc(f.emphasis)}" placeholder="e.g. Off-hand dribbling, low and tight" style="width:100%">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost-sm" data-a="close-seg-modal">Cancel</button>
+        <button class="btn btn-gold" data-a="save-seg">Save Segment</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── LIBRARY DRILL MODAL ───────────────────────────────────────────────────────
+function renderLibModal(){
+  const f=S.drillForm;
+  const editing=!!S.editDrillId;
+  return`<div class="overlay" id="lib-overlay">
+    <div class="modal">
+      <div class="modal-hdr">
+        <span class="modal-hdr-title">${editing?'Edit Drill':'Add Drill to Library'}</span>
+        <button class="btn btn-ghost btn-sm" data-a="close-lib-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <div class="field-label">Drill Name</div>
+          <input class="inp" id="drill-name" value="${esc(f.name)}" placeholder="e.g. Mikan Drill" style="width:100%">
+        </div>
+        <div class="field-row" style="margin-bottom:13px">
+          <div class="field">
+            <div class="field-label">Category</div>
+            <select class="inp" id="drill-cat" style="width:100%">
+              ${CATEGORIES.map(c=>`<option value="${c}" ${f.category===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Default Duration (min)</div>
+            <input class="inp" id="drill-dur" type="number" min="1" value="${esc(f.defaultDuration)}" style="width:100%">
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">Team Drill</div>
+          <div class="toggle-group" style="width:160px">
+            <button class="toggle-opt${!f.isTeamDrill?' active':''}" data-a="drill-team" data-v="false">No</button>
+            <button class="toggle-opt${f.isTeamDrill?' active':''}" data-a="drill-team" data-v="true">Yes</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">Default Setup / Equipment</div>
+          <input class="inp" id="drill-setup" value="${esc(f.defaultSetup)}" placeholder="e.g. Basketballs, cones" style="width:100%">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-label">Default Emphasis</div>
+          <input class="inp" id="drill-emphasis" value="${esc(f.defaultEmphasis)}" placeholder="e.g. Footwork, finishing through contact" style="width:100%">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost-sm" data-a="close-lib-modal">Cancel</button>
+        <button class="btn btn-gold" data-a="save-drill">${editing?'Update Drill':'Add to Library'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── ROSTER SIDE PANEL ─────────────────────────────────────────────────────────
+function renderRosterPanel(){
+  const sorted=[...S.roster].sort((a,b)=>a.number-b.number);
+  const varsity=sorted.filter(p=>p.type==='varsity');
+  const jv=sorted.filter(p=>p.type==='jv');
+  return`<div class="side-panel" id="roster-panel">
+    <div class="side-body">
+      <div class="side-hdr">
+        <span class="side-hdr-title">👥 Roster (${S.roster.length}/15)</span>
+        <div style="display:flex;gap:7px">
+          <button class="btn btn-gold btn-sm" data-a="save-roster">Save</button>
+          <button class="btn btn-ghost btn-sm" data-a="close-roster">✕</button>
+        </div>
+      </div>
+      <div class="side-form">
+        <div class="side-form-title">Add Player</div>
+        <div style="display:flex;gap:6px;margin-bottom:7px">
+          <input class="inp" id="r-num" placeholder="#" value="${esc(S.rNum)}" maxlength="2" style="width:46px;text-align:center">
+          <input class="inp" id="r-name" placeholder="Full name" value="${esc(S.rName)}" style="flex:1">
+        </div>
+        <div style="display:flex;gap:6px">
+          <select class="inp" id="r-type" style="flex:1">
+            <option value="varsity" ${S.rType==='varsity'?'selected':''}>Varsity</option>
+            <option value="jv" ${S.rType==='jv'?'selected':''}>JV / Reserve</option>
+          </select>
+          <button class="btn btn-navy" data-a="add-player">Add</button>
+        </div>
+        ${S.rErr?`<div style="color:#c00;font-size:11px;margin-top:6px">${esc(S.rErr)}</div>`:''}
+      </div>
+      <div style="flex:1;overflow-y:auto">
+        ${sorted.length===0?`<div style="text-align:center;color:#bbb;padding:32px;font-size:13px">No players yet</div>`:''}
+        ${varsity.length?`<div class="roster-type-hdr">Varsity</div>${varsity.map(p=>`
+          <div class="roster-player">
+            <span class="roster-num">#${p.number}</span>
+            <span style="flex:1;font-size:13px;color:var(--navy);font-weight:500">${esc(p.name)}</span>
+            <button style="background:none;border:none;color:#ccc;cursor:pointer;font-size:15px" data-a="del-player" data-rid="${p.id}">✕</button>
+          </div>`).join('')}`:''}
+        ${jv.length?`<div class="roster-type-hdr">JV / Reserve</div>${jv.map(p=>`
+          <div class="roster-player">
+            <span class="roster-num">#${p.number}</span>
+            <span style="flex:1;font-size:13px;color:var(--navy);font-weight:500">${esc(p.name)}</span>
+            <button style="background:none;border:none;color:#ccc;cursor:pointer;font-size:15px" data-a="del-player" data-rid="${p.id}">✕</button>
+          </div>`).join('')}`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── ATTACH HANDLERS ───────────────────────────────────────────────────────────
+function attachHandlers(){
+  // Builder toolbar inputs
+  const dateInp=document.getElementById('date-inp');
+  const locInp=document.getElementById('loc-inp');
+  const totalInp=document.getElementById('total-inp');
+  if(dateInp) dateInp.addEventListener('input',e=>{S.plan.date=e.target.value;});
+  const timeInp=document.getElementById('time-inp');
+  if(timeInp) timeInp.addEventListener('input',e=>{S.plan.startTime=e.target.value;});
+  if(locInp)  locInp.addEventListener('input',e=>{S.plan.location=e.target.value;});
+  if(totalInp)totalInp.addEventListener('input',e=>{S.plan.totalMinutes=parseInt(e.target.value)||0;});
+
+  // Roster form inputs
+  const rn=document.getElementById('r-num');
+  const rname=document.getElementById('r-name');
+  const rtype=document.getElementById('r-type');
+  if(rn)    rn.addEventListener('input',e=>{S.rNum=e.target.value.replace(/\D/,'');});
+  if(rname){rname.addEventListener('input',e=>{S.rName=e.target.value;});
+            rname.addEventListener('keydown',e=>{if(e.key==='Enter')doAddPlayer();});}
+  if(rtype) rtype.addEventListener('change',e=>{S.rType=e.target.value;});
+
+  // Segment modal inputs
+  const sname=document.getElementById('seg-name');
+  const sdur=document.getElementById('seg-dur');
+  const ssetup=document.getElementById('seg-setup');
+  const semp=document.getElementById('seg-emphasis');
+  const sgoal=document.getElementById('seg-goal');
+  const libCat=document.getElementById('lib-cat-filter');
+  if(sname)  sname.addEventListener('input',e=>{S.segForm.name=e.target.value;});
+  if(sdur)   sdur.addEventListener('input',e=>{S.segForm.duration=e.target.value;});
+  if(ssetup) ssetup.addEventListener('input',e=>{S.segForm.setup=e.target.value;});
+  if(semp)   semp.addEventListener('input',e=>{S.segForm.emphasis=e.target.value;});
+  if(sgoal)  sgoal.addEventListener('input',e=>{S.segForm.teamGoal=e.target.value;});
+  if(libCat) libCat.addEventListener('change',e=>{setState({segForm:{...S.segForm,libCat:e.target.value}});});
+
+  // Drill library modal inputs
+  const dname=document.getElementById('drill-name');
+  const dcat=document.getElementById('drill-cat');
+  const ddur=document.getElementById('drill-dur');
+  const dsetup=document.getElementById('drill-setup');
+  const demp=document.getElementById('drill-emphasis');
+  if(dname)  dname.addEventListener('input',e=>{S.drillForm.name=e.target.value;});
+  if(dcat)   dcat.addEventListener('change',e=>{S.drillForm.category=e.target.value;});
+  if(ddur)   ddur.addEventListener('input',e=>{S.drillForm.defaultDuration=e.target.value;});
+  if(dsetup) dsetup.addEventListener('input',e=>{S.drillForm.defaultSetup=e.target.value;});
+  if(demp)   demp.addEventListener('input',e=>{S.drillForm.defaultEmphasis=e.target.value;});
+
+  // Group name inputs
+  document.querySelectorAll('[id^="grp-name-"]').forEach(el=>{
+    const gi=parseInt(el.id.split('-')[2]);
+    el.addEventListener('input',e=>{
+      const groups=[...S.plan.groups];
+      groups[gi]={...groups[gi],name:e.target.value};
+      S.plan.groups=groups;
+    });
+  });
+
+  // Group name inputs
+  document.querySelectorAll('[id^="grp-name-"]').forEach(el=>{
+    el.addEventListener('input',e=>{
+      const grpid=el.dataset.grpid;
+      const groups=(S.plan.groups||[]).map(g=>g.id===grpid?{...g,name:e.target.value}:g);
+      S.plan.groups=groups;
+    });
+  });
+  // Group assignment dropdowns
+  document.querySelectorAll('[data-a="assign-group"]').forEach(el=>{
+    el.addEventListener('change',e=>{
+      const pid=el.dataset.pid;
+      const grpId=e.target.value;
+      const groups=(S.plan.groups||[]).map(g=>({...g,playerIds:(g.playerIds||[]).filter(x=>x!==pid)}));
+      if(grpId){const gi=groups.findIndex(g=>g.id===grpId);if(gi>=0)groups[gi].playerIds=[...groups[gi].playerIds,pid];}
+      setState({plan:{...S.plan,groups}});
+    });
+  });
+  // Pair selects
+  const pp1=document.getElementById('pair-p1');
+  const pp2=document.getElementById('pair-p2');
+  if(pp1) pp1.addEventListener('change',e=>{setState({pairForm:{...S.pairForm,p1:e.target.value}});});
+  if(pp2) pp2.addEventListener('change',e=>{setState({pairForm:{...S.pairForm,p2:e.target.value}});});
+
+  // Team assignment dropdowns
+  document.querySelectorAll('[data-a="assign-team"]').forEach(el=>{
+    el.addEventListener('change',e=>{
+      const pid=el.dataset.pid;
+      const team=e.target.value;
+      const teams={
+        navy:(S.plan.teams?.navy||[]).filter(x=>x!==pid),
+        white:(S.plan.teams?.white||[]).filter(x=>x!==pid),
+        gold:(S.plan.teams?.gold||[]).filter(x=>x!==pid)
+      };
+      if(team==='navy')  teams.navy=[...teams.navy,pid];
+      if(team==='white') teams.white=[...teams.white,pid];
+      if(team==='gold')  teams.gold=[...teams.gold,pid];
+      setState({plan:{...S.plan,teams}});
+    });
+  });
+
+  // Shooting stat inputs
+  document.querySelectorAll('[data-stat]').forEach(el=>{
+    el.addEventListener('change',e=>{
+      const [cat,field]=el.dataset.stat.split('-');
+      const pid=el.dataset.pid;
+      const val=Math.max(0,parseInt(e.target.value)||0);
+      const stats={...S.plan.shootingStats};
+      if(!stats[pid])stats[pid]={ft:{makes:0,attempts:0},tp:{makes:0,attempts:0}};
+      stats[pid]={...stats[pid],[cat]:{...stats[pid][cat],[field]:val}};
+      S.plan.shootingStats=stats;
+    });
+  });
+
+  // Import file
+  const impFile=document.getElementById('import-file');
+  if(impFile) impFile.addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);});
+}
+
+// ── CLICK HANDLER ─────────────────────────────────────────────────────────────
+function handleClick(e){
+  if(e.target.id==='seg-overlay') {setState({showSegModal:false}); return;}
+  if(e.target.id==='lib-overlay') {setState({showLibModal:false}); return;}
+  if(e.target.id==='roster-panel'){setState({showRoster:false}); return;}
+
+  const el=e.target.closest('[data-a]');
+  if(!el)return;
+  const a=el.dataset.a;
+
+  // Navigation
+  if(a==='go-home')    setState({view:'home',plan:null});
+  else if(a==='go-library') setState({view:'library'});
+  else if(a==='go-library-from-modal') {setState({showSegModal:false,view:'library'});}
+  else if(a==='go-builder') setState({view:'builder'});
+  else if(a==='go-print')   setState({view:'print'});
+  else if(a==='tab')        setState({builderTab:el.dataset.tab});
+  else if(a==='new-plan')   setState({plan:mkPlan(),view:'builder',builderTab:'plan',expandedSegs:{},savedMsg:false});
+  else if(a==='edit-plan'){
+    const p=S.plans.find(x=>x.id===el.dataset.id);
+    setState({plan:{...p},view:'builder',builderTab:'plan',expandedSegs:{},savedMsg:false});
+  }
+  else if(a==='print-plan'){const p=S.plans.find(x=>x.id===el.dataset.id);setState({plan:{...p},view:'print'});}
+  else if(a==='ask-del')     setState({confirmDel:el.dataset.id});
+  else if(a==='cancel-del')  setState({confirmDel:null});
+  else if(a==='confirm-del'){
+    setState({plans:S.plans.filter(p=>p.id!==el.dataset.id),confirmDel:null});
+  }
+
+  // Roster panel
+  else if(a==='open-roster') setState({showRoster:true,rNum:'',rName:'',rType:'varsity',rErr:''});
+  else if(a==='close-roster')setState({showRoster:false});
+  else if(a==='save-roster') {persist(SK.roster,S.roster);setState({showRoster:false});}
+  else if(a==='add-player')  doAddPlayer();
+  else if(a==='del-player')  setState({roster:S.roster.filter(r=>r.id!==el.dataset.rid)});
+
+  // Plan save
+  else if(a==='save-plan') doSavePlan();
+
+  // Segments
+  else if(a==='toggle-seg'){
+    const sid=el.dataset.sid;
+    setState({expandedSegs:{...S.expandedSegs,[sid]:S.expandedSegs[sid]===false?true:!(S.expandedSegs[sid]!==false)}});
+  }
+  else if(a==='open-add-seg'){
+    setState({showSegModal:true,editSegId:null,
+      segForm:{type:'library',drillId:null,name:'',duration:'10',setup:'',emphasis:'',isTeam:false,teamGoal:'',libCat:'All'}});
+  }
+  else if(a==='open-add-seg-custom'){
+    setState({showSegModal:true,editSegId:null,
+      segForm:{type:'custom',drillId:null,name:'',duration:'10',setup:'',emphasis:'',isTeam:false,teamGoal:''}});
+  }
+  else if(a==='edit-seg'){
+    const seg=S.plan.segments.find(s=>s.id===el.dataset.sid);
+    if(seg) setState({showSegModal:true,editSegId:seg.id,
+      segForm:{type:seg.type||'custom',drillId:seg.drillId||null,name:seg.name,duration:String(seg.duration),
+               setup:seg.setup,emphasis:seg.emphasis,isTeam:seg.isTeam,teamGoal:seg.teamGoal||'',libCat:'All'}});
+  }
+  else if(a==='del-seg'){
+    setState({plan:{...S.plan,segments:S.plan.segments.filter(s=>s.id!==el.dataset.sid)}});
+  }
+  else if(a==='move-up'){
+    const idx=parseInt(el.dataset.idx);
+    const segs=[...S.plan.segments];
+    [segs[idx-1],segs[idx]]=[segs[idx],segs[idx-1]];
+    setState({plan:{...S.plan,segments:segs}});
+  }
+  else if(a==='move-down'){
+    const idx=parseInt(el.dataset.idx);
+    const segs=[...S.plan.segments];
+    [segs[idx],segs[idx+1]]=[segs[idx+1],segs[idx]];
+    setState({plan:{...S.plan,segments:segs}});
+  }
+  else if(a==='save-seg')  doSaveSegment();
+  else if(a==='close-seg-modal') setState({showSegModal:false});
+  else if(a==='seg-type')  setState({segForm:{...S.segForm,type:el.dataset.t,drillId:null}});
+  else if(a==='seg-team')  setState({segForm:{...S.segForm,isTeam:el.dataset.v==='true'}});
+  else if(a==='pick-drill'){
+    const d=S.library.find(x=>x.id===el.dataset.did);
+    if(d) setState({segForm:{...S.segForm,drillId:d.id,name:d.name,
+      duration:String(d.defaultDuration),setup:d.defaultSetup,emphasis:d.defaultEmphasis,isTeam:d.isTeamDrill}});
+  }
+
+  // Library
+  else if(a==='lib-filter')  setState({libFilter:el.dataset.cat});
+  else if(a==='open-add-drill'){
+    setState({showLibModal:true,editDrillId:null,
+      drillForm:{name:'',category:'Warmup',defaultDuration:'10',defaultSetup:'',defaultEmphasis:'',isTeamDrill:false}});
+  }
+  else if(a==='edit-drill'){
+    const d=S.library.find(x=>x.id===el.dataset.did);
+    if(d) setState({showLibModal:true,editDrillId:d.id,
+      drillForm:{name:d.name,category:d.category,defaultDuration:String(d.defaultDuration),
+                 defaultSetup:d.defaultSetup,defaultEmphasis:d.defaultEmphasis,isTeamDrill:d.isTeamDrill}});
+  }
+  else if(a==='del-drill'){
+    setState({library:S.library.filter(d=>d.id!==el.dataset.did)});
+  }
+  else if(a==='save-drill')  doSaveDrill();
+  else if(a==='close-lib-modal') setState({showLibModal:false});
+  else if(a==='drill-team')  setState({drillForm:{...S.drillForm,isTeamDrill:el.dataset.v==='true'}});
+
+  // Teams
+  else if(a==='remove-from-team'){
+    const {pid,team}=el.dataset;
+    const teams={...S.plan.teams||{blue:[],white:[]}};
+    teams[team]=(teams[team]||[]).filter(x=>x!==pid);
+    setState({plan:{...S.plan,teams}});
+  }
+  // Attendance
+  else if(a==='cycle-att'){
+    const pid=el.dataset.pid;
+    const cur=(S.plan.attendance||{})[pid]||'present';
+    const next=cur==='present'?'limited':cur==='limited'?'absent':'present';
+    setState({plan:{...S.plan,attendance:{...S.plan.attendance,[pid]:next}}});
+  }
+
+  // Groups
+  else if(a==='show-add-pair') setState({showAddPair:true,pairForm:{p1:'',p2:''}});
+  else if(a==='cancel-add-pair') setState({showAddPair:false,pairForm:{p1:'',p2:''}});
+  else if(a==='add-pair'){
+    const {p1,p2}=S.pairForm;
+    if(!p1||!p2||p1===p2){alert('Select two different players.');return;}
+    const partners=[...(S.plan.partners||[]),{id:uid(),playerIds:[p1,p2]}];
+    setState({plan:{...S.plan,partners},showAddPair:false,pairForm:{p1:'',p2:''}});
+  }
+  else if(a==='del-pair'){
+    setState({plan:{...S.plan,partners:(S.plan.partners||[]).filter(p=>p.id!==el.dataset.pairid)}});
+  }
+  else if(a==='add-group'){
+    const groups=[...(S.plan.groups||[]),{id:uid(),name:'Group '+(((S.plan.groups||[]).length)+1),playerIds:[]}];
+    setState({plan:{...S.plan,groups}});
+  }
+  else if(a==='del-group'){
+    setState({plan:{...S.plan,groups:(S.plan.groups||[]).filter(g=>g.id!==el.dataset.grpid)}});
+  }
+  else if(a==='remove-from-group'){
+    const {pid,grpid}=el.dataset;
+    const groups=(S.plan.groups||[]).map(g=>g.id===grpid?{...g,playerIds:(g.playerIds||[]).filter(x=>x!==pid)}:g);
+    setState({plan:{...S.plan,groups}});
+  }
+
+  // Export/Import
+  else if(a==='export-data') doExport();
+}
+
+// ── ACTION FUNCTIONS ──────────────────────────────────────────────────────────
+function doAddPlayer(){
+  const num=parseInt(S.rNum);
+  const name=S.rName.trim();
+  if(!S.rNum||!name){setState({rErr:'Number and name are required.'});return;}
+  if(S.roster.some(p=>p.number===num)){setState({rErr:`#${num} is already in use.`});return;}
+  setState({roster:[...S.roster,{id:uid(),number:num,name,type:S.rType}],rNum:'',rName:'',rType:'varsity',rErr:''});
+}
+
+function doSavePlan(){
+  const up={...S.plan,updatedAt:new Date().toISOString()};
+  const plans=S.plans.some(x=>x.id===up.id)?S.plans.map(x=>x.id===up.id?up:x):[up,...S.plans];
+  setState({plans,plan:up,savedMsg:true});
+  setTimeout(()=>setState({savedMsg:false}),2200);
+}
+
+function doSaveSegment(){
+  const f=S.segForm;
+  const name=f.name.trim();
+  if(!name){alert('Segment name is required.');return;}
+  const dur=Math.max(1,parseInt(f.duration)||10);
+  const seg={
+    id:S.editSegId||uid(),
+    type:f.type,drillId:f.drillId||null,
+    name,duration:dur,
+    setup:f.setup.trim(),emphasis:f.emphasis.trim(),
+    isTeam:f.isTeam,teamGoal:f.teamGoal.trim(),
+    category:f.type==='library'?(S.library.find(d=>d.id===f.drillId)||{}).category||'Other':'Other',
+  };
+  let segments;
+  if(S.editSegId){segments=S.plan.segments.map(s=>s.id===S.editSegId?seg:s);}
+  else{segments=[...S.plan.segments,seg];}
+  setState({plan:{...S.plan,segments},showSegModal:false,expandedSegs:{...S.expandedSegs,[seg.id]:true}});
+}
+
+function doSaveDrill(){
+  const f=S.drillForm;
+  const name=f.name.trim();
+  if(!name){alert('Drill name is required.');return;}
+  const drill={
+    id:S.editDrillId||uid(),
+    name,category:f.category,
+    defaultDuration:Math.max(1,parseInt(f.defaultDuration)||10),
+    defaultSetup:f.defaultSetup.trim(),
+    defaultEmphasis:f.defaultEmphasis.trim(),
+    isTeamDrill:f.isTeamDrill,
+  };
+  const library=S.editDrillId?S.library.map(d=>d.id===S.editDrillId?drill:d):[...S.library,drill];
+  setState({library,showLibModal:false});
+}
+
+function doExport(){
+  const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans,library:S.library};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='saints-practice-'+new Date().toISOString().split('T')[0]+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function doImport(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data.roster)||!Array.isArray(data.plans)){
+        alert('Invalid file. Use a file exported from the Saints Practice Plan Builder.');return;
+      }
+      const msg='Import '+data.plans.length+' plan(s), '+data.roster.length+' player(s), and '+(data.library||[]).length+' drill(s)?\n\nThis replaces your current data.';
+      if(confirm(msg)){setState({roster:data.roster,plans:data.plans,library:data.library||[]});}
+    }catch{alert('Could not read file.');}
+  };
+  reader.readAsText(file);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('click',handleClick);
+render();
+</script>
+</body>
+</html>
