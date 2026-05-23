@@ -992,7 +992,7 @@ function sectionTable(sec, itemH, sel={}, roster=[]){
       sub.plays.forEach(play=>{
         const ctr=!!play.ctr, cc=ctr?'#5B2D8E':gc, fill=ctr?'#F3EEFF':null;
         const ap=getAssigned(play.id);
-        const nm=ap.length?{stack:[{text:play.name,fontSize:8.5,italics:ctr,color:cc,lineHeight:1.1},{text:ap.map(p=>'#'+p.number+' '+p.name.split(' ')[0]).join('  '),fontSize:6,color:'#666',margin:[0,1,0,0]}]}:{text:play.name,fontSize:8.5,italics:ctr,color:cc};
+        const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:cc},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#888'}]}:{text:play.name,fontSize:8.5,italics:ctr,color:cc};
         add([
           {text:'  '+play.code,fontSize:6.5,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
           {...nm,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
@@ -1001,7 +1001,7 @@ function sectionTable(sec, itemH, sel={}, roster=[]){
     });
     else grp.plays.forEach(play=>{
       const ap=getAssigned(play.id);
-      const nm=ap.length?{stack:[{text:play.name,fontSize:8.5,color:NAVY,lineHeight:1.1},{text:ap.map(p=>'#'+p.number+' '+p.name.split(' ')[0]).join('  '),fontSize:6,color:'#666',margin:[0,1,0,0]}]}:{text:play.name,fontSize:8.5,color:NAVY};
+      const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,color:NAVY},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#888'}]}:{text:play.name,fontSize:8.5,color:NAVY};
       add([
         {text:play.code,fontSize:6.5,color:gc,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
         {...nm,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
@@ -1009,7 +1009,7 @@ function sectionTable(sec, itemH, sel={}, roster=[]){
     });
   });
 
-  return {table:{widths:[24,'*'],heights,body},
+  return {table:{widths:[32,'*'],heights,body},
     layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>PAD,paddingBottom:()=>PAD}};
 }
 
