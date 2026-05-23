@@ -1512,6 +1512,80 @@ document.addEventListener('input',function(e){
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+
+// ── AUTO-SIZE ROWS FOR PRINT ──────────────────────────────────────────────────
+window.addEventListener('beforeprint', function(){
+  if(S.view !== 'print') return;
+
+  // PAGE 1: practice table — stretch rows to fill the page
+  var table = document.querySelector('.plan-table');
+  if(table){
+    var rows = Array.from(table.querySelectorAll('tbody tr'));
+    if(rows.length){
+      // letter 792pt - margins 50pt - print-hdr ~75pt - table-hdr ~28pt - footer ~22pt
+      var avail = 617;
+      var fontPt = 11;
+      var rowH   = Math.max(20, Math.floor(avail / rows.length));
+      var padPt  = Math.max(3,  Math.floor((rowH - fontPt) / 2));
+      rows.forEach(function(row){
+        Array.from(row.querySelectorAll('td')).forEach(function(td){
+          td.style.setProperty('padding-top',    padPt + 'pt', 'important');
+          td.style.setProperty('padding-bottom', padPt + 'pt', 'important');
+          td.style.setProperty('font-size',      fontPt + 'pt','important');
+        });
+      });
+      // Clock and Duration cells get bigger font
+      Array.from(table.querySelectorAll('td.clock')).forEach(function(td){
+        td.style.setProperty('font-size','15pt','important');
+      });
+      Array.from(table.querySelectorAll('td.dur')).forEach(function(td){
+        td.style.setProperty('font-size','12pt','important');
+      });
+      table._bpDone = true;
+    }
+  }
+
+  // PAGE 2: make stats table rows taller too
+  var stats = document.querySelector('.stats-table');
+  if(stats){
+    var srows = Array.from(stats.querySelectorAll('tbody tr'));
+    if(srows.length){
+      var savail = 400; // conservative — page 2 has partners/groups/teams above
+      var srowH  = Math.max(18, Math.floor(savail / srows.length));
+      var spadPt = Math.max(4,  Math.floor((srowH - 10) / 2));
+      srows.forEach(function(row){
+        Array.from(row.querySelectorAll('td')).forEach(function(td){
+          td.style.setProperty('padding-top',    spadPt + 'pt', 'important');
+          td.style.setProperty('padding-bottom', spadPt + 'pt', 'important');
+        });
+      });
+      stats._bpDone = true;
+    }
+  }
+});
+
+window.addEventListener('afterprint', function(){
+  ['_bpDone'].forEach(function(flag){
+    var t = document.querySelector('.plan-table');
+    if(t && t[flag]) {
+      Array.from(t.querySelectorAll('td')).forEach(function(td){
+        td.style.removeProperty('padding-top');
+        td.style.removeProperty('padding-bottom');
+        td.style.removeProperty('font-size');
+      });
+      t[flag] = false;
+    }
+    var s = document.querySelector('.stats-table');
+    if(s && s[flag]) {
+      Array.from(s.querySelectorAll('td')).forEach(function(td){
+        td.style.removeProperty('padding-top');
+        td.style.removeProperty('padding-bottom');
+      });
+      s[flag] = false;
+    }
+  });
+});
+
 document.addEventListener('click',handleClick);
 render();
 </script>

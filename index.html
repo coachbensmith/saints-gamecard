@@ -923,6 +923,80 @@ function doImport(file){
   reader.readAsText(file);
 }
 
+
+// ── AUTO-SIZE ROWS FOR PRINT ──────────────────────────────────────────────────
+window.addEventListener('beforeprint', function(){
+  if(S.view !== 'print') return;
+
+  // BACK PAGE: stretch OB/Zone/Press rows to fill the page
+  var back = document.querySelector('.back-page');
+  if(back){
+    var cols = Array.from(back.querySelectorAll('.card-col'));
+    var maxItems = 0;
+    cols.forEach(function(col){
+      var n = col.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').length;
+      if(n > maxItems) maxItems = n;
+    });
+    if(maxItems){
+      // letter 792pt - margins 50pt - header 75pt - footer 22pt
+      var avail  = 645;
+      var fontPt = 9;
+      var itemH  = Math.max(18, Math.floor(avail / maxItems));
+      var padPt  = Math.max(3,  Math.floor((itemH - fontPt) / 2));
+      var items  = back.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr');
+      Array.from(items).forEach(function(el){
+        el.style.setProperty('padding-top',    padPt + 'pt', 'important');
+        el.style.setProperty('padding-bottom', padPt + 'pt', 'important');
+      });
+      back._bpDone = true;
+    }
+  }
+
+  // FRONT PAGE: stretch rows to fill (front has more content so padding is smaller)
+  var front = document.querySelector('.card-body:not(.back-page .card-body)');
+  // target all front-page card-play/grp/sub rows
+  var frontArea = document.querySelector('.print-area > .card-body');
+  if(frontArea){
+    var cols2 = Array.from(frontArea.querySelectorAll('.card-col'));
+    var maxF = 0;
+    cols2.forEach(function(col){
+      var n = col.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').length;
+      if(n > maxF) maxF = n;
+    });
+    if(maxF){
+      var availF = 645;
+      var fontF  = 9;
+      var itemHF = Math.max(12, Math.floor(availF / maxF));
+      var padF   = Math.max(2,  Math.floor((itemHF - fontF) / 2));
+      var itemsF = frontArea.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr');
+      Array.from(itemsF).forEach(function(el){
+        el.style.setProperty('padding-top',    padF + 'pt', 'important');
+        el.style.setProperty('padding-bottom', padF + 'pt', 'important');
+      });
+      frontArea._bpDone = true;
+    }
+  }
+});
+
+window.addEventListener('afterprint', function(){
+  var back = document.querySelector('.back-page');
+  if(back && back._bpDone){
+    Array.from(back.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr')).forEach(function(el){
+      el.style.removeProperty('padding-top');
+      el.style.removeProperty('padding-bottom');
+    });
+    back._bpDone = false;
+  }
+  var fa = document.querySelector('.print-area > .card-body');
+  if(fa && fa._bpDone){
+    Array.from(fa.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr')).forEach(function(el){
+      el.style.removeProperty('padding-top');
+      el.style.removeProperty('padding-bottom');
+    });
+    fa._bpDone = false;
+  }
+});
+
 document.addEventListener('click',handleClick);
 render();
 </script>
