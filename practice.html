@@ -649,7 +649,7 @@ function renderRosterTab(){
           <span style="flex:1;font-size:12px;font-weight:500;color:var(--navy)">${esc(pl.name)}</span>
           <select class="inp-sm" data-a="assign-team" data-pid="${pl.id}">
             <option value="" ${getTeam(pl.id)===''?'selected':''}>— Unassigned —</option>
-            <option value="navy" ${getTeam(pl.id)==='blue'?'selected':''}>🟦 Navy</option>
+            <option value="navy" ${getTeam(pl.id)==='navy'?'selected':''}>🟦 Navy</option>
             <option value="white" ${getTeam(pl.id)==='white'?'selected':''}>⚪ White</option>
             <option value="gold" ${getTeam(pl.id)==='gold'?'selected':''}>🟡 Gold</option>
           </select>
