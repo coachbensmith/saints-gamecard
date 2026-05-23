@@ -174,7 +174,7 @@ input,select{font-family:inherit;}
   .card-play-line{gap:3pt;}
   .card-play-code{font-size:5.5pt;min-width:24pt;}
   .card-play-name{font-size:7pt;}
-  .card-players{display:none;}
+  .card-players{display:flex;flex-wrap:wrap;}
   .card-footer{padding:2pt 8pt;}
   .card-footer-text{font-size:5.5pt;}
 }
@@ -216,8 +216,8 @@ input,select{font-family:inherit;}
   .card-play-code{font-size:5.5px;min-width:24px;}
   .card-play-name{font-size:6.5px;}
 
-  /* ── Player chips — hidden to save space ── */
-  .card-players{display:none;}
+  /* ── Player chips ── */
+  .card-players{display:flex;flex-wrap:wrap;}
 
   /* ── Footer ── */
   .card-footer{padding:2px 8px;}
@@ -969,9 +969,10 @@ function countItems(sec){
   return n;
 }
 
-function sectionTable(sec, itemH){
+function sectionTable(sec, itemH, sel={}, roster=[]){
   const NAVY='#0A1E3C', PAD=2;
   const body=[], heights=[], sc=sec.color;
+  const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
   const add=(cells,h)=>{body.push(cells);heights.push(h);};
 
   add([{text:sec.label.toUpperCase(),fontSize:6.5,bold:true,color:sc,characterSpacing:0.5,fillColor:NAVY,colSpan:2,border:[false,false,false,false]},{}], itemH);
@@ -990,16 +991,20 @@ function sectionTable(sec, itemH){
       ], itemH);
       sub.plays.forEach(play=>{
         const ctr=!!play.ctr, cc=ctr?'#5B2D8E':gc, fill=ctr?'#F3EEFF':null;
+        const ap=getAssigned(play.id);
+        const nm=ap.length?{stack:[{text:play.name,fontSize:8.5,italics:ctr,color:cc,lineHeight:1.1},{text:ap.map(p=>'#'+p.number+' '+p.name.split(' ')[0]).join('  '),fontSize:6,color:'#666',margin:[0,1,0,0]}]}:{text:play.name,fontSize:8.5,italics:ctr,color:cc};
         add([
           {text:'  '+play.code,fontSize:6.5,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
-          {text:play.name,fontSize:8.5,italics:ctr,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+          {...nm,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
         ], itemH);
       });
     });
     else grp.plays.forEach(play=>{
+      const ap=getAssigned(play.id);
+      const nm=ap.length?{stack:[{text:play.name,fontSize:8.5,color:NAVY,lineHeight:1.1},{text:ap.map(p=>'#'+p.number+' '+p.name.split(' ')[0]).join('  '),fontSize:6,color:'#666',margin:[0,1,0,0]}]}:{text:play.name,fontSize:8.5,color:NAVY};
       add([
         {text:play.code,fontSize:6.5,color:gc,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
-        {text:play.name,fontSize:8.5,color:NAVY,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+        {...nm,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
       ], itemH);
     });
   });
@@ -1025,7 +1030,7 @@ function makeHeader(plan, subtitle){
   ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>9,paddingBottom:()=>9}};
 }
 
-function buildPage(plan, secs, subtitle, firstPage=true){
+function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[]){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
   const M=28, CW=556, COL_AVAIL=667, PAD=2;
   if(!secs.length) return [{text:'',fontSize:1}];
@@ -1048,7 +1053,7 @@ function buildPage(plan, secs, subtitle, firstPage=true){
     const row=[];
     for(let c=0;c<numCols;c++){
       const i=r*numCols+c;
-      row.push(i<secs.length ? sectionTable(secs[i],itemH) : {text:'',border:[false,false,false,false]});
+      row.push(i<secs.length ? sectionTable(secs[i],itemH,sel,roster) : {text:'',border:[false,false,false,false]});
     }
     gridBody.push(row);
   }
@@ -1064,7 +1069,7 @@ function buildPage(plan, secs, subtitle, firstPage=true){
   ];
 }
 
-function buildGameCardDoc(plan){
+function buildGameCardDoc(plan, roster){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
   const M=28, CW=556, COL_AVAIL=667, PAD=2;
   const sel=plan.selections||{};
@@ -1081,7 +1086,7 @@ function buildGameCardDoc(plan){
   const back=active.filter(s=>BACK.includes(s.id));
 
   return {pageSize:'LETTER',pageMargins:[M,M,M,M],defaultStyle:{font:'Roboto',lineHeight:1.05},
-    content:[...buildPage(plan,front,'',true),...buildPage(plan,back,'(OB · Zone · Press)',false)]};
+    content:[...buildPage(plan,front,'',true,sel,roster),...buildPage(plan,back,'(OB · Zone · Press)',false,sel,roster)]};
 }
 
 function downloadPDF() {
@@ -1090,7 +1095,7 @@ function downloadPDF() {
     return;
   }
   try {
-    const docDef = buildGameCardDoc(S.plan);
+    const docDef = buildGameCardDoc(S.plan, S.roster);
     const opp = (S.plan.opponent||'game').replace(/[^a-z0-9]/gi,'_');
     const date = S.plan.date || new Date().toISOString().slice(0,10);
     pdfMake.createPdf(docDef).download('game-card-' + opp + '-' + date + '.pdf');
