@@ -224,6 +224,8 @@ input,select{font-family:inherit;}
   .card-footer-text{font-size:5.5px;}
 }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -684,7 +686,7 @@ function renderPrint(){
     <button class="btn btn-ghost btn-sm" data-a="go-builder">&larr; Back</button>
     <span style="color:#fff;font-weight:bold;flex:1">${p.opponent?esc(p.opponent):'Game Plan'} &mdash; Print Preview
       ${total===0?'<span style="color:#f99;font-size:12px;margin-left:10px">&#9888; No plays selected</span>':''}</span>
-    <button class="btn btn-gold" onclick="window.print()">&#128424; Print / Save PDF</button>
+    <button class="btn btn-gold" onclick="downloadPDF()">&#11015; Download PDF</button>
   </div>
   <div class="print-area">
     ${cardHdr('')}
@@ -948,6 +950,156 @@ function applyPrintPadding(){
 }
 document.addEventListener('click',handleClick);
 render();
+
+
+
+const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
+const PW=612, PH=792, M=28, CW=PW-2*M;
+// From empirical test: itemH=12, pad=2 fits 40 items on 1 page with our header/footer
+// Formula: itemH = floor(colAvail/totalItems) - 2*pad  where colAvail≈667
+const COL_AVAIL=667, PAD=2;
+
+
+// PDF generator uses the app SYSTEM array above
+
+
+function countItems(sec){
+  let n=1;
+  sec.groups.forEach(g=>{n++;if(g.subs)g.subs.forEach(s=>{n++;n+=s.plays.length;});else n+=g.plays.length;});
+  return n;
+}
+
+function sectionTable(sec, itemH){
+  const NAVY='#0A1E3C', PAD=2;
+  const body=[], heights=[], sc=sec.color;
+  const add=(cells,h)=>{body.push(cells);heights.push(h);};
+
+  add([{text:sec.label.toUpperCase(),fontSize:6.5,bold:true,color:sc,characterSpacing:0.5,fillColor:NAVY,colSpan:2,border:[false,false,false,false]},{}], itemH);
+
+  sec.groups.forEach(grp=>{
+    const gc=grp.color||sc;
+    add([
+      {text:grp.code,fontSize:6.5,bold:true,color:gc,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:'#f3f3f3'},
+      {text:grp.name,fontSize:8.5,bold:true,color:NAVY,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:'#f3f3f3'}
+    ], itemH);
+
+    if(grp.subs) grp.subs.forEach(sub=>{
+      add([
+        {text:sub.code,fontSize:6.5,color:sc,fillColor:'#ebebeb',border:[false,false,false,false]},
+        {text:sub.name,fontSize:8,bold:true,color:NAVY,fillColor:'#ebebeb',border:[false,false,false,false]}
+      ], itemH);
+      sub.plays.forEach(play=>{
+        const ctr=!!play.ctr, cc=ctr?'#5B2D8E':gc, fill=ctr?'#F3EEFF':null;
+        add([
+          {text:'  '+play.code,fontSize:6.5,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
+          {text:play.name,fontSize:8.5,italics:ctr,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+        ], itemH);
+      });
+    });
+    else grp.plays.forEach(play=>{
+      add([
+        {text:play.code,fontSize:6.5,color:gc,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
+        {text:play.name,fontSize:8.5,color:NAVY,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+      ], itemH);
+    });
+  });
+
+  return {table:{widths:[24,'*'],heights,body},
+    layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>PAD,paddingBottom:()=>PAD}};
+}
+
+function makeHeader(plan, subtitle){
+  const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
+  return {table:{widths:['*','auto'],body:[[
+    {stack:[
+      {text:'B I S H O P  D W E N G E R  H I G H  S C H O O L   ·   F O R T  W A Y N E ,  I N D I A N A',fontSize:6.5,color:GOLD,characterSpacing:0.3,margin:[0,0,0,3]},
+      subtitle
+        ? {columns:[{width:'auto',text:"Boys' Basketball — Offensive Game Card",fontSize:12,bold:true,color:WHITE},{width:'auto',text:'  '+subtitle,fontSize:8.5,color:'rgba(255,255,255,0.5)',margin:[0,2,0,0]}]}
+        : {text:"Boys' Basketball — Offensive Game Card",fontSize:12,bold:true,color:WHITE}
+    ],fillColor:NAVY},
+    {stack:[
+      {text:'vs. '+(plan.opponent||'—'),fontSize:10,bold:true,color:GOLD,alignment:'right'},
+      {text:plan.date?fmtDate(plan.date):'—',fontSize:7.5,color:WHITE,alignment:'right',margin:[0,2,0,0]},
+      {text:'Ben Smith · Head Coach',fontSize:7,color:'rgba(255,255,255,0.4)',alignment:'right',margin:[0,1,0,0]}
+    ],fillColor:NAVY}
+  ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>9,paddingBottom:()=>9}};
+}
+
+function buildPage(plan, secs, subtitle, firstPage=true){
+  const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
+  const M=28, CW=556, COL_AVAIL=667, PAD=2;
+  if(!secs.length) return [{text:'',fontSize:1}];
+  const numCols=Math.min(secs.length,3);
+  const numGridRows=Math.ceil(secs.length/numCols);
+
+  // totalItems = sum of max items per grid row
+  let totalItems=0;
+  for(let r=0;r<numGridRows;r++){
+    let mx=0;
+    for(let c=0;c<numCols;c++){const i=r*numCols+c;if(i<secs.length)mx=Math.max(mx,countItems(secs[i]));}
+    totalItems+=mx;
+  }
+
+  const itemH=Math.max(10, Math.floor(COL_AVAIL/totalItems) - 2*PAD);
+  console.log(`  ${subtitle||'front'}: totalItems=${totalItems} itemH=${itemH} (${itemH+2*PAD}pt/row)`);
+
+  const gridBody=[];
+  for(let r=0;r<numGridRows;r++){
+    const row=[];
+    for(let c=0;c<numCols;c++){
+      const i=r*numCols+c;
+      row.push(i<secs.length ? sectionTable(secs[i],itemH) : {text:'',border:[false,false,false,false]});
+    }
+    gridBody.push(row);
+  }
+
+  const hdr=makeHeader(plan,subtitle);
+  if(!firstPage) hdr.pageBreak='before';
+  return [
+    hdr,
+    {canvas:[{type:'rect',x:0,y:0,w:CW,h:3,color:GOLD}],margin:[0,0,0,6]},
+    {table:{widths:Array(numCols).fill('*'),body:gridBody},
+     layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>2,paddingRight:()=>2,paddingTop:()=>0,paddingBottom:()=>0}},
+    {text:"Bishop Dwenger Boys' Basketball  ·  Offensive Game Card  ·  Ben Smith  ·  Head Coach",fontSize:7,color:'#bbb',alignment:'center',margin:[0,5,0,0]}
+  ];
+}
+
+function buildGameCardDoc(plan){
+  const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
+  const M=28, CW=556, COL_AVAIL=667, PAD=2;
+  const sel=plan.selections||{};
+  const active=SYSTEM.map(sec=>{
+    const groups=sec.groups.map(grp=>{
+      if(grp.subs){const subs=grp.subs.map(sub=>{const pl=sub.plays.filter(p=>sel[p.id]!==undefined);return pl.length?{...sub,plays:pl}:null;}).filter(Boolean);return subs.length?{...grp,subs}:null;}
+      const pl=grp.plays.filter(p=>sel[p.id]!==undefined);return pl.length?{...grp,plays:pl}:null;
+    }).filter(Boolean);
+    return groups.length?{...sec,groups}:null;
+  }).filter(Boolean);
+
+  const BACK=['ob','zone','press'];
+  const front=active.filter(s=>!BACK.includes(s.id));
+  const back=active.filter(s=>BACK.includes(s.id));
+
+  return {pageSize:'LETTER',pageMargins:[M,M,M,M],defaultStyle:{font:'Roboto',lineHeight:1.05},
+    content:[...buildPage(plan,front,'',true),...buildPage(plan,back,'(OB · Zone · Press)',false)]};
+}
+
+function downloadPDF() {
+  if (!window.pdfMake || !window.pdfMake.vfs) {
+    alert('PDF library still loading, please try again in a moment.');
+    return;
+  }
+  try {
+    const docDef = buildGameCardDoc(S.plan);
+    const opp = (S.plan.opponent||'game').replace(/[^a-z0-9]/gi,'_');
+    const date = S.plan.date || new Date().toISOString().slice(0,10);
+    pdfMake.createPdf(docDef).download('game-card-' + opp + '-' + date + '.pdf');
+  } catch(e) {
+    console.error('PDF error:', e);
+    alert('PDF generation error: ' + e.message);
+  }
+}
+
 </script>
 </body>
 </html>
