@@ -130,15 +130,15 @@ input,select{font-family:inherit;}
   .card-sec-hdr{padding:4pt 7pt;border-bottom-width:2pt;}
   .card-sec-label{font-size:7pt;letter-spacing:1.5pt;}
   .card-grp-hdr{padding:3pt 7pt;border-left-width:3pt;border-bottom-width:0.5pt;}
-  .card-grp-code{font-size:7.5pt;min-width:28pt;}
-  .card-grp-name{font-size:9pt;}
+  .card-grp-code{font-size:8pt;min-width:28pt;}
+  .card-grp-name{font-size:9.5pt;}
   .card-sub-hdr{padding:3pt 7pt 3pt 10pt;border-left-width:2pt;}
   .card-sub-code{font-size:7pt;}
-  .card-sub-name{font-size:8pt;}
+  .card-sub-name{font-size:9pt;}
   .card-play{padding:3pt 7pt 3pt 12pt;border-bottom-width:0.3pt;}
   .card-play.indent{padding-left:14pt;}
-  .card-play-code{font-size:7.5pt;min-width:28pt;}
-  .card-play-name{font-size:8.5pt;}
+  .card-play-code{font-size:8pt;min-width:28pt;}
+  .card-play-name{font-size:9pt;}
   .card-players{padding-left:40pt;gap:3pt;margin-top:1pt;}
   .card-chip{font-size:7pt;padding:1pt 3pt;}
 
@@ -147,11 +147,11 @@ input,select{font-family:inherit;}
   .back-page .card-grp-hdr{padding:9pt 7pt!important;}
   .back-page .card-sub-hdr{padding:7pt 7pt 7pt 10pt!important;}
   .back-page .card-play{padding:8pt 7pt 8pt 12pt!important;}
-  .back-page .card-grp-name{font-size:10pt!important;}
+  .back-page .card-grp-name{font-size:9.5pt!important;}
   .back-page .card-sub-name{font-size:9pt!important;}
-  .back-page .card-play-name{font-size:9.5pt!important;}
-  .back-page .card-grp-code{font-size:8.5pt!important;min-width:32pt!important;}
-  .back-page .card-play-code{font-size:8.5pt!important;min-width:32pt!important;}
+  .back-page .card-play-name{font-size:9pt!important;}
+  .back-page .card-grp-code{font-size:8pt!important;min-width:30pt!important;}
+  .back-page .card-play-code{font-size:8pt!important;min-width:30pt!important;}
 }
   body{background:#fff;margin:0;-webkit-text-size-adjust:none;text-size-adjust:none;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
@@ -910,7 +910,7 @@ function applyPrintPadding(){
     });
     var maxItems=Math.max.apply(null,vcTotals);
     if(maxItems){
-      var avail=620, fontPt=8.5;
+      var avail=570, fontPt=9;
       var itemH=Math.max(14,Math.floor(avail/maxItems));
       var padPt=Math.max(2,Math.floor((itemH-fontPt)/2));
       fa.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').forEach(function(el){
