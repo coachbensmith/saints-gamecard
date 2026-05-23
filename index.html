@@ -109,49 +109,73 @@ input,select{font-family:inherit;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   @page{margin:0.35in;size:letter portrait;}
   .print-area{max-width:100%;width:100%;margin:0;box-shadow:none;}
-
-  /* ── Header ── */
-  .card-hdr{padding:10pt 14pt;border-bottom-width:4pt;}
-  .card-eyebrow{font-size:8pt;letter-spacing:2pt;margin-bottom:2pt;}
-  .card-title{font-size:15pt;}
-  .card-opp{font-size:13pt;}
+  .card-hdr{padding:9pt 13pt;border-bottom-width:3pt;}
+  .card-eyebrow{font-size:7.5pt;letter-spacing:2pt;margin-bottom:2pt;}
+  .card-title{font-size:14pt;}
+  .card-opp{font-size:12pt;}
   .card-date{font-size:9pt;margin-top:2pt;}
   .card-coach{font-size:8pt;margin-top:1pt;}
-
-  /* ── Column grid — MUST declare display:grid here or it collapses in print ── */
-  .card-body{display:grid;padding:6pt 8pt;gap:6pt;}
-
-  .card-col{font-size:9pt;border-radius:2pt;border-width:0.5pt;overflow:hidden;}
-
-  /* ── Section header ── */
-  .card-sec-hdr{padding:5pt 7pt;border-bottom-width:2pt;}
-  .card-sec-label{font-size:7.5pt;letter-spacing:1.5pt;}
-
-  /* ── Group header ── */
-  .card-grp-hdr{padding:5pt 7pt;border-bottom-width:0.5pt;border-left-width:3pt;}
-  .card-grp-code{font-size:8pt;min-width:32pt;}
-  .card-grp-name{font-size:10pt;}
-
-  /* ── Sub header ── */
-  .card-sub-hdr{padding:4pt 7pt 4pt 11pt;border-left-width:2pt;}
-  .card-sub-code{font-size:7.5pt;}
-  .card-sub-name{font-size:9pt;}
-
-  /* ── Play rows ── */
-  .card-play{padding:5pt 7pt 5pt 13pt;border-bottom-width:0.4pt;}
-  .card-play.indent{padding-left:15pt;}
-  .card-play-line{gap:4pt;}
-  .card-play-code{font-size:8pt;min-width:32pt;}
-  .card-play-name{font-size:9.5pt;}
-
-  /* ── Player chips ── */
-  .card-players{padding-left:46pt;margin-top:2pt;gap:3pt;}
-  .card-chip{font-size:7.5pt;padding:1pt 4pt;border-radius:1pt;}
-
-  /* ── Footer ── */
   .card-footer{padding:4pt 12pt;border-top-width:0.5pt;}
   .card-footer-text{font-size:8pt;}
-  .card-no-plays{font-size:11pt;padding:32pt;}
+  .card-body{display:grid!important;padding:5pt 7pt;gap:6pt;}
+  .card-col{font-size:9pt;border-radius:2pt;border-width:0.5pt;overflow:hidden;}
+  .card-sec-hdr{padding:5pt 7pt;border-bottom-width:2pt;}
+  .card-sec-label{font-size:7.5pt;letter-spacing:1.5pt;}
+  .card-grp-hdr{padding:6pt 7pt;border-bottom-width:0.5pt;border-left-width:3pt;}
+  .card-grp-code{font-size:8pt;min-width:30pt;}
+  .card-grp-name{font-size:9.5pt;}
+  .card-sub-hdr{padding:5pt 7pt 5pt 11pt;border-left-width:2pt;}
+  .card-sub-code{font-size:7.5pt;}
+  .card-sub-name{font-size:8.5pt;}
+  .card-play{padding:5pt 7pt 5pt 13pt;border-bottom-width:0.4pt;}
+  .card-play.indent{padding-left:15pt;}
+  .card-play-code{font-size:8pt;min-width:30pt;}
+  .card-play-name{font-size:9pt;}
+  .card-players{padding-left:42pt;margin-top:1pt;gap:3pt;}
+  .card-chip{font-size:7.5pt;padding:1pt 4pt;}
+  .back-page .card-sec-hdr{padding:9pt 7pt!important;}
+  .back-page .card-grp-hdr{padding:11pt 7pt!important;}
+  .back-page .card-sub-hdr{padding:9pt 7pt 9pt 11pt!important;}
+  .back-page .card-play{padding:10pt 7pt 10pt 13pt!important;}
+  .back-page .card-play.indent{padding-left:15pt!important;}
+  .back-page .card-grp-name{font-size:11pt!important;}
+  .back-page .card-sub-name{font-size:10pt!important;}
+  .back-page .card-play-name{font-size:10.5pt!important;}
+  .back-page .card-play-code{font-size:9pt!important;min-width:34pt!important;}
+  .back-page .card-grp-code{font-size:9pt!important;min-width:34pt!important;}
+}
+@media print and (max-width:768px){
+  @page{margin:0.25in;}
+  .card-hdr{padding:5pt 8pt;border-bottom-width:2pt;}
+  .card-eyebrow{font-size:5pt;letter-spacing:1pt;}
+  .card-title{font-size:10pt;}
+  .card-opp{font-size:9pt;}
+  .card-date{font-size:7pt;}
+  .card-coach{font-size:6pt;}
+  .card-body{display:grid!important;padding:3pt 4pt;gap:3pt;}
+  .card-col{font-size:6pt;}
+  .card-sec-hdr{padding:2pt 4pt;border-bottom-width:1.5pt;}
+  .card-sec-label{font-size:5pt;letter-spacing:1pt;}
+  .card-grp-hdr{padding:2pt 4pt;border-left-width:2pt;}
+  .card-grp-code{font-size:5.5pt;min-width:22pt;}
+  .card-grp-name{font-size:7.5pt;}
+  .card-sub-hdr{padding:1.5pt 4pt 1.5pt 7pt;border-left-width:1.5pt;}
+  .card-sub-code{font-size:5pt;}
+  .card-sub-name{font-size:6.5pt;}
+  .card-play{padding:1.5pt 4pt 1.5pt 8pt;border-bottom-width:0.25pt;}
+  .card-play.indent{padding-left:10pt;}
+  .card-play-code{font-size:5pt;min-width:24pt;}
+  .card-play-name{font-size:6.5pt;}
+  .card-players{display:none;}
+  .card-footer{padding:2pt 8pt;}
+  .card-footer-text{font-size:5pt;}
+  .back-page .card-sec-hdr{padding:2pt 4pt!important;}
+  .back-page .card-grp-hdr{padding:2pt 4pt!important;}
+  .back-page .card-sub-hdr{padding:1.5pt 4pt 1.5pt 7pt!important;}
+  .back-page .card-play{padding:1.5pt 4pt 1.5pt 8pt!important;}
+  .back-page .card-grp-name{font-size:7.5pt!important;}
+  .back-page .card-play-name{font-size:6.5pt!important;}
+}
 }
 
 /* ── Mobile Safari — compressed to fit one page per side ── */
@@ -754,7 +778,7 @@ function renderPrint(){
           ${renderSecs(frontSecs)}
         </div>
         ${footer}
-        <div style="page-break-before:always;break-before:page">
+        <div class="back-page" style="page-break-before:always;break-before:page">
           ${cardHdr('(OB &middot; Zone &middot; Press)')}
           ${backSecs.length===0
             ?`<div class="card-no-plays" style="font-size:12px;padding:24px">No OB / Zone / Press plays selected.</div>`
