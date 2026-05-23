@@ -105,7 +105,7 @@ input,select{font-family:inherit;}
 .warn-bar{background:#fff8e1;border:1px solid #f5d04a;border-radius:5px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:#7a5900;display:flex;gap:8px;align-items:center;}
 @media print{
   .no-print{display:none!important;}
-  body{background:#fff;margin:0;-webkit-text-size-adjust:none;text-size-adjust:none;}
+  body{background:#fff;margin:0;width:739px!important;-webkit-text-size-adjust:none;text-size-adjust:none;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   @page{margin:0.4in;size:letter portrait;}
 
@@ -124,7 +124,7 @@ input,select{font-family:inherit;}
 
   /* Grid — must be explicit in print */
   .card-body{display:grid!important;padding:5pt 7pt;gap:5pt;}
-  .card-col{overflow:hidden;border-width:0.5pt;border-radius:2pt;}
+  .card-col{overflow:hidden;border-width:0.5pt;border-radius:2pt;break-inside:avoid;page-break-inside:avoid;}
 
   /* Front page defaults — JS overrides padding dynamically */
   .card-sec-hdr{padding:4pt 7pt;border-bottom-width:2pt;}
@@ -418,12 +418,6 @@ function setState(patch){
 }
 
 function render(){
-  // Sync viewport: 816px for print (letter width), responsive for everything else
-  var _vm=document.querySelector('meta[name="viewport"]');
-  if(_vm) _vm.content=(S.view==='print')
-    ?'width=816,shrink-to-fit=no'
-    :'width=device-width,initial-scale=1.0,shrink-to-fit=no';
-
   let html='';
   if(S.view==='home')    html=renderHome();
   if(S.view==='builder') html=renderBuilder();
