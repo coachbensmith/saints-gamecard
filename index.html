@@ -118,7 +118,7 @@ input,select{font-family:inherit;}
   .card-opp{font-size:12pt;}
   .card-date{font-size:9pt;margin-top:2pt;}
   .card-coach{font-size:8pt;}
-  .card-footer{padding:4pt 12pt;border-top-width:0.5pt;}
+  .card-footer{padding:4pt 12pt;border-top-width:0.5pt;break-before:avoid;page-break-before:avoid;}
   .card-footer-text{font-size:7pt;}
   .card-no-plays{padding:32pt;font-size:11pt;}
 
@@ -143,10 +143,6 @@ input,select{font-family:inherit;}
   .card-chip{font-size:7pt;padding:1pt 3pt;}
 
   /* Back page (OB/Zone/Press) — fixed larger size, ~20 items per column */
-  .back-page .card-sec-hdr{padding:8pt 7pt!important;}
-  .back-page .card-grp-hdr{padding:9pt 7pt!important;}
-  .back-page .card-sub-hdr{padding:7pt 7pt 7pt 10pt!important;}
-  .back-page .card-play{padding:8pt 7pt 8pt 12pt!important;}
   .back-page .card-grp-name{font-size:9.5pt!important;}
   .back-page .card-sub-name{font-size:9pt!important;}
   .back-page .card-play-name{font-size:9pt!important;}
@@ -896,26 +892,62 @@ function doImport(file){
 
 
 // ── DYNAMIC PRINT PADDING ─────────────────────────────────────────────────────
-// Called from render() when entering print view — works on all browsers.
+// Sizes rows on both pages so ALL content fits within exactly 2 pages.
+// Overhead = header(55pt) + body-padding(10pt) + footer(18pt) = 83pt base.
+// fontH = 9pt CSS × 1.2 line-height + 0.3pt border = 11.1pt per row.
+// Available for grid = 734pt (letter minus 0.4in margins) - overhead - row gaps.
 function applyPrintPadding(){
-  // FRONT PAGE: size rows for the tallest visual grid column
+  var SEL='.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr';
+  var FONT_H=11.1; // rendered row height in pt (font + line-height + border)
+  var PAGE_H=734;  // usable page height in pt (11in minus 0.8in margins)
+  var BASE_OH=83;  // header + body-padding + footer
+
+  // ── FRONT PAGE ──────────────────────────────────────────────────────────────
   var fa=document.querySelector('.print-area>.card-body');
   if(fa){
-    var cols=Array.from(fa.querySelectorAll('.card-col'));
-    var numCols=Math.min(cols.length,3)||1;
-    var vcTotals=new Array(numCols).fill(0);
-    cols.forEach(function(col,i){
-      var n=col.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').length;
-      vcTotals[i%numCols]+=n;
+    var fcols=Array.from(fa.querySelectorAll('.card-col'));
+    if(fcols.length){
+      var nc=Math.min(fcols.length,3)||1;
+      var nr=Math.ceil(fcols.length/nc);
+      // Sum max items per grid row (determines actual page height needed)
+      var rowMax=[];
+      for(var r=0;r<nr;r++){
+        var mx=0;
+        for(var c=0;c<nc;c++){
+          var idx=r*nc+c;
+          if(idx<fcols.length)
+            mx=Math.max(mx,fcols[idx].querySelectorAll(SEL).length);
+        }
+        rowMax.push(mx);
+      }
+      var tot=rowMax.reduce(function(a,b){return a+b;},0);
+      if(tot){
+        var avail=PAGE_H-BASE_OH-(5*(nr-1)); // subtract inter-row gaps
+        var ih=Math.max(12,Math.floor(avail/tot));
+        var pd=Math.max(1,Math.floor((ih-FONT_H)/2));
+        fa.querySelectorAll(SEL).forEach(function(el){
+          el.style.setProperty('padding-top',   pd+'pt','important');
+          el.style.setProperty('padding-bottom',pd+'pt','important');
+        });
+      }
+    }
+  }
+
+  // ── BACK PAGE ───────────────────────────────────────────────────────────────
+  var ba=document.querySelector('.back-page .card-body');
+  if(ba){
+    var bcols=Array.from(ba.querySelectorAll('.card-col'));
+    var bmx=0;
+    bcols.forEach(function(col){
+      bmx=Math.max(bmx,col.querySelectorAll(SEL).length);
     });
-    var maxItems=Math.max.apply(null,vcTotals);
-    if(maxItems){
-      var avail=570, fontPt=9;
-      var itemH=Math.max(14,Math.floor(avail/maxItems));
-      var padPt=Math.max(2,Math.floor((itemH-fontPt)/2));
-      fa.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').forEach(function(el){
-        el.style.setProperty('padding-top',   padPt+'pt','important');
-        el.style.setProperty('padding-bottom',padPt+'pt','important');
+    if(bmx){
+      var bavail=PAGE_H-BASE_OH; // single grid row, no inter-row gap
+      var bih=Math.max(12,Math.floor(bavail/bmx));
+      var bpd=Math.max(1,Math.floor((bih-FONT_H)/2));
+      ba.querySelectorAll(SEL).forEach(function(el){
+        el.style.setProperty('padding-top',   bpd+'pt','important');
+        el.style.setProperty('padding-bottom',bpd+'pt','important');
       });
     }
   }
