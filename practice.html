@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- v2.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1112,69 +1113,11 @@ function attachHandlers(){
   if(dsetup) dsetup.addEventListener('input',e=>{S.drillForm.defaultSetup=e.target.value;});
   if(demp)   demp.addEventListener('input',e=>{S.drillForm.defaultEmphasis=e.target.value;});
 
-  // Group name inputs
-  document.querySelectorAll('[id^="grp-name-"]').forEach(el=>{
-    const gi=parseInt(el.id.split('-')[2]);
-    el.addEventListener('input',e=>{
-      const groups=[...S.plan.groups];
-      groups[gi]={...groups[gi],name:e.target.value};
-      S.plan.groups=groups;
-    });
-  });
-
-  // Group name inputs
-  document.querySelectorAll('[id^="grp-name-"]').forEach(el=>{
-    el.addEventListener('input',e=>{
-      const grpid=el.dataset.grpid;
-      const groups=(S.plan.groups||[]).map(g=>g.id===grpid?{...g,name:e.target.value}:g);
-      S.plan.groups=groups;
-    });
-  });
-  // Group assignment dropdowns
-  document.querySelectorAll('[data-a="assign-group"]').forEach(el=>{
-    el.addEventListener('change',e=>{
-      const pid=el.dataset.pid;
-      const grpId=e.target.value;
-      const groups=(S.plan.groups||[]).map(g=>({...g,playerIds:(g.playerIds||[]).filter(x=>x!==pid)}));
-      if(grpId){const gi=groups.findIndex(g=>g.id===grpId);if(gi>=0)groups[gi].playerIds=[...groups[gi].playerIds,pid];}
-      setState({plan:{...S.plan,groups}});
-    });
-  });
-  // Pair selects
+  // Pair selects (specific IDs, safe to keep here)
   const pp1=document.getElementById('pair-p1');
   const pp2=document.getElementById('pair-p2');
   if(pp1) pp1.addEventListener('change',e=>{setState({pairForm:{...S.pairForm,p1:e.target.value}});});
   if(pp2) pp2.addEventListener('change',e=>{setState({pairForm:{...S.pairForm,p2:e.target.value}});});
-
-  // Team assignment dropdowns
-  document.querySelectorAll('[data-a="assign-team"]').forEach(el=>{
-    el.addEventListener('change',e=>{
-      const pid=el.dataset.pid;
-      const team=e.target.value;
-      const teams={
-        navy:(S.plan.teams?.navy||[]).filter(x=>x!==pid),
-        white:(S.plan.teams?.white||[]).filter(x=>x!==pid),
-        gold:(S.plan.teams?.gold||[]).filter(x=>x!==pid)
-      };
-      if(team==='navy')  teams.navy=[...teams.navy,pid];
-      if(team==='white') teams.white=[...teams.white,pid];
-      if(team==='gold')  teams.gold=[...teams.gold,pid];
-      setState({plan:{...S.plan,teams}});
-    });
-  });
-
-  // Shooting stat inputs
-  document.querySelectorAll('[data-stat]').forEach(el=>{
-    el.addEventListener('change',e=>{
-      const [cat,field]=el.dataset.stat.split('-');
-      const pid=el.dataset.pid;
-      const val=Math.max(0,parseInt(e.target.value)||0);
-      const stats={...S.plan.shootingStats};
-      if(!stats[pid])stats[pid]={ft:{makes:0,attempts:0},tp:{makes:0,attempts:0}};
-      stats[pid]={...stats[pid],[cat]:{...stats[pid][cat],[field]:val}};
-      S.plan.shootingStats=stats;
-    });
-  });
 
   // Import file
   const impFile=document.getElementById('import-file');
@@ -1403,6 +1346,49 @@ function doImport(file){
   };
   reader.readAsText(file);
 }
+
+// ── CHANGE EVENT DELEGATION ───────────────────────────────────────────────────
+document.addEventListener('change',function(e){
+  const el=e.target;
+  const a=el.dataset&&el.dataset.a;
+  if(a==='assign-team'){
+    const pid=el.dataset.pid,team=el.value;
+    const teams={
+      navy: (S.plan.teams?.navy ||[]).filter(x=>x!==pid),
+      white:(S.plan.teams?.white||[]).filter(x=>x!==pid),
+      gold: (S.plan.teams?.gold ||[]).filter(x=>x!==pid),
+    };
+    if(team==='navy')  teams.navy =[...teams.navy, pid];
+    if(team==='white') teams.white=[...teams.white,pid];
+    if(team==='gold')  teams.gold =[...teams.gold, pid];
+    setState({plan:{...S.plan,teams}});
+    return;
+  }
+  if(a==='assign-group'){
+    const pid=el.dataset.pid,grpId=el.value;
+    const groups=(S.plan.groups||[]).map(g=>({...g,playerIds:(g.playerIds||[]).filter(x=>x!==pid)}));
+    if(grpId){const gi=groups.findIndex(g=>g.id===grpId);if(gi>=0)groups[gi].playerIds=[...groups[gi].playerIds,pid];}
+    setState({plan:{...S.plan,groups}});
+    return;
+  }
+  if(el.dataset&&el.dataset.stat){
+    const [cat,field]=el.dataset.stat.split('-');
+    const pid=el.dataset.pid;
+    const val=Math.max(0,parseInt(el.value)||0);
+    const stats={...S.plan.shootingStats};
+    if(!stats[pid])stats[pid]={ft:{makes:0,attempts:0},tp:{makes:0,attempts:0}};
+    stats[pid]={...stats[pid],[cat]:{...stats[pid][cat],[field]:val}};
+    S.plan.shootingStats=stats;
+    return;
+  }
+});
+document.addEventListener('input',function(e){
+  const el=e.target;
+  if(el.dataset&&el.dataset.grpid&&el.tagName==='INPUT'){
+    const groups=(S.plan.groups||[]).map(g=>g.id===el.dataset.grpid?{...g,name:el.value}:g);
+    S.plan.groups=groups;
+  }
+});
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.addEventListener('click',handleClick);
