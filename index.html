@@ -422,6 +422,12 @@ function setState(patch){
 }
 
 function render(){
+  // Sync viewport: 816px for print (letter width), responsive for everything else
+  var _vm=document.querySelector('meta[name="viewport"]');
+  if(_vm) _vm.content=(S.view==='print')
+    ?'width=816,shrink-to-fit=no'
+    :'width=device-width,initial-scale=1.0,shrink-to-fit=no';
+
   let html='';
   if(S.view==='home')    html=renderHome();
   if(S.view==='builder') html=renderBuilder();
@@ -429,6 +435,9 @@ function render(){
   if(S.showRoster)       html+=renderRosterModal();
   document.getElementById('app').innerHTML=html;
   attachHandlers();
+
+  // Apply dynamic padding to print view after DOM settles
+  if(S.view==='print') requestAnimationFrame(applyPrintPadding);
 }
 
 function renderHome(){
@@ -841,17 +850,6 @@ function doImport(file){
 }
 
 
-// ── PRINT: fix viewport so mobile prints at correct scale ────────────────────
-(function(){
-  var _vp, _vm;
-  window.addEventListener('beforeprint', function(){
-    _vm = document.querySelector('meta[name="viewport"]');
-    if(_vm){ _vp = _vm.content; _vm.content = 'width=816'; }
-  });
-  window.addEventListener('afterprint', function(){
-    if(_vm && _vp){ _vm.content = _vp; }
-  });
-})();
 
 // ── GAME CARD FRONT PAGE: dynamic padding based on visual column content ──────
 (function(){
@@ -896,6 +894,32 @@ function doImport(file){
   });
 })();
 
+
+// ── DYNAMIC PRINT PADDING ─────────────────────────────────────────────────────
+// Called from render() when entering print view — works on all browsers.
+function applyPrintPadding(){
+  // FRONT PAGE: size rows for the tallest visual grid column
+  var fa=document.querySelector('.print-area>.card-body');
+  if(fa){
+    var cols=Array.from(fa.querySelectorAll('.card-col'));
+    var numCols=Math.min(cols.length,3)||1;
+    var vcTotals=new Array(numCols).fill(0);
+    cols.forEach(function(col,i){
+      var n=col.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').length;
+      vcTotals[i%numCols]+=n;
+    });
+    var maxItems=Math.max.apply(null,vcTotals);
+    if(maxItems){
+      var avail=620, fontPt=8.5;
+      var itemH=Math.max(14,Math.floor(avail/maxItems));
+      var padPt=Math.max(2,Math.floor((itemH-fontPt)/2));
+      fa.querySelectorAll('.card-play,.card-grp-hdr,.card-sub-hdr,.card-sec-hdr').forEach(function(el){
+        el.style.setProperty('padding-top',   padPt+'pt','important');
+        el.style.setProperty('padding-bottom',padPt+'pt','important');
+      });
+    }
+  }
+}
 document.addEventListener('click',handleClick);
 render();
 </script>

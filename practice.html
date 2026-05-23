@@ -182,7 +182,7 @@ textarea.inp{resize:vertical;min-height:52px;}
 
   /* Rows: padding sized for ~17 rows with some wrapping → fills 75-90% */
   .plan-table td{
-    padding:9pt 6pt;
+    padding:12pt 6pt;
     vertical-align:middle;
     border-bottom:0.5pt solid #ddd;
     word-wrap:break-word;
@@ -396,6 +396,12 @@ function setState(patch){
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render(){
+  // Sync viewport: 816px for print, responsive otherwise
+  var _vm=document.querySelector('meta[name="viewport"]');
+  if(_vm) _vm.content=(S.view==='print')
+    ?'width=816,shrink-to-fit=no'
+    :'width=device-width,initial-scale=1.0,shrink-to-fit=no';
+
   let html='';
   if(S.view==='home')    html=renderHome();
   if(S.view==='builder') html=renderBuilder();
@@ -1405,17 +1411,6 @@ function doImport(file){
 }
 
 
-// ── PRINT: fix viewport so mobile prints at correct scale ────────────────────
-(function(){
-  var _vp, _vm;
-  window.addEventListener('beforeprint', function(){
-    _vm = document.querySelector('meta[name="viewport"]');
-    if(_vm){ _vp = _vm.content; _vm.content = 'width=816'; }
-  });
-  window.addEventListener('afterprint', function(){
-    if(_vm && _vp){ _vm.content = _vp; }
-  });
-})();
 // ── CHANGE EVENT DELEGATION ───────────────────────────────────────────────────
 document.addEventListener('change',function(e){
   const el=e.target,a=el.dataset&&el.dataset.a;
