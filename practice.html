@@ -156,42 +156,70 @@ textarea.inp{resize:vertical;min-height:52px;}
   .no-print{display:none!important;}
   body{background:#fff;margin:0;-webkit-text-size-adjust:none;text-size-adjust:none;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  @page{margin:0.4in;size:letter portrait;}
+  @page{margin:0.35in;size:letter portrait;}
   .print-wrap{max-width:100%;width:100%;margin:0;box-shadow:none;}
 
   /* ── Page header ── */
-  .print-hdr{padding:10pt 14pt;border-bottom-width:4pt;}
-  .print-hdr-left .eyebrow{font-size:8pt;letter-spacing:2pt;margin-bottom:2pt;}
-  .print-hdr-left .title{font-size:15pt;}
+  .print-hdr{padding:10pt 14pt 10pt;border-bottom-width:4pt;}
+  .print-hdr-left .eyebrow{font-size:8pt;letter-spacing:2pt;margin-bottom:3pt;}
+  .print-hdr-left .title{font-size:16pt;}
   .print-hdr-right .opp{font-size:13pt;}
-  .print-hdr-right .sub{font-size:9pt;margin-top:2pt;}
+  .print-hdr-right .sub{font-size:9pt;margin-top:3pt;}
 
-  /* ── Practice plan table ── */
-  .print-body{padding:10pt 12pt;}
-  .plan-table{font-size:10pt;margin-bottom:12pt;border-collapse:collapse;width:100%;}
-  .plan-table th{padding:5pt 7pt;font-size:8.5pt;letter-spacing:0.5pt;}
-  .plan-table td{padding:5pt 7pt;vertical-align:middle;border-bottom:1pt solid #eee;}
-  .plan-table td.clock{font-size:14pt;font-weight:bold;text-align:center;white-space:nowrap;}
-  .plan-table td.dur{font-size:11pt;font-weight:bold;text-align:center;}
-  .team-goal-print{font-size:9pt;}
+  /* ── Practice plan table — sized to fill page 1 ── */
+  .print-body{padding:8pt 10pt;}
+  .plan-table{font-size:11pt;margin-bottom:0;border-collapse:collapse;width:100%;}
+  .plan-table th{padding:7pt 8pt;font-size:9pt;letter-spacing:0.5pt;}
+  .plan-table td{padding:12pt 8pt;vertical-align:middle;border-bottom:0.5pt solid #ddd;}
+  .plan-table td.clock{font-size:15pt;font-weight:bold;text-align:center;white-space:nowrap;}
+  .plan-table td.dur{font-size:12pt;font-weight:bold;text-align:center;}
+  .team-goal-print{font-size:9.5pt;}
 
-  /* ── Section headers (groups, teams, stats) ── */
-  .print-section-hdr{padding:5pt 9pt;font-size:9.5pt;letter-spacing:2pt;margin-bottom:8pt;margin-top:4pt;}
+  /* ── Page 2: section headers ── */
+  .print-section-hdr{padding:7pt 10pt;font-size:10pt;letter-spacing:2pt;margin-bottom:10pt;margin-top:6pt;}
 
-  /* ── Partners & groups ── */
-  .print-groups{gap:10pt;margin-bottom:12pt;}
-  .print-group{padding:6pt 10pt;}
-  .print-group-name{font-size:9pt;margin-bottom:3pt;}
-  .print-group-players{font-size:9pt;}
+  /* ── Partners & groups — sized to fill page 2 ── */
+  .print-groups{gap:12pt;margin-bottom:14pt;}
+  .print-group{padding:8pt 12pt;}
+  .print-group-name{font-size:10pt;margin-bottom:4pt;}
+  .print-group-players{font-size:10pt;line-height:1.5;}
 
   /* ── Stats table ── */
-  .stats-table{font-size:9pt;width:100%;}
-  .stats-table th{padding:5pt 7pt;font-size:8pt;}
-  .stats-table td{padding:5pt 7pt;}
+  .stats-table{font-size:10pt;width:100%;}
+  .stats-table th{padding:7pt 8pt;font-size:8.5pt;}
+  .stats-table td{padding:9pt 8pt;}
 
   /* ── Footer ── */
   .print-footer{padding:5pt 12pt;border-top-width:0.75pt;}
   .print-footer-text{font-size:8pt;}
+}
+
+/* ── Mobile Safari — compressed to fit one page per side ── */
+@media print and (max-width:768px){
+  @page{margin:0.25in;}
+  .print-hdr{padding:5pt 8pt;border-bottom-width:2pt;}
+  .print-hdr-left .eyebrow{font-size:5pt;letter-spacing:1pt;}
+  .print-hdr-left .title{font-size:10pt;}
+  .print-hdr-right .opp{font-size:9pt;}
+  .print-hdr-right .sub{font-size:6.5pt;}
+  .print-body{padding:4pt 6pt;}
+  .plan-table{font-size:6.5pt;margin-bottom:5pt;}
+  .plan-table th{padding:2.5pt 4pt;font-size:5.5pt;}
+  .plan-table td{padding:2.5pt 4pt;}
+  .plan-table td.clock{font-size:10pt;}
+  .plan-table td.dur{font-size:7pt;}
+  .team-goal-print{font-size:6pt;}
+  .print-section-hdr{padding:3pt 6pt;font-size:7pt;letter-spacing:1pt;margin-bottom:4pt;margin-top:2pt;}
+  .print-groups{gap:5pt;margin-bottom:6pt;}
+  .print-group{padding:3pt 6pt;}
+  .print-group-name{font-size:7pt;margin-bottom:2pt;}
+  .print-group-players{font-size:6.5pt;}
+  .stats-table{font-size:6.5pt;}
+  .stats-table th{padding:2.5pt 4pt;font-size:5.5pt;}
+  .stats-table td{padding:2.5pt 4pt;}
+  .print-footer{padding:3pt 8pt;}
+  .print-footer-text{font-size:5.5pt;}
+}
 }
 
 /* ── Mobile Safari — compressed to fit one page per side ── */
