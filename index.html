@@ -99,7 +99,7 @@ input,select{font-family:inherit;}
 .card-play-code.ctr{font-weight:bold;color:var(--purple);}
 .card-players{padding-left:47px;margin-top:2px;display:flex;flex-wrap:wrap;gap:3px;}
 
-.card-chip{background:var(--navy);color:#fff;font-size:8px;border-radius:2px;padding:1px 5px;}
+.card-chip{background:var(--navy);color:#fff;font-size:9px;font-weight:700;border-radius:2px;padding:2px 6px;}
 .card-footer{border-top:1px solid var(--gold);padding:5px 14px;text-align:center;}
 .card-footer-text{color:#bbb;font-size:8px;}
 .card-no-plays{padding:48px;text-align:center;color:#bbb;font-size:14px;}
@@ -141,7 +141,7 @@ input,select{font-family:inherit;}
   .card-play-code{font-size:8pt;min-width:28pt;}
   .card-play-name{font-size:9pt;color:#0D1B2A;}
   .card-players{padding-left:40pt;gap:3pt;margin-top:1pt;}
-  .card-chip{font-size:7pt;padding:1pt 3pt;}
+  .card-chip{font-size:8pt;font-weight:700;padding:1pt 4pt;}
 
   /* Back page (OB/Zone/Press) — fixed larger size, ~20 items per column */
   .back-page .card-grp-name{font-size:9.5pt!important;}
@@ -814,7 +814,7 @@ function renderCardPlay(play,color,alt,indent,players){
       <span class="card-play-code${play.ctr?' ctr':''}" style="color:${cc}">${esc(play.code)}</span>
       <span class="card-play-name${play.ctr?' ctr':''}">${esc(play.name)}</span>
     </div>
-    ${players.length?`<div class="card-players">${players.map(pl=>`<span class="card-chip">#${pl.number} ${esc(pl.name)}</span>`).join('')}</div>`:''}
+    ${players.length?`<div class="card-players">${players.map(pl=>`<span class="card-chip">#${pl.number}</span>`).join('')}</div>`:''}
   </div>`;
 }
 
@@ -1629,7 +1629,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
         const bg=pi%2===0?WHITE:STRIPE;
         const ap=getAssigned(play.id);
         const nm=ap.length
-          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
           :{text:play.name,fontSize:8.5,italics:ctr,color:nameCol};
         add([{text:'  '+play.code,fontSize:6.5,color:codeCol,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
       });
@@ -1638,7 +1638,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       const bg=pi%2===0?WHITE:STRIPE;
       const ap=getAssigned(play.id);
       const nm=ap.length
-        ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+        ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
         :{text:play.name,fontSize:8.5,color:'#0D1B2A'};
       add([{text:play.code,fontSize:7,color:sc,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
     });

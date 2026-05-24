@@ -1599,15 +1599,25 @@ function buildPracticePlanDoc(plan, roster) {
 
   // Teams
   function teamBox(lbl,emoji,bg,bc,pids){
-    return{stack:[{text:emoji+' '+lbl,bold:true,fontSize:9,color:WHITE,fillColor:bc,margin:[6,5,6,3]},{text:(pids||[]).map(pid=>plName(pid)).filter(Boolean).join('  ·  ')||'—',fontSize:8.5,margin:[6,3,6,6]}],fillColor:bg,border:[true,true,true,true],borderColor:[bc,bc,bc,bc]};
+    const players=(pids||[]).map(pid=>plName(pid)).filter(Boolean).join('  ·  ')||'—';
+    return{
+      table:{widths:['*'],body:[
+        [{text:emoji+' '+lbl, bold:true, fontSize:9.5, color:WHITE, fillColor:bc,
+          border:[true,true,true,false], borderColor:[bc,bc,bc,'']}],
+        [{text:players, fontSize:8.5, color:'#222', fillColor:bg,
+          border:[true,false,true,true], borderColor:[bc,'',bc,bc]}]
+      ]},
+      layout:{hLineWidth:()=>0,vLineWidth:()=>0,
+        paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>6,paddingBottom:()=>6}
+    };
   }
   const teamsSection=[
     secHdr('Teams'),
     {table:{widths:['*','*','*'],body:[[
       teamBox('Blue Team','🟦','#EEF2F8','#1D4E89',teams.navy||[]),
-      teamBox('White Team','⚪','#F5F5F5','#64748B',teams.white||[]),
-      teamBox('Gold Team','🟡',LGOLD,'#C9A84C',      teams.gold||[]),
-    ]]},layout:{hLineWidth:()=>0,vLineWidth:(i)=>i>0&&i<3?0.5:0,vLineColor:()=>'#ccc',paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0},margin:[0,0,0,8]}
+      teamBox('White Team','⚪','#F0F0F0','#555555',teams.white||[]),
+      teamBox('Gold Team','🟡',LGOLD,'#A07A20',teams.gold||[]),
+    ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>3,paddingRight:()=>3,paddingTop:()=>0,paddingBottom:()=>0},margin:[0,0,0,8]}
   ];
 
   // Stats
