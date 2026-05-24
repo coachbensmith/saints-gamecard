@@ -270,6 +270,9 @@ input,select{font-family:inherit;}
 .pb-footer{padding:10px 14px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end;}
 .pb-reset-confirm{font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:4px 8px;}
 
+.grp-family{font-size:10px;padding:2px 7px;border:1px solid #C9A84C;border-radius:3px;background:#fff;cursor:pointer;color:#C9A84C;}
+.grp-family.active{background:#C9A84C;color:#fff;font-weight:bold;}
+.play-row-dimmed{opacity:.35;pointer-events:none;}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
@@ -490,9 +493,9 @@ const S={
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 const fmtDate=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch{return d||'';}};
-const mkPlan=(opp='',date='')=>({id:uid(),opponent:opp,date,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),selections:{}});
+const mkPlan=(opp='',date='')=>({id:uid(),opponent:opp,date,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),selections:{},familySelections:{}});
 const grpIds=grp=>grp.subs?grp.subs.flatMap(s=>s.plays.map(p=>p.id)):grp.plays.map(p=>p.id);
-const selCount=plan=>Object.keys(plan.selections||{}).length;
+const selCount=plan=>Object.keys(plan.selections||{}).length+Object.keys(plan.familySelections||{}).length;
 const isOpen=id=>S.openGroups[id]!==false;
 
 function setState(patch){
@@ -602,39 +605,41 @@ function renderGroupBlock(grp,sec){
   const color=grp.color||sec.color;
   const bg=grp.bg||sec.bg;
   const ids=grpIds(grp);
-  const sn=ids.filter(id=>S.plan.selections[id]!==undefined).length;
-  const allOn=sn===ids.length;
+  const fsel=(S.plan.familySelections||{})[grp.id]===true;
+  const sn=fsel?0:ids.filter(id=>S.plan.selections[id]!==undefined).length;
+  const allOn=!fsel&&sn===ids.length;
   const open=isOpen(grp.id);
   return`
-  <div class="grp-row" style="background:${bg};border-color:#ddd;border-left:3.5px solid ${color}" data-a="toggle-grp-open" data-gid="${grp.id}">
+  <div class="grp-row" style="background:${fsel?'#FFFBEB':bg};border-color:${fsel?'#C9A84C':'#ddd'};border-left:3.5px solid ${color}" data-a="toggle-grp-open" data-gid="${grp.id}">
     <span style="color:#aaa;font-size:10px;width:10px">${open?'&#9662;':'&#9658;'}</span>
     <span class="grp-code" style="color:${color}">${esc(grp.code)}</span>
     <span class="grp-name">${esc(grp.name)}</span>
-    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}">${allOn?'Deselect All':'Select All'}</button>
-    <span style="font-size:11px;color:var(--mgray);min-width:32px;text-align:right">${sn}/${ids.length}</span>
+    <button class="grp-family${fsel?' active':''}" data-a="toggle-family" data-gid="${grp.id}" data-ids="${ids.join(',')}">&#9733; Family</button>
+    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}" ${fsel?'disabled style="opacity:.4"':''}>${allOn?'Deselect All':'Select All'}</button>
+    <span style="font-size:11px;color:var(--mgray);min-width:32px;text-align:right">${fsel?'&#9733;':sn+'/'+ids.length}</span>
   </div>
   ${open?(grp.subs
-    ?grp.subs.map(sub=>renderSubBlock(sub,color)).join('')
-    :grp.plays.map((play,i)=>renderPlayRow(play,color,i%2===1,false)).join('')
+    ?grp.subs.map(sub=>renderSubBlock(sub,color,fsel)).join('')
+    :grp.plays.map((play,i)=>renderPlayRow(play,color,i%2===1,false,fsel)).join('')
   ):''}`;
 }
 
-function renderSubBlock(sub,color){
+function renderSubBlock(sub,color,fsel=false){
   return`
   <div class="sub-hdr" style="border-color:${color}">
     <span style="font-weight:bold;font-size:10px;color:${color}">${esc(sub.code)}</span>
     <span style="color:var(--navy);font-weight:bold;font-size:11px">${esc(sub.name)}</span>
   </div>
-  ${sub.plays.map((play,i)=>renderPlayRow(play,color,i%2===1,true)).join('')}`;
+  ${sub.plays.map((play,i)=>renderPlayRow(play,color,i%2===1,true,fsel)).join('')}`;
 }
 
-function renderPlayRow(play,color,alt,indent){
+function renderPlayRow(play,color,alt,indent,fsel=false){
   const sel=S.plan.selections[play.id]!==undefined;
   const assigned=S.plan.selections[play.id]||[];
   const bg=play.ctr?'#f3eeff':alt?'#fafafa':'#fff';
   const available=S.roster.filter(r=>!assigned.includes(r.id)).sort((a,b)=>a.number-b.number);
   const showDrop=S.showDropFor===play.id;
-  return`<div class="play-row" style="background:${bg}">
+  return`<div class="play-row${fsel?' play-row-dimmed':''}" style="background:${bg}">
     <div class="play-main${indent?' indent':''}">
       <input type="checkbox" class="play-cb" ${sel?'checked':''} style="accent-color:${color}" data-a="toggle-play" data-pid="${play.id}">
       <span class="play-code${play.ctr?' ctr':''}">${esc(play.code)}</span>
@@ -707,8 +712,11 @@ function renderPrint(){
   const p=S.plan;
   const getPlayers=pid=>(p.selections[pid]||[]).map(id=>S.roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
 
+  const fselMap=p.familySelections||{};
   const activeSecs=SYSTEM.map(sec=>{
     const groups=sec.groups.map(grp=>{
+      // Family-selected: include group as-is (renders as single line)
+      if(fselMap[grp.id]) return grp;
       if(grp.subs){
         const subs=grp.subs.map(sub=>{const plays=sub.plays.filter(pl=>p.selections[pl.id]!==undefined);return plays.length?{...sub,plays}:null;}).filter(Boolean);
         return subs.length?{...grp,subs,plays:undefined}:null;
@@ -735,19 +743,20 @@ function renderPrint(){
       ${sec.groups.map(grp=>{
         const gc=grp.color||sec.color;
         const gb=grp.bg||sec.bg;
+        const isFamSel=(p.familySelections||{})[grp.id]===true;
         return`<div>
           <div class="card-grp-hdr" style="background:${gb};border-color:${gc}">
-            <span class="card-grp-code" style="color:${gc}">${esc(grp.code)}</span>
+            <span class="card-grp-code" style="color:${gc}">${isFamSel?'&#9733;':esc(grp.code)}</span>
             <span class="card-grp-name">${esc(grp.name)}</span>
           </div>
-          ${grp.subs?grp.subs.map(sub=>`
+          ${isFamSel?'':(grp.subs?grp.subs.map(sub=>`
             <div class="card-sub-hdr" style="border-color:${sc}">
               <span class="card-sub-code" style="color:${sc}">${esc(sub.code)}</span>
               <span class="card-sub-name">${esc(sub.name)}</span>
             </div>
             ${sub.plays.map((pl,i)=>renderCardPlay(pl,sc,i%2===1,true,getPlayers(pl.id))).join('')}
           `).join('')
-          :grp.plays.map((pl,i)=>renderCardPlay(pl,gc,i%2===1,false,getPlayers(pl.id))).join('')}
+          :grp.plays.map((pl,i)=>renderCardPlay(pl,gc,i%2===1,false,getPlayers(pl.id))).join(''))}
         </div>`;
       }).join('')}
     </div>`;
@@ -1144,18 +1153,44 @@ function handleClick(e){
     og[el.dataset.gid]=!isOpen(el.dataset.gid);
     setState({openGroups:og});
   }
+  else if(a==='toggle-family'){
+    const gid=el.dataset.gid;
+    const ids=(el.dataset.ids||'').split(',').filter(Boolean);
+    const fsel={...(S.plan.familySelections||{})};
+    const sel={...S.plan.selections};
+    if(fsel[gid]){
+      // Deselect family
+      delete fsel[gid];
+    } else {
+      // Select as family — clear any individual play selections for this group
+      ids.forEach(id=>delete sel[id]);
+      fsel[gid]=true;
+    }
+    setState({plan:{...S.plan,selections:sel,familySelections:fsel},showDropFor:null});
+  }
   else if(a==='toggle-all'){
     const ids=el.dataset.ids.split(',');
     const allOn=el.dataset.allon==='true';
     const sel={...S.plan.selections};
+    // Also clear any family selection for this group (switching to individual mode)
+    const fsel={...(S.plan.familySelections||{})};
+    // Find which group this belongs to and remove its family selection
+    SYSTEM.forEach(sec=>sec.groups.forEach(grp=>{
+      if(grpIds(grp).some(id=>ids.includes(id))) delete fsel[grp.id];
+    }));
     ids.forEach(id=>{if(allOn)delete sel[id];else if(sel[id]===undefined)sel[id]=[];});
-    setState({plan:{...S.plan,selections:sel},showDropFor:null});
+    setState({plan:{...S.plan,selections:sel,familySelections:fsel},showDropFor:null});
   }
   else if(a==='toggle-play'){
     const pid=el.dataset.pid;
     const sel={...S.plan.selections};
+    const fsel={...(S.plan.familySelections||{})};
+    // If this play's group is family-selected, switch to individual mode
+    SYSTEM.forEach(sec=>sec.groups.forEach(grp=>{
+      if(grpIds(grp).includes(pid)&&fsel[grp.id]){delete fsel[grp.id];}
+    }));
     if(sel[pid]!==undefined)delete sel[pid];else sel[pid]=[];
-    setState({plan:{...S.plan,selections:sel},showDropFor:null});
+    setState({plan:{...S.plan,selections:sel,familySelections:fsel},showDropFor:null});
   }
   else if(a==='remove-player'){
     const {pid,rid}=el.dataset;
@@ -1544,13 +1579,18 @@ const COL_AVAIL=667, PAD=2;
 // PDF generator uses the app SYSTEM array above
 
 
-function countItems(sec){
+function countItems(sec, fselMap={}){
   let n=1;
-  sec.groups.forEach(g=>{n++;if(g.subs)g.subs.forEach(s=>{n++;n+=s.plays.length;});else n+=g.plays.length;});
+  sec.groups.forEach(g=>{
+    n++;
+    if(fselMap[g.id]) return; // family selected — just the group header row
+    if(g.subs) g.subs.forEach(s=>{n++;n+=(s.plays||[]).length;});
+    else n+=(g.plays||[]).length;
+  });
   return n;
 }
 
-function sectionTable(sec, itemH, sel={}, roster=[]){
+function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
   const NAVY='#0A1E3C', PAD=2;
   const body=[], heights=[], sc=sec.color;
   const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
@@ -1560,10 +1600,12 @@ function sectionTable(sec, itemH, sel={}, roster=[]){
 
   sec.groups.forEach(grp=>{
     const gc=grp.color||sc;
+    const isFam=fselMap[grp.id]===true;
     add([
-      {text:grp.code,fontSize:6.5,bold:true,color:gc,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:'#f3f3f3'},
-      {text:grp.name,fontSize:8.5,bold:true,color:NAVY,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:'#f3f3f3'}
+      {text:isFam?'★':grp.code,fontSize:6.5,bold:true,color:gc,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:isFam?'#FFFBEB':'#f3f3f3'},
+      {text:grp.name,fontSize:8.5,bold:true,color:NAVY,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:isFam?'#FFFBEB':'#f3f3f3'}
     ], itemH);
+    if(isFam) return; // family selected — show name only, skip all plays
 
     if(grp.subs) grp.subs.forEach(sub=>{
       add([
@@ -1611,7 +1653,7 @@ function makeHeader(plan, subtitle){
   ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>9,paddingBottom:()=>9}};
 }
 
-function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[]){
+function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[], fselMap={}){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
   const M=28, CW=556, COL_AVAIL=667, PAD=2;
   if(!secs.length) return [{text:'',fontSize:1}];
@@ -1622,7 +1664,7 @@ function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[]){
   let totalItems=0;
   for(let r=0;r<numGridRows;r++){
     let mx=0;
-    for(let c=0;c<numCols;c++){const i=r*numCols+c;if(i<secs.length)mx=Math.max(mx,countItems(secs[i]));}
+    for(let c=0;c<numCols;c++){const i=r*numCols+c;if(i<secs.length)mx=Math.max(mx,countItems(secs[i],fselMap));}
     totalItems+=mx;
   }
 
@@ -1634,7 +1676,7 @@ function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[]){
     const row=[];
     for(let c=0;c<numCols;c++){
       const i=r*numCols+c;
-      row.push(i<secs.length ? sectionTable(secs[i],itemH,sel,roster) : {text:'',border:[false,false,false,false]});
+      row.push(i<secs.length ? sectionTable(secs[i],itemH,sel,roster,fselMap) : {text:'',border:[false,false,false,false]});
     }
     gridBody.push(row);
   }
@@ -1654,8 +1696,10 @@ function buildGameCardDoc(plan, roster){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
   const M=28, CW=556, COL_AVAIL=667, PAD=2;
   const sel=plan.selections||{};
+  const fselMap=plan.familySelections||{};
   const active=SYSTEM.map(sec=>{
     const groups=sec.groups.map(grp=>{
+      if(fselMap[grp.id]) return grp; // family selected — include as-is
       if(grp.subs){const subs=grp.subs.map(sub=>{const pl=sub.plays.filter(p=>sel[p.id]!==undefined);return pl.length?{...sub,plays:pl}:null;}).filter(Boolean);return subs.length?{...grp,subs}:null;}
       const pl=grp.plays.filter(p=>sel[p.id]!==undefined);return pl.length?{...grp,plays:pl}:null;
     }).filter(Boolean);
@@ -1667,7 +1711,7 @@ function buildGameCardDoc(plan, roster){
   const back=active.filter(s=>BACK.includes(s.id));
 
   return {pageSize:'LETTER',pageMargins:[M,M,M,M],defaultStyle:{font:'Roboto',lineHeight:1.05},
-    content:[...buildPage(plan,front,'',true,sel,roster),...buildPage(plan,back,'(OB · Zone · Press)',false,sel,roster)]};
+    content:[...buildPage(plan,front,'',true,sel,roster,fselMap),...buildPage(plan,back,'(OB · Zone · Press)',false,sel,roster,fselMap)]};
 }
 
 function downloadPDF() {
