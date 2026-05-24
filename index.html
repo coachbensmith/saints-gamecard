@@ -595,8 +595,8 @@ function renderBuilder(){
 
 function renderSectionBlock(sec){
   return`<div class="section-block">
-    <div class="sec-hdr" style="background:#0A1E3C;border-color:${sec.color}">
-      <span style="color:${sec.color};font-weight:bold;font-size:10px;letter-spacing:2px;text-transform:uppercase">${esc(sec.label)}</span>
+    <div class="sec-hdr" style="background:${sec.bg||'#F4F4F4'};border-bottom:2.5px solid ${sec.color};border-color:${sec.color}">
+      <span style="color:${sec.color};font-weight:800;font-size:10px;letter-spacing:2px;text-transform:uppercase">${esc(sec.label)}</span>
     </div>
     ${sec.groups.map(grp=>renderGroupBlock(grp,sec)).join('')}
   </div>`;
@@ -738,7 +738,7 @@ function renderPrint(){
   const renderSecs=secs=>secs.map(sec=>{
     const sc=sec.color;
     return`<div class="card-col">
-      <div class="card-sec-hdr" style="border-color:${sc}">
+      <div class="card-sec-hdr" style="background:${sec.bg||'#F4F4F4'};border-color:${sc}">
         <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
       </div>
       ${sec.groups.map(grp=>{
@@ -1604,7 +1604,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
 
   // ── Section header ────────────────────────────────────────────────────────
   add([
-    {text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:sc,fillColor:WHITE,colSpan:2},{}
+    {text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:sc,fillColor:sec.bg||'#F4F4F4',colSpan:2},{}
   ], itemH+3, 'sec-hdr');
 
   sec.groups.forEach(grp=>{
