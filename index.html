@@ -223,6 +223,53 @@ input,select{font-family:inherit;}
   .card-footer{padding:2px 8px;}
   .card-footer-text{font-size:5.5px;}
 }
+
+/* ── PLAYBOOK EDITOR ────────────────────────────────────────────────────── */
+.pb-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:20px;}
+.pb-panel{background:#fff;border-radius:8px;width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.25);}
+.pb-hdr{background:var(--navy);padding:13px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:10px;}
+.pb-hdr-title{color:#fff;font-weight:bold;font-size:15px;flex:1;}
+.pb-body{flex:1;overflow-y:auto;padding:12px 14px;}
+.pb-section{border:1px solid #e0e0e0;border-radius:6px;margin-bottom:8px;overflow:hidden;}
+.pb-sec-hdr{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;user-select:none;}
+.pb-sec-hdr:hover{background:#f8f8f8;}
+.pb-sec-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.pb-sec-label{font-weight:bold;font-size:13px;flex:1;color:var(--navy);}
+.pb-sec-count{font-size:11px;color:#999;}
+.pb-sec-body{border-top:1px solid #eee;padding:8px 10px;}
+.pb-group{border:1px solid #e8e8e8;border-radius:4px;margin-bottom:6px;overflow:hidden;}
+.pb-grp-hdr{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#f8f8f8;cursor:pointer;}
+.pb-grp-hdr:hover{background:#f0f0f0;}
+.pb-grp-code{font-size:11px;color:#666;min-width:36px;}
+.pb-grp-name{font-size:12px;font-weight:600;flex:1;color:var(--navy);}
+.pb-grp-body{padding:4px 8px 6px 8px;}
+.pb-play-row{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:3px;border-bottom:1px solid #f0f0f0;}
+.pb-play-row:hover{background:#fafafa;}
+.pb-play-code{font-size:11px;color:#888;min-width:40px;}
+.pb-play-name{font-size:12px;flex:1;color:#333;}
+.pb-ctr-badge{font-size:9px;background:#5B2D8E;color:#fff;border-radius:2px;padding:1px 4px;}
+.pb-sub-block{margin-left:10px;border-left:2px solid #e0e0e0;padding-left:8px;margin-bottom:6px;}
+.pb-sub-hdr{font-size:11px;font-weight:600;color:#555;padding:3px 0 4px 0;display:flex;align-items:center;gap:6px;}
+.pb-row-actions{display:flex;gap:3px;flex-shrink:0;}
+.pb-btn{font-size:10px;padding:2px 6px;border:1px solid #ddd;background:#fff;border-radius:3px;cursor:pointer;color:#555;}
+.pb-btn:hover{background:#f0f0f0;}
+.pb-btn-danger{border-color:#fca5a5;color:#dc2626;}
+.pb-btn-danger:hover{background:#fef2f2;}
+.pb-btn-move{font-size:11px;padding:1px 5px;}
+.pb-add-btn{font-size:11px;color:var(--navy);border:1px dashed var(--navy);background:transparent;border-radius:3px;padding:3px 8px;cursor:pointer;width:100%;margin-top:4px;text-align:left;}
+.pb-add-btn:hover{background:#f0f4ff;}
+.pb-form{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:5px;padding:10px 12px;margin:6px 0;}
+.pb-form-title{font-size:11px;font-weight:bold;color:var(--navy);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.pb-form-row{display:flex;gap:8px;margin-bottom:7px;align-items:flex-end;}
+.pb-form-col{display:flex;flex-direction:column;flex:1;}
+.pb-form-lbl{font-size:10px;color:#666;margin-bottom:3px;font-weight:500;}
+.pb-colors{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px;}
+.pb-color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.pb-color-swatch.active{border-color:var(--navy);transform:scale(1.15);}
+.pb-form-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;}
+.pb-footer{padding:10px 14px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end;}
+.pb-reset-confirm{font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:4px 8px;}
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
@@ -230,7 +277,7 @@ input,select{font-family:inherit;}
 <body>
 <div id="app"></div>
 <script>
-const SYSTEM=[
+const DEFAULT_SYSTEM=[
   {id:'primary',label:'Primary Transition',color:'#C9A84C',bg:'#FEFCE8',groups:[
     {id:'pistol',code:'"1"',name:'Pistol',plays:[
       {id:'p11',code:'"11"',name:'Give - Baseline Drive'},
@@ -388,12 +435,20 @@ const SK={roster:'bd_roster_v1',plans:'bd_plans_v1'};
 const load=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
 const persist=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
+// Load playbook from localStorage (falls back to DEFAULT_SYSTEM)
+const PB_KEY='bd_playbook_v1';
+let SYSTEM=load(PB_KEY)||DEFAULT_SYSTEM;
+function savePlaybook(){persist(PB_KEY,SYSTEM);}
+function resetPlaybook(){SYSTEM=[...DEFAULT_SYSTEM];savePlaybook();}
+
 const S={
   roster:load(SK.roster)||[],
   plans:load(SK.plans)||[],
   view:'home',
   plan:null,
   showRoster:false,
+  showPlaybook:false,
+  pb:{mode:null,target:null,expandSecs:{},expandGrps:{},secForm:{label:'',color:'#C9A84C',bg:'#FEFCE8'},grpForm:{code:'',name:'',color:''},subForm:{code:'',name:''},playForm:{code:'',name:'',ctr:false}},
   confirmDel:null,
   openGroups:{},
   showDropFor:null,
@@ -425,6 +480,7 @@ function render(){
   if(S.view==='builder') html=renderBuilder();
   if(S.view==='print')   html=renderPrint();
   if(S.showRoster)       html+=renderRosterModal();
+  if(S.showPlaybook)     html+=renderPlaybookModal();
   document.getElementById('app').innerHTML=html;
   attachHandlers();
 
@@ -441,6 +497,7 @@ function renderHome(){
       <span class="topbar-title">Boys' Basketball &mdash; Game Card Builder</span>
     </div>
     <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster${S.roster.length?' ('+S.roster.length+')':''}</button>
+    <button class="btn btn-ghost btn-sm" data-a="open-playbook">&#128218; Playbook</button>
     <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export all data">&#11014; Export</button>
     <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Import exported file">&#11015; Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
     <button class="btn btn-gold" data-a="new-plan">+ New Game Plan</button>
@@ -523,7 +580,7 @@ function renderGroupBlock(grp,sec){
     <span style="color:#aaa;font-size:10px;width:10px">${open?'&#9662;':'&#9658;'}</span>
     <span class="grp-code" style="color:${color}">${esc(grp.code)}</span>
     <span class="grp-name">${esc(grp.name)}</span>
-    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}" onclick="event.stopPropagation()">${allOn?'Deselect All':'Select All'}</button>
+    <button class="grp-toggle" data-a="toggle-all" data-ids="${ids.join(',')}" data-allon="${allOn}">${allOn?'Deselect All':'Select All'}</button>
     <span style="font-size:11px;color:var(--mgray);min-width:32px;text-align:right">${sn}/${ids.length}</span>
   </div>
   ${open?(grp.subs
@@ -721,6 +778,300 @@ function renderCardPlay(play,color,alt,indent,players){
   </div>`;
 }
 
+
+// ── PLAYBOOK EDITOR ──────────────────────────────────────────────────────────
+const SEC_COLORS=[
+  {name:'Gold',   color:'#C9A84C',bg:'#FEFCE8'},
+  {name:'Green',  color:'#1A5C3A',bg:'#EBF7F0'},
+  {name:'Blue',   color:'#1D4E89',bg:'#EBF2FB'},
+  {name:'Teal',   color:'#0E7490',bg:'#ECFEFF'},
+  {name:'Orange', color:'#C2410C',bg:'#FFF7ED'},
+  {name:'Red',    color:'#9B1C1C',bg:'#FEF2F2'},
+  {name:'Purple', color:'#5B2D8E',bg:'#F3EEFF'},
+  {name:'Navy',   color:'#0A1E3C',bg:'#EEF2F8'},
+];
+
+function pbUid(){return 'pb'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+function pbMoveArr(arr,idx,dir){
+  const a=[...arr];
+  const swap=idx+dir;
+  if(swap<0||swap>=a.length)return a;
+  [a[idx],a[swap]]=[a[swap],a[idx]];
+  return a;
+}
+
+function renderPlaybookModal(){
+  const pb=S.pb;
+  const mode=pb.mode||null;
+  const expSec=pb.expandSecs||{};
+  const expGrp=pb.expandGrps||{};
+
+  function colorSwatches(selected,prefix){
+    return SEC_COLORS.map((c,i)=>
+      `<span class="pb-color-swatch${selected===c.color?' active':''}"
+        style="background:${c.color}"
+        data-a="pb-pick-color" data-prefix="${prefix}" data-idx="${i}"
+        title="${c.name}"></span>`
+    ).join('');
+  }
+
+  function playRows(plays,secIdx,grpIdx,subIdx){
+    const targetKey=subIdx!=null?`${secIdx}-${grpIdx}-${subIdx}`:`${secIdx}-${grpIdx}`;
+    return plays.map((pl,pIdx)=>{
+      const isEdit=mode==='edit-play'&&pb.target===`${targetKey}-${pIdx}`;
+      if(isEdit){
+        return`<div class="pb-form" style="margin:3px 0">
+          <div class="pb-form-title">Edit Play</div>
+          <div class="pb-form-row">
+            <div class="pb-form-col" style="max-width:90px">
+              <div class="pb-form-lbl">Code</div>
+              <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.playForm.code)}" data-a="pb-form-play-code">
+            </div>
+            <div class="pb-form-col">
+              <div class="pb-form-lbl">Name</div>
+              <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.playForm.name)}" data-a="pb-form-play-name">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+            <label style="font-size:11px;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
+              <input type="checkbox" ${pb.playForm.ctr?'checked':''} data-a="pb-form-play-ctr">
+              Counter / CTR play
+            </label>
+          </div>
+          <div class="pb-form-actions">
+            <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+            <button class="btn btn-navy btn-sm" data-a="pb-save-play" data-target="${targetKey}-${pIdx}">Save</button>
+          </div>
+        </div>`;
+      }
+      return`<div class="pb-play-row">
+        <span class="pb-play-code">${esc(pl.code)}</span>
+        <span class="pb-play-name">${esc(pl.name)}</span>
+        ${pl.ctr?'<span class="pb-ctr-badge">CTR</span>':''}
+        <div class="pb-row-actions">
+          <button class="pb-btn pb-btn-move" data-a="pb-move-play" data-target="${targetKey}-${pIdx}" data-dir="-1" title="Move up">▲</button>
+          <button class="pb-btn pb-btn-move" data-a="pb-move-play" data-target="${targetKey}-${pIdx}" data-dir="1" title="Move down">▼</button>
+          <button class="pb-btn" data-a="pb-edit-play" data-target="${targetKey}-${pIdx}">Edit</button>
+          <button class="pb-btn pb-btn-danger" data-a="pb-del-play" data-target="${targetKey}-${pIdx}">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function addPlayForm(targetKey){
+    if(mode!=='add-play'||pb.target!==targetKey)return'';
+    return`<div class="pb-form" style="margin-top:5px">
+      <div class="pb-form-title">New Play</div>
+      <div class="pb-form-row">
+        <div class="pb-form-col" style="max-width:90px">
+          <div class="pb-form-lbl">Code</div>
+          <input class="inp" style="font-size:12px;padding:4px 7px" placeholder='"11"' value="${esc(pb.playForm.code)}" data-a="pb-form-play-code">
+        </div>
+        <div class="pb-form-col">
+          <div class="pb-form-lbl">Name</div>
+          <input class="inp" style="font-size:12px;padding:4px 7px" placeholder="Play description" value="${esc(pb.playForm.name)}" data-a="pb-form-play-name">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <label style="font-size:11px;color:#555;display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="checkbox" ${pb.playForm.ctr?'checked':''} data-a="pb-form-play-ctr"> Counter / CTR play
+        </label>
+      </div>
+      <div class="pb-form-actions">
+        <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+        <button class="btn btn-navy btn-sm" data-a="pb-save-play" data-target="${targetKey}">Save</button>
+      </div>
+    </div>`;
+  }
+
+  function renderGroup(grp,secIdx,grpIdx){
+    const grpKey=`${secIdx}-${grpIdx}`;
+    const isExpanded=expGrp[grpKey]!==false;
+    const isEditGrp=mode==='edit-grp'&&pb.target===grpKey;
+    const gc2=grp.color||SYSTEM[secIdx].color;
+
+    let grpBodyHtml='';
+    if(isExpanded){
+      if(grp.subs){
+        // sub-groups (e.g. Secondary Break)
+        grpBodyHtml=grp.subs.map((sub,subIdx)=>{
+          const subKey=`${grpKey}-${subIdx}`;
+          const isEditSub=mode==='edit-sub'&&pb.target===subKey;
+          return`<div class="pb-sub-block">
+            <div class="pb-sub-hdr">
+              <span style="min-width:36px;color:#666;font-size:11px">${esc(sub.code)}</span>
+              <span style="flex:1">${esc(sub.name)}</span>
+              ${isEditSub?'':`<div class="pb-row-actions">
+                <button class="pb-btn pb-btn-move" data-a="pb-move-sub" data-target="${subKey}" data-dir="-1">▲</button>
+                <button class="pb-btn pb-btn-move" data-a="pb-move-sub" data-target="${subKey}" data-dir="1">▼</button>
+                <button class="pb-btn" data-a="pb-edit-sub" data-target="${subKey}">Edit</button>
+                <button class="pb-btn pb-btn-danger" data-a="pb-del-sub" data-target="${subKey}">✕</button>
+              </div>`}
+            </div>
+            ${isEditSub?`<div class="pb-form">
+              <div class="pb-form-row">
+                <div class="pb-form-col" style="max-width:90px">
+                  <div class="pb-form-lbl">Code</div>
+                  <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.subForm.code)}" data-a="pb-form-sub-code">
+                </div>
+                <div class="pb-form-col">
+                  <div class="pb-form-lbl">Name</div>
+                  <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.subForm.name)}" data-a="pb-form-sub-name">
+                </div>
+              </div>
+              <div class="pb-form-actions">
+                <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+                <button class="btn btn-navy btn-sm" data-a="pb-save-sub" data-target="${subKey}">Save</button>
+              </div>
+            </div>`:''}
+            ${playRows(sub.plays||[],secIdx,grpIdx,subIdx)}
+            ${addPlayForm(subKey)}
+            ${mode!=='add-play'||pb.target!==subKey?`<button class="pb-add-btn" data-a="pb-add-play" data-target="${subKey}">+ Add Play</button>`:''}
+          </div>`;
+        }).join('')+
+        `<button class="pb-add-btn" data-a="pb-add-sub" data-target="${grpKey}">+ Add Sub-Group</button>
+        ${addPlayForm(grpKey+'--extra')}`;
+      } else {
+        grpBodyHtml=playRows(grp.plays||[],secIdx,grpIdx,null)+
+          addPlayForm(grpKey)+
+          (mode!=='add-play'||pb.target!==grpKey
+            ?`<button class="pb-add-btn" data-a="pb-add-play" data-target="${grpKey}">+ Add Play</button>`:'');
+      }
+    }
+
+    return`<div class="pb-group">
+      <div class="pb-grp-hdr" data-a="pb-toggle-grp" data-target="${grpKey}">
+        <span style="font-size:12px;color:#999">${isExpanded?'▾':'▸'}</span>
+        <span class="pb-grp-code" style="color:${gc2}">${esc(grp.code)}</span>
+        <span class="pb-grp-name">${esc(grp.name)}</span>
+        <div class="pb-row-actions" onclick="event.stopPropagation()">
+          <button class="pb-btn pb-btn-move" data-a="pb-move-grp" data-target="${grpKey}" data-dir="-1">▲</button>
+          <button class="pb-btn pb-btn-move" data-a="pb-move-grp" data-target="${grpKey}" data-dir="1">▼</button>
+          <button class="pb-btn" data-a="pb-edit-grp" data-target="${grpKey}">Edit</button>
+          <button class="pb-btn pb-btn-danger" data-a="pb-del-grp" data-target="${grpKey}">✕</button>
+        </div>
+      </div>
+      ${isEditGrp?`<div class="pb-form">
+        <div class="pb-form-title">Edit Group</div>
+        <div class="pb-form-row">
+          <div class="pb-form-col" style="max-width:90px">
+            <div class="pb-form-lbl">Code</div>
+            <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.grpForm.code)}" data-a="pb-form-grp-code">
+          </div>
+          <div class="pb-form-col">
+            <div class="pb-form-lbl">Name</div>
+            <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.grpForm.name)}" data-a="pb-form-grp-name">
+          </div>
+        </div>
+        <div class="pb-form-lbl">Accent Color (leave default to inherit section color)</div>
+        <div class="pb-colors">${colorSwatches(pb.grpForm.color,'grp')}</div>
+        <div class="pb-form-actions" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+          <button class="btn btn-navy btn-sm" data-a="pb-save-grp" data-target="${grpKey}">Save</button>
+        </div>
+      </div>`:''}
+      ${isExpanded?`<div class="pb-grp-body">${grpBodyHtml}</div>`:''}
+    </div>`;
+  }
+
+  const sectionsHtml=SYSTEM.map((sec,secIdx)=>{
+    const secKey=`${secIdx}`;
+    const isExpanded=expSec[secKey]!==false;
+    const isEditSec=mode==='edit-sec'&&pb.target===secKey;
+    const isAddGrp=mode==='add-grp'&&pb.target===secKey;
+    const totalPlays=sec.groups.reduce((n,g)=>n+(g.subs?g.subs.reduce((m,s)=>m+(s.plays||[]).length,0):(g.plays||[]).length),0);
+
+    return`<div class="pb-section">
+      <div class="pb-sec-hdr" data-a="pb-toggle-sec" data-target="${secKey}">
+        <span class="pb-sec-dot" style="background:${sec.color}"></span>
+        <span class="pb-sec-label">${esc(sec.label)}</span>
+        <span class="pb-sec-count">${sec.groups.length} groups · ${totalPlays} plays</span>
+        <span style="margin-left:4px;color:#999">${isExpanded?'▾':'▸'}</span>
+        <div class="pb-row-actions" onclick="event.stopPropagation()">
+          <button class="pb-btn pb-btn-move" data-a="pb-move-sec" data-target="${secKey}" data-dir="-1">▲</button>
+          <button class="pb-btn pb-btn-move" data-a="pb-move-sec" data-target="${secKey}" data-dir="1">▼</button>
+          <button class="pb-btn" data-a="pb-edit-sec" data-target="${secKey}">Edit</button>
+          <button class="pb-btn pb-btn-danger" data-a="pb-del-sec" data-target="${secKey}">✕</button>
+        </div>
+      </div>
+      ${isEditSec?`<div class="pb-form">
+        <div class="pb-form-title">Edit Section</div>
+        <div class="pb-form-row">
+          <div class="pb-form-col">
+            <div class="pb-form-lbl">Label</div>
+            <input class="inp" style="font-size:12px;padding:4px 7px" value="${esc(pb.secForm.label)}" data-a="pb-form-sec-label">
+          </div>
+        </div>
+        <div class="pb-form-lbl">Color</div>
+        <div class="pb-colors">${colorSwatches(pb.secForm.color,'sec')}</div>
+        <div class="pb-form-actions" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+          <button class="btn btn-navy btn-sm" data-a="pb-save-sec" data-target="${secKey}">Save</button>
+        </div>
+      </div>`:''}
+      ${isExpanded?`<div class="pb-sec-body">
+        ${sec.groups.map((grp,gi)=>renderGroup(grp,secIdx,gi)).join('')}
+        ${isAddGrp?`<div class="pb-form">
+          <div class="pb-form-title">New Group</div>
+          <div class="pb-form-row">
+            <div class="pb-form-col" style="max-width:90px">
+              <div class="pb-form-lbl">Code</div>
+              <input class="inp" style="font-size:12px;padding:4px 7px" placeholder='"2"' value="${esc(pb.grpForm.code)}" data-a="pb-form-grp-code">
+            </div>
+            <div class="pb-form-col">
+              <div class="pb-form-lbl">Name</div>
+              <input class="inp" style="font-size:12px;padding:4px 7px" placeholder="Group name" value="${esc(pb.grpForm.name)}" data-a="pb-form-grp-name">
+            </div>
+          </div>
+          <div class="pb-form-lbl">Accent Color (optional)</div>
+          <div class="pb-colors">${colorSwatches(pb.grpForm.color,'grp')}</div>
+          <div class="pb-form-actions" style="margin-top:8px">
+            <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+            <button class="btn btn-navy btn-sm" data-a="pb-save-grp" data-target="${secKey}">Save</button>
+          </div>
+        </div>`
+        :`<button class="pb-add-btn" data-a="pb-add-grp" data-target="${secKey}">+ Add Group</button>`}
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  const isAddSec=mode==='add-sec';
+
+  return`<div class="pb-modal" id="modal-pb-overlay">
+    <div class="pb-panel">
+      <div class="pb-hdr">
+        <span class="pb-hdr-title">&#128218; Playbook Editor</span>
+        <button class="btn btn-ghost btn-sm" style="color:#fff;border-color:rgba(255,255,255,.3)" data-a="pb-reset">Reset to Defaults</button>
+        <button class="btn btn-ghost btn-sm" style="color:#fff;border-color:rgba(255,255,255,.3)" data-a="close-playbook">&#10005; Close</button>
+      </div>
+      <div class="pb-body">
+        ${sectionsHtml}
+        ${isAddSec?`<div class="pb-form" style="margin-top:8px">
+          <div class="pb-form-title">New Section</div>
+          <div class="pb-form-row">
+            <div class="pb-form-col">
+              <div class="pb-form-lbl">Label</div>
+              <input class="inp" style="font-size:12px;padding:4px 7px" placeholder="Section name" value="${esc(pb.secForm.label)}" data-a="pb-form-sec-label">
+            </div>
+          </div>
+          <div class="pb-form-lbl">Color</div>
+          <div class="pb-colors">${colorSwatches(pb.secForm.color,'sec')}</div>
+          <div class="pb-form-actions" style="margin-top:8px">
+            <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+            <button class="btn btn-navy btn-sm" data-a="pb-save-sec" data-target="new">Save</button>
+          </div>
+        </div>`
+        :`<button class="pb-add-btn" style="margin-top:6px" data-a="pb-add-sec">+ Add Section</button>`}
+      </div>
+      <div class="pb-footer">
+        <span style="font-size:11px;color:#999;flex:1">${SYSTEM.length} sections · ${SYSTEM.reduce((n,s)=>n+s.groups.length,0)} groups</span>
+        <button class="btn btn-gold" data-a="close-playbook">Done</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function attachHandlers(){
   const opp=document.getElementById('opp-input');
   const dt=document.getElementById('date-input');
@@ -799,6 +1150,203 @@ function handleClick(e){
     }
   }
   else if(a==='cancel-import') setState({pendingImport:null});
+
+  else if(a==='open-playbook') setState({showPlaybook:true});
+  else if(a==='close-playbook') setState({showPlaybook:false,pb:{...S.pb,mode:null,target:null}});
+  else if(a==='pb-reset'){
+    if(confirm('Reset the playbook to defaults? This cannot be undone.')){
+      SYSTEM=[...DEFAULT_SYSTEM];savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+    }
+  }
+  // expand/collapse
+  else if(a==='pb-toggle-sec'){
+    const es={...S.pb.expandSecs};
+    es[el.dataset.target]=es[el.dataset.target]===false?true:false;
+    setState({pb:{...S.pb,expandSecs:es,mode:null}});
+  }
+  else if(a==='pb-toggle-grp'){
+    const eg={...S.pb.expandGrps};
+    eg[el.dataset.target]=eg[el.dataset.target]===false?true:false;
+    setState({pb:{...S.pb,expandGrps:eg,mode:null}});
+  }
+  // color picker
+  else if(a==='pb-pick-color'){
+    const c=SEC_COLORS[parseInt(el.dataset.idx)];
+    if(el.dataset.prefix==='sec') setState({pb:{...S.pb,secForm:{...S.pb.secForm,color:c.color,bg:c.bg}}});
+    else setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,color:c.color}}});
+  }
+  // form field changes (handled via change/input events in attachHandlers)
+  // cancel
+  else if(a==='pb-cancel') setState({pb:{...S.pb,mode:null,target:null}});
+  // ── SECTION ──────────────────────────────────────────────────────────────
+  else if(a==='pb-add-sec'){
+    setState({pb:{...S.pb,mode:'add-sec',target:'new',secForm:{label:'',color:'#C9A84C',bg:'#FEFCE8'}}});
+  }
+  else if(a==='pb-edit-sec'){
+    const si=parseInt(el.dataset.target);
+    const sec=SYSTEM[si];
+    setState({pb:{...S.pb,mode:'edit-sec',target:el.dataset.target,secForm:{label:sec.label,color:sec.color,bg:sec.bg}}});
+  }
+  else if(a==='pb-save-sec'){
+    const t=el.dataset.target;
+    const f=S.pb.secForm;
+    if(!f.label.trim())return;
+    const c=SEC_COLORS.find(x=>x.color===f.color)||SEC_COLORS[0];
+    if(t==='new'){
+      SYSTEM=[...SYSTEM,{id:pbUid(),label:f.label.trim(),color:f.color,bg:c.bg,groups:[]}];
+    } else {
+      const si=parseInt(t);
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,label:f.label.trim(),color:f.color,bg:c.bg}:s);
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+  }
+  else if(a==='pb-del-sec'){
+    const si=parseInt(el.dataset.target);
+    if(confirm(`Delete section "${SYSTEM[si].label}"? All groups and plays inside it will be removed.`)){
+      SYSTEM=SYSTEM.filter((_,i)=>i!==si);
+      savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+    }
+  }
+  else if(a==='pb-move-sec'){
+    const si=parseInt(el.dataset.target),dir=parseInt(el.dataset.dir);
+    SYSTEM=pbMoveArr(SYSTEM,si,dir);
+    savePlaybook();setState({pb:{...S.pb,mode:null}});
+  }
+  // ── GROUP ────────────────────────────────────────────────────────────────
+  else if(a==='pb-add-grp'){
+    setState({pb:{...S.pb,mode:'add-grp',target:el.dataset.target,grpForm:{code:'',name:'',color:''}}});
+  }
+  else if(a==='pb-edit-grp'){
+    const [si,gi]=el.dataset.target.split('-').map(Number);
+    const grp=SYSTEM[si].groups[gi];
+    setState({pb:{...S.pb,mode:'edit-grp',target:el.dataset.target,grpForm:{code:grp.code,name:grp.name,color:grp.color||''}}});
+  }
+  else if(a==='pb-save-grp'){
+    const t=el.dataset.target;
+    const f=S.pb.grpForm;
+    if(!f.name.trim())return;
+    const parts=t.split('-').map(Number);
+    if(parts.length===1){
+      // add new group to section
+      const si=parts[0];
+      const newGrp={id:pbUid(),code:f.code.trim(),name:f.name.trim(),plays:[]};
+      if(f.color) newGrp.color=f.color;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:[...s.groups,newGrp]}:s);
+    } else {
+      const [si,gi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,code:f.code.trim(),name:f.name.trim(),color:f.color||undefined}:g)}:s);
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+  }
+  else if(a==='pb-del-grp'){
+    const [si,gi]=el.dataset.target.split('-').map(Number);
+    if(confirm(`Delete group "${SYSTEM[si].groups[gi].name}"?`)){
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.filter((_,j)=>j!==gi)}:s);
+      savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+    }
+  }
+  else if(a==='pb-move-grp'){
+    const [si,gi]=el.dataset.target.split('-').map(Number);const dir=parseInt(el.dataset.dir);
+    SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:pbMoveArr(s.groups,gi,dir)}:s);
+    savePlaybook();setState({pb:{...S.pb,mode:null}});
+  }
+  // ── SUB ──────────────────────────────────────────────────────────────────
+  else if(a==='pb-add-sub'){
+    setState({pb:{...S.pb,mode:'add-sub',target:el.dataset.target,subForm:{code:'',name:''}}});
+  }
+  else if(a==='pb-edit-sub'){
+    const [si,gi,subi]=el.dataset.target.split('-').map(Number);
+    const sub=SYSTEM[si].groups[gi].subs[subi];
+    setState({pb:{...S.pb,mode:'edit-sub',target:el.dataset.target,subForm:{code:sub.code,name:sub.name}}});
+  }
+  else if(a==='pb-save-sub'){
+    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=S.pb.subForm;
+    if(!f.name.trim())return;
+    if(parts.length===2){
+      // add new sub to group
+      const [si,gi]=parts;
+      const newSub={id:pbUid(),code:f.code.trim(),name:f.name.trim(),plays:[]};
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:[...(g.subs||[]),newSub]}:g)}:s);
+    } else {
+      const [si,gi,subi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,code:f.code.trim(),name:f.name.trim()}:sub)}:g)}:s);
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+  }
+  else if(a==='pb-del-sub'){
+    const [si,gi,subi]=el.dataset.target.split('-').map(Number);
+    if(confirm('Delete this sub-group and all its plays?')){
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.filter((_,k)=>k!==subi)}:g)}:s);
+      savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+    }
+  }
+  else if(a==='pb-move-sub'){
+    const [si,gi,subi]=el.dataset.target.split('-').map(Number);const dir=parseInt(el.dataset.dir);
+    SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:pbMoveArr(g.subs,subi,dir)}:g)}:s);
+    savePlaybook();setState({pb:{...S.pb,mode:null}});
+  }
+  // ── PLAY ─────────────────────────────────────────────────────────────────
+  else if(a==='pb-add-play'){
+    setState({pb:{...S.pb,mode:'add-play',target:el.dataset.target,playForm:{code:'',name:'',ctr:false}}});
+  }
+  else if(a==='pb-edit-play'){
+    const parts=el.dataset.target.split('-').map(Number);
+    const pIdx=parts[parts.length-1];
+    let play;
+    if(parts.length===3){const[si,gi,pi]=parts;play=SYSTEM[si].groups[gi].plays[pi];}
+    else{const[si,gi,subi,pi]=parts;play=SYSTEM[si].groups[gi].subs[subi].plays[pi];}
+    setState({pb:{...S.pb,mode:'edit-play',target:el.dataset.target,playForm:{code:play.code,name:play.name,ctr:!!play.ctr}}});
+  }
+  else if(a==='pb-save-play'){
+    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=S.pb.playForm;
+    if(!f.name.trim())return;
+    const newPlay={id:pbUid(),code:f.code.trim(),name:f.name.trim()};
+    if(f.ctr)newPlay.ctr=true;
+    if(parts.length===2){
+      // add to group.plays
+      const[si,gi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,plays:[...(g.plays||[]),newPlay]}:g)}:s);
+    } else if(parts.length===3){
+      // add or edit group.plays[pi]
+      const[si,gi,pi]=parts;
+      if(S.pb.mode==='add-play'){
+        SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,plays:[...(g.plays||[]),newPlay]}:g)}:s);
+      } else {
+        SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,plays:g.plays.map((p,k)=>k===pi?{...p,...newPlay}:p)}:g)}:s);
+      }
+    } else {
+      // sub play: 4 parts
+      const[si,gi,subi,pi]=parts;
+      if(S.pb.mode==='add-play'){
+        SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,plays:[...(sub.plays||[]),newPlay]}:sub)}:g)}:s);
+      } else {
+        SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,plays:sub.plays.map((p,m)=>m===pi?{...p,...newPlay}:p)}:sub)}:g)}:s);
+      }
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+  }
+  else if(a==='pb-del-play'){
+    const parts=el.dataset.target.split('-').map(Number);
+    if(parts.length===3){
+      const[si,gi,pi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,plays:g.plays.filter((_,k)=>k!==pi)}:g)}:s);
+    } else {
+      const[si,gi,subi,pi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,plays:sub.plays.filter((_,m)=>m!==pi)}:sub)}:g)}:s);
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
+  }
+  else if(a==='pb-move-play'){
+    const parts=el.dataset.target.split('-').map(Number);const dir=parseInt(el.dataset.dir);
+    if(parts.length===3){
+      const[si,gi,pi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,plays:pbMoveArr(g.plays,pi,dir)}:g)}:s);
+    } else {
+      const[si,gi,subi,pi]=parts;
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,plays:pbMoveArr(sub.plays,pi,dir)}:sub)}:g)}:s);
+    }
+    savePlaybook();setState({pb:{...S.pb,mode:null}});
+  }
   else if(a==='export-data') doExport();
 }
 
@@ -949,6 +1497,23 @@ function applyPrintPadding(){
   }
 }
 document.addEventListener('click',handleClick);
+
+  // Playbook form inputs (live update pb form state)
+  document.addEventListener('change',e=>{
+    const t=e.target;
+    if(t.dataset.a==='pb-form-play-ctr') setState({pb:{...S.pb,playForm:{...S.pb.playForm,ctr:t.checked}}});
+  });
+  document.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.dataset.a==='pb-form-sec-label') setState({pb:{...S.pb,secForm:{...S.pb.secForm,label:t.value}}});
+    else if(t.dataset.a==='pb-form-grp-code') setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,code:t.value}}});
+    else if(t.dataset.a==='pb-form-grp-name') setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,name:t.value}}});
+    else if(t.dataset.a==='pb-form-sub-code') setState({pb:{...S.pb,subForm:{...S.pb.subForm,code:t.value}}});
+    else if(t.dataset.a==='pb-form-sub-name') setState({pb:{...S.pb,subForm:{...S.pb.subForm,name:t.value}}});
+    else if(t.dataset.a==='pb-form-play-code') setState({pb:{...S.pb,playForm:{...S.pb.playForm,code:t.value}}});
+    else if(t.dataset.a==='pb-form-play-name') setState({pb:{...S.pb,playForm:{...S.pb.playForm,name:t.value}}});
+    else if(t.dataset.a==='pb-form-play-ctr') setState({pb:{...S.pb,playForm:{...S.pb.playForm,ctr:t.checked}}});
+  });
 render();
 
 
