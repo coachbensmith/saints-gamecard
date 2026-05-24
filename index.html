@@ -1594,85 +1594,87 @@ function countItems(sec, fselMap={}){
 function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
   const PAD=2;
   const WHITE='#FFFFFF', STRIPE='#F8F8F8';
-  const RULE='#E0E0E0';       // thin gridline between plays
-  const GRULE='#CCCCCC';      // slightly stronger line below group headers
-  const body=[], heights=[], sc=sec.color;
-  const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
-  const add=(cells,h)=>{body.push(cells);heights.push(h);};
+  const RULE='#E0E0E0', GRULE='#BBBBBB';
+  const sc=sec.color;
 
-  // ── Section header ─────────────────────────────────────────────────────────
-  // Bold colored bottom border (2pt marker stroke) + thin top border to cap it.
-  add([{
-    text:sec.label.toUpperCase(),
-    fontSize:8.5, bold:true, color:sc, fillColor:WHITE, colSpan:2,
-    border:[false,true,false,true],
-    borderColor:['',RULE,'',sc]
-  },{}], itemH+3);
+  const body=[], heights=[], rowTypes=[];
+  const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
+  // No border[] set on cells — hLineWidth/vLineWidth in layout controls all lines
+  const add=(cells,h,type)=>{body.push(cells);heights.push(h);rowTypes.push(type);};
+
+  // ── Section header ────────────────────────────────────────────────────────
+  add([
+    {text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:sc,fillColor:WHITE,colSpan:2},{}
+  ], itemH+3, 'sec-hdr');
 
   sec.groups.forEach(grp=>{
     const gc=grp.color||sc;
     const isFam=fselMap[grp.id]===true;
 
-    // ── Group header ───────────────────────────────────────────────────────
-    // Stronger bottom gridline signals end of header, start of plays.
+    // ── Group header ──────────────────────────────────────────────────────
     add([
-      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc,
-       fillColor:WHITE, border:[false,false,false,true], borderColor:['','','',GRULE]},
-      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A',
-       fillColor:WHITE, border:[false,false,false,true], borderColor:['','','',GRULE]}
-    ], itemH+1);
+      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:WHITE},
+      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A', fillColor:WHITE}
+    ], itemH+1, 'grp-hdr');
     if(isFam) return;
 
-    if(grp.subs) grp.subs.forEach((sub,si)=>{
-      // ── Sub-group header ─────────────────────────────────────────────────
+    if(grp.subs) grp.subs.forEach(sub=>{
+      // ── Sub-group header ────────────────────────────────────────────
       add([
-        {text:sub.code, fontSize:7, color:sc, fillColor:STRIPE,
-         border:[false,false,false,true], borderColor:['','','',RULE]},
-        {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:STRIPE,
-         border:[false,false,false,true], borderColor:['','','',RULE]}
-      ], itemH);
-
+        {text:sub.code, fontSize:7, color:sc, fillColor:STRIPE},
+        {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:STRIPE}
+      ], itemH, 'sub-hdr');
       sub.plays.forEach((play,pi)=>{
-        const ctr=!!play.ctr;
-        const nameCol=ctr?'#5B2D8E':'#0D1B2A';
-        const codeCol=ctr?'#5B2D8E':sc;
+        const ctr=!!play.ctr, nameCol=ctr?'#5B2D8E':'#0D1B2A', codeCol=ctr?'#5B2D8E':sc;
         const bg=pi%2===0?WHITE:STRIPE;
         const ap=getAssigned(play.id);
         const nm=ap.length
-          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},
-                  {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
-          :{text:play.name, fontSize:8.5, italics:ctr, color:nameCol};
-        add([
-          {text:'  '+play.code, fontSize:6.5, color:codeCol, fillColor:bg,
-           border:[false,false,false,true], borderColor:['','','',RULE]},
-          {...nm, fillColor:bg, border:[false,false,false,true], borderColor:['','','',RULE]}
-        ], itemH);
+          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+          :{text:play.name,fontSize:8.5,italics:ctr,color:nameCol};
+        add([{text:'  '+play.code,fontSize:6.5,color:codeCol,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
       });
     });
     else grp.plays.forEach((play,pi)=>{
       const bg=pi%2===0?WHITE:STRIPE;
       const ap=getAssigned(play.id);
       const nm=ap.length
-        ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},
-                {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
-        :{text:play.name, fontSize:8.5, color:'#0D1B2A'};
-      add([
-        {text:play.code, fontSize:7, color:sc, fillColor:bg,
-         border:[false,false,false,true], borderColor:['','','',RULE]},
-        {...nm, fillColor:bg, border:[false,false,false,true], borderColor:['','','',RULE]}
-      ], itemH);
+        ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+        :{text:play.name,fontSize:8.5,color:'#0D1B2A'};
+      add([{text:play.code,fontSize:7,color:sc,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
     });
   });
 
+  const n=body.length;
   return {
-    table:{widths:[32,'*'], heights, body},
+    table:{widths:[32,'*'],heights,body},
     layout:{
-      hLineWidth:()=>0,
-      // Thin vertical gridline between code column and name column
-      vLineWidth:(i)=>i===1?0.5:0,
+      // hLineWidth(i): line between row[i-1] and row[i]. i=0=top, i=n=bottom.
+      hLineWidth:(i)=>{
+        if(i===0) return 0.3;           // thin top border of section
+        if(i===n) return 0.3;           // thin bottom border
+        const prev=rowTypes[i-1];
+        const next=rowTypes[i];
+        if(prev==='sec-hdr') return 1.5; // bold colored marker underline
+        if(prev==='grp-hdr') return 0.6; // stronger group separator
+        if(prev==='sub-hdr') return 0.4; // sub-header bottom
+        if(next==='grp-hdr') return 0.5; // above next group header
+        if(next==='sub-hdr') return 0.4; // above sub-header
+        return 0.3;                       // play-to-play gridline
+      },
+      hLineColor:(i)=>{
+        if(i===0||i===n) return RULE;
+        const prev=rowTypes[i-1];
+        if(prev==='sec-hdr') return sc;   // section accent color
+        if(prev==='grp-hdr') return GRULE;
+        return RULE;
+      },
+      vLineWidth:(i)=>{
+        if(i===0||i===2) return 0;  // no outer left/right borders
+        return 0.5;                  // separator: code | name
+      },
       vLineColor:()=>RULE,
-      paddingLeft:()=>4, paddingRight:()=>4,
-      paddingTop:()=>PAD, paddingBottom:()=>PAD
+      paddingLeft:()=>4,paddingRight:()=>4,
+      paddingTop:()=>PAD,paddingBottom:()=>PAD
     }
   };
 }
