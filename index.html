@@ -40,7 +40,7 @@ input,select{font-family:inherit;}
 .empty-icon{font-size:44px;margin-bottom:12px;}
 .empty-title{font-size:18px;font-weight:bold;color:var(--navy);margin-bottom:6px;}
 .section-block{margin-bottom:14px;border-radius:5px;overflow:hidden;border:1px solid #d5d5d5;box-shadow:0 1px 4px rgba(0,0,0,.07);}
-.sec-hdr{padding:7px 13px;display:flex;align-items:center;gap:6px;border-bottom-width:2.5px;border-bottom-style:solid;}
+.sec-hdr{padding:7px 13px;display:flex;align-items:center;gap:6px;border-left-width:4px;border-left-style:solid;border-bottom-width:1px;border-bottom-style:solid;}
 .grp-row{padding:6px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #ddd;cursor:pointer;user-select:none;}
 .grp-code{font-weight:bold;font-size:10px;min-width:48px;}
 .grp-name{font-weight:bold;font-size:13px;color:var(--navy);flex:1;}
@@ -82,8 +82,8 @@ input,select{font-family:inherit;}
 .card-coach{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px;}
 .card-body{padding:12px 14px;display:grid;gap:10px;}
 .card-col{border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:12px;}
-.card-sec-hdr{padding:5px 9px;border-bottom-width:2px;border-bottom-style:solid;}
-.card-sec-label{font-weight:bold;font-size:8px;letter-spacing:2px;text-transform:uppercase;}
+.card-sec-hdr{padding:5px 10px;border-left-width:4px;border-left-style:solid;border-bottom:1px solid rgba(0,0,0,0.08);}
+.card-sec-label{font-weight:800;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;}
 .card-grp-hdr{padding:4px 8px;display:flex;gap:5px;align-items:center;border-bottom:1px solid #e0e0e0;border-left-width:3px;border-left-style:solid;}
 .card-grp-code{font-weight:bold;font-size:8px;min-width:36px;}
 .card-grp-name{color:var(--navy);font-weight:bold;font-size:10px;}
@@ -127,8 +127,8 @@ input,select{font-family:inherit;}
   .card-col{overflow:hidden;border-width:0.5pt;border-radius:2pt;break-inside:avoid;page-break-inside:avoid;}
 
   /* Front page defaults — JS overrides padding dynamically */
-  .card-sec-hdr{padding:4pt 7pt;border-bottom-width:2pt;}
-  .card-sec-label{font-size:7pt;letter-spacing:1.5pt;}
+  .card-sec-hdr{padding:4pt 8pt;border-left-width:3.5pt;border-left-style:solid;border-bottom:0.5pt solid rgba(0,0,0,0.1);}
+  .card-sec-label{font-size:8pt;font-weight:800;letter-spacing:0.8pt;}
   .card-grp-hdr{padding:3pt 7pt;border-left-width:3pt;border-bottom-width:0.5pt;}
   .card-grp-code{font-size:8pt;min-width:28pt;}
   .card-grp-name{font-size:9.5pt;}
@@ -161,8 +161,8 @@ input,select{font-family:inherit;}
   .card-coach{font-size:6pt;margin-top:0;}
   .card-body{padding:5pt 6pt;gap:5pt;}
   .card-col{font-size:6pt;border-radius:2pt;border-width:0.5pt;}
-  .card-sec-hdr{padding:2pt 5pt;border-bottom-width:1.5pt;}
-  .card-sec-label{font-size:5.5pt;letter-spacing:1pt;}
+  .card-sec-hdr{padding:2pt 6pt;border-left-width:3pt;border-left-style:solid;border-bottom:0.5pt solid rgba(0,0,0,0.08);}
+  .card-sec-label{font-size:7pt;font-weight:800;letter-spacing:0.6pt;}
   .card-grp-hdr{padding:2pt 4pt;border-bottom-width:0.5pt;border-left-width:2pt;}
   .card-grp-code{font-size:5.5pt;min-width:22pt;}
   .card-grp-name{font-size:7.5pt;}
@@ -196,8 +196,8 @@ input,select{font-family:inherit;}
   .card-col{font-size:6.5px;border-radius:2px;}
 
   /* ── Section headers ── */
-  .card-sec-hdr{padding:2px 5px;border-bottom-width:1.5px;}
-  .card-sec-label{font-size:5.5px;letter-spacing:1.5px;}
+  .card-sec-hdr{padding:2px 6px;border-left-width:3px;border-left-style:solid;border-bottom:0.5px solid rgba(0,0,0,0.08);}
+  .card-sec-label{font-size:7px;font-weight:800;letter-spacing:0.6px;}
 
   /* ── Group headers ── */
   .card-grp-hdr{padding:2px 4px;border-bottom-width:0.5px;border-left-width:2px;}
@@ -737,7 +737,7 @@ function renderPrint(){
   const renderSecs=secs=>secs.map(sec=>{
     const sc=sec.color;
     return`<div class="card-col">
-      <div class="card-sec-hdr" style="background:#0A1E3C;border-color:${sc}">
+      <div class="card-sec-hdr" style="background:${sec.bg||'#F4F4F4'};border-color:${sc}">
         <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
       </div>
       ${sec.groups.map(grp=>{
@@ -1596,21 +1596,31 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
   const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
   const add=(cells,h)=>{body.push(cells);heights.push(h);};
 
-  add([{text:sec.label.toUpperCase(),fontSize:6.5,bold:true,color:sc,characterSpacing:0.5,fillColor:NAVY,colSpan:2,border:[false,false,false,false]},{}], itemH);
+  const secBg=sec.bg||'#F4F4F4';
+  add([{text:sec.label.toUpperCase(),fontSize:8,bold:true,color:sc,characterSpacing:0.8,
+    fillColor:secBg,colSpan:2,
+    border:[true,false,false,true],borderColor:[sc,'','',sc]},{}], itemH+2);
 
   sec.groups.forEach(grp=>{
     const gc=grp.color||sc;
     const isFam=fselMap[grp.id]===true;
+    const grpBg=isFam?'#FFFBEB':'#ffffff';
     add([
-      {text:isFam?'★':grp.code,fontSize:6.5,bold:true,color:gc,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:isFam?'#FFFBEB':'#f3f3f3'},
-      {text:grp.name,fontSize:8.5,bold:true,color:NAVY,border:[false,false,false,true],borderColor:['','','','#ccc'],fillColor:isFam?'#FFFBEB':'#f3f3f3'}
+      {text:isFam?'★':grp.code,fontSize:7,bold:true,color:gc,
+        border:[true,false,false,true],borderColor:[gc,'','','#e8e8e8'],
+        fillColor:grpBg},
+      {text:grp.name,fontSize:9,bold:true,color:isFam?gc:'#1a1a1a',
+        border:[false,false,false,true],borderColor:['','','','#e8e8e8'],
+        fillColor:grpBg}
     ], itemH);
     if(isFam) return; // family selected — show name only, skip all plays
 
     if(grp.subs) grp.subs.forEach(sub=>{
       add([
-        {text:sub.code,fontSize:6.5,color:sc,fillColor:'#ebebeb',border:[false,false,false,false]},
-        {text:sub.name,fontSize:8,bold:true,color:NAVY,fillColor:'#ebebeb',border:[false,false,false,false]}
+        {text:sub.code,fontSize:6.5,color:sc,fillColor:'#F8F8F8',
+          border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
+        {text:sub.name,fontSize:8,bold:true,color:'#333',fillColor:'#F8F8F8',
+          border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
       ], itemH);
       sub.plays.forEach(play=>{
         const ctr=!!play.ctr, cc=ctr?'#5B2D8E':gc, fill=ctr?'#F3EEFF':null;
@@ -1668,7 +1678,7 @@ function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[], fsel
     totalItems+=mx;
   }
 
-  const itemH=Math.max(10, Math.floor(COL_AVAIL/totalItems) - 2*PAD);
+  const itemH=Math.max(10, Math.min(26, Math.floor(COL_AVAIL/totalItems) - 2*PAD));
   console.log(`  ${subtitle||'front'}: totalItems=${totalItems} itemH=${itemH} (${itemH+2*PAD}pt/row)`);
 
   const gridBody=[];
