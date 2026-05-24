@@ -81,7 +81,7 @@ input,select{font-family:inherit;}
 .card-date{color:rgba(255,255,255,.65);font-size:11px;margin-top:2px;}
 .card-coach{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px;}
 .card-body{padding:12px 14px;display:grid;gap:10px;}
-.card-col{border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:12px;}
+.card-col{border:1px solid #E2DDD0;border-radius:4px;overflow:hidden;font-size:12px;background:#fff;}
 .card-sec-hdr{padding:5px 10px;border-left-width:4px;border-left-style:solid;border-bottom:1px solid rgba(0,0,0,0.08);}
 .card-sec-label{font-weight:800;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;}
 .card-grp-hdr{padding:4px 8px;display:flex;gap:5px;align-items:center;border-bottom:1px solid #e0e0e0;border-left-width:3px;border-left-style:solid;}
@@ -90,14 +90,15 @@ input,select{font-family:inherit;}
 .card-sub-hdr{padding:3px 8px 3px 13px;display:flex;gap:5px;background:#f2f2f2;border-bottom:1px solid #e8e8e8;border-left-width:2px;border-left-style:solid;}
 .card-sub-code{font-weight:bold;font-size:8px;}
 .card-sub-name{color:var(--navy);font-weight:bold;font-size:9px;}
-.card-play{border-bottom:1px solid #f0f0f0;padding:3px 8px 3px 16px;}
+.card-play{border-bottom:0.5px solid #E2DDD0;padding:3px 8px 3px 16px;}
 .card-play.indent{padding-left:18px;}
 .card-play-line{display:flex;gap:5px;align-items:baseline;}
-.card-play-code{font-size:8px;min-width:42px;}
+.card-play-code{font-size:8px;min-width:42px;color:#888;}
 .card-play-name{font-size:10px;flex:1;}
 .card-play-name.ctr{font-style:italic;color:var(--purple);}
 .card-play-code.ctr{font-weight:bold;color:var(--purple);}
 .card-players{padding-left:47px;margin-top:2px;display:flex;flex-wrap:wrap;gap:3px;}
+.card-play:nth-child(even){background:#FEFCF5;}
 .card-chip{background:var(--navy);color:#fff;font-size:8px;border-radius:2px;padding:1px 5px;}
 .card-footer{border-top:1px solid var(--gold);padding:5px 14px;text-align:center;}
 .card-footer-text{color:#bbb;font-size:8px;}
@@ -109,7 +110,7 @@ input,select{font-family:inherit;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   @page{margin:0.4in;size:letter portrait;}
 
-  .print-area{max-width:100%;width:100%;margin:0;box-shadow:none;}
+  .print-area{max-width:100%;width:100%;margin:0;box-shadow:none;background:#FEFCF5!important;}
 
   /* Header */
   .card-hdr{padding:9pt 14pt;border-bottom-width:3pt;}
@@ -1592,68 +1593,73 @@ function countItems(sec, fselMap={}){
 
 function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
   const NAVY='#0A1E3C', PAD=2;
+  const CREAM='#FEFCF5', RULE='#E2DDD0', SOFT='#F5F2EB';
   const body=[], heights=[], sc=sec.color;
   const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
   const add=(cells,h)=>{body.push(cells);heights.push(h);};
 
+  // Section header — marker-style: light section tint bg, bold colored label, left+bottom accent
   const secBg=sec.bg||'#F4F4F4';
-  add([{text:sec.label.toUpperCase(),fontSize:8,bold:true,color:sc,characterSpacing:0.8,
+  add([{text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:sc,characterSpacing:0.5,
     fillColor:secBg,colSpan:2,
-    border:[true,false,false,true],borderColor:[sc,'','',sc]},{}], itemH+2);
+    border:[true,false,false,true],borderColor:[sc,'','',sc]},{}], itemH+3);
 
   sec.groups.forEach(grp=>{
     const gc=grp.color||sc;
     const isFam=fselMap[grp.id]===true;
-    const grpBg=isFam?'#FFFBEB':'#ffffff';
+    const grpBg=isFam?secBg:CREAM;
     add([
-      {text:isFam?'★':grp.code,fontSize:7,bold:true,color:gc,
-        border:[true,false,false,true],borderColor:[gc,'','','#e8e8e8'],
+      {text:isFam?'★':grp.code,fontSize:7,bold:true,color:isFam?gc:sc,
+        border:[true,false,false,true],borderColor:[isFam?gc:sc,'','',RULE],
         fillColor:grpBg},
-      {text:grp.name,fontSize:9,bold:true,color:isFam?gc:'#1a1a1a',
-        border:[false,false,false,true],borderColor:['','','','#e8e8e8'],
+      {text:grp.name,fontSize:9,bold:true,color:isFam?gc:'#111111',
+        border:[false,false,false,true],borderColor:['','','',RULE],
         fillColor:grpBg}
     ], itemH);
     if(isFam) return; // family selected — show name only, skip all plays
 
     if(grp.subs) grp.subs.forEach(sub=>{
       add([
-        {text:sub.code,fontSize:6.5,color:sc,fillColor:'#F8F8F8',
-          border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
-        {text:sub.name,fontSize:8,bold:true,color:'#333',fillColor:'#F8F8F8',
-          border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+        {text:sub.code,fontSize:6.5,color:sc,fillColor:SOFT,
+          border:[false,false,false,true],borderColor:['','','',RULE]},
+        {text:sub.name,fontSize:8,bold:true,color:'#2a2a2a',fillColor:SOFT,
+          border:[false,false,false,true],borderColor:['','','',RULE]}
       ], itemH);
       sub.plays.forEach(play=>{
         const ctr=!!play.ctr, cc=ctr?'#5B2D8E':gc, fill=ctr?'#F3EEFF':null;
         const ap=getAssigned(play.id);
-        const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:cc},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#888'}]}:{text:play.name,fontSize:8.5,italics:ctr,color:cc};
+        const rowBg2=ctr?'#F3EEFF':(body.length%2===0?CREAM:'#ffffff');
+        const textColor=ctr?'#5B2D8E':'#111111';
+        const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:textColor},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#999'}]}:{text:play.name,fontSize:8.5,italics:ctr,color:textColor};
         add([
-          {text:'  '+play.code,fontSize:6.5,color:cc,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
-          {...nm,fillColor:fill,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+          {text:'  '+play.code,fontSize:6.5,color:ctr?'#5B2D8E':sc,fillColor:rowBg2,border:[false,false,false,true],borderColor:['','','',RULE]},
+          {...nm,fillColor:rowBg2,border:[false,false,false,true],borderColor:['','','',RULE]}
         ], itemH);
       });
     });
     else grp.plays.forEach(play=>{
       const ap=getAssigned(play.id);
-      const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,color:NAVY},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#888'}]}:{text:play.name,fontSize:8.5,color:NAVY};
+      const rowBg=body.length%2===0?CREAM:'#ffffff';
+      const nm=ap.length?{text:[{text:play.name+' ',fontSize:8.5,color:'#111111'},{text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#999'}]}:{text:play.name,fontSize:8.5,color:'#111111'};
       add([
-        {text:play.code,fontSize:6.5,color:gc,border:[false,false,false,true],borderColor:['','','','#e8e8e8']},
-        {...nm,border:[false,false,false,true],borderColor:['','','','#e8e8e8']}
+        {text:play.code,fontSize:6.5,color:sc,fillColor:rowBg,border:[false,false,false,true],borderColor:['','','',RULE]},
+        {...nm,fillColor:rowBg,border:[false,false,false,true],borderColor:['','','',RULE]}
       ], itemH);
     });
   });
 
   return {table:{widths:[32,'*'],heights,body},
-    layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>PAD,paddingBottom:()=>PAD}};
+    layout:{hLineWidth:()=>0,vLineWidth:(i,n)=>i===0?0.8:0,vLineColor:()=>RULE,paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>PAD,paddingBottom:()=>PAD}};
 }
 
 function makeHeader(plan, subtitle){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
   return {table:{widths:['*','auto'],body:[[
     {stack:[
-      {text:'B I S H O P  D W E N G E R  H I G H  S C H O O L   ·   F O R T  W A Y N E ,  I N D I A N A',fontSize:6.5,color:GOLD,characterSpacing:0.3,margin:[0,0,0,3]},
+      {text:'BISHOP DWENGER HIGH SCHOOL  ·  FORT WAYNE, INDIANA',fontSize:6.5,color:GOLD,bold:true,characterSpacing:1.5,margin:[0,0,0,4]},
       subtitle
-        ? {columns:[{width:'auto',text:"Boys' Basketball — Offensive Game Card",fontSize:12,bold:true,color:WHITE},{width:'auto',text:'  '+subtitle,fontSize:8.5,color:'rgba(255,255,255,0.5)',margin:[0,2,0,0]}]}
-        : {text:"Boys' Basketball — Offensive Game Card",fontSize:12,bold:true,color:WHITE}
+        ? {columns:[{width:'auto',text:"Boys' Basketball — Offensive Game Card",fontSize:13,bold:true,color:WHITE},{width:'auto',text:'  '+subtitle,fontSize:8.5,color:'rgba(255,255,255,0.45)',margin:[0,3,0,0]}]}
+        : {text:"Boys' Basketball — Offensive Game Card",fontSize:13,bold:true,color:WHITE}
     ],fillColor:NAVY},
     {stack:[
       {text:'vs. '+(plan.opponent||'—'),fontSize:10,bold:true,color:GOLD,alignment:'right'},
@@ -1697,8 +1703,7 @@ function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[], fsel
     hdr,
     {canvas:[{type:'rect',x:0,y:0,w:CW,h:3,color:GOLD}],margin:[0,0,0,6]},
     {table:{widths:Array(numCols).fill('*'),body:gridBody},
-     layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>2,paddingRight:()=>2,paddingTop:()=>0,paddingBottom:()=>0}},
-    {text:"Bishop Dwenger Boys' Basketball  ·  Offensive Game Card  ·  Ben Smith  ·  Head Coach",fontSize:7,color:'#bbb',alignment:'center',margin:[0,5,0,0]}
+     layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>3,paddingRight:()=>3,paddingTop:()=>0,paddingBottom:()=>0}}
   ];
 }
 
@@ -1720,7 +1725,15 @@ function buildGameCardDoc(plan, roster){
   const front=active.filter(s=>!BACK.includes(s.id));
   const back=active.filter(s=>BACK.includes(s.id));
 
-  return {pageSize:'LETTER',pageMargins:[M,M,M,M],defaultStyle:{font:'Roboto',lineHeight:1.05},
+  return {pageSize:'LETTER',pageMargins:[M,M,M,32],defaultStyle:{font:'Roboto',lineHeight:1.05},
+    background:(currentPage,pageSize)=>({canvas:[{type:'rect',x:0,y:0,w:pageSize.width,h:pageSize.height,color:'#FEFCF5'}]}),
+    footer:(currentPage,pageCount)=>({
+      stack:[
+        {canvas:[{type:'line',x1:M,y1:0,x2:584,y2:0,lineWidth:0.4,lineColor:'#D9D5CA'}]},
+        {text:"Bishop Dwenger Boys' Basketball  ·  Offensive Game Card  ·  Ben Smith  ·  Head Coach",
+         fontSize:7,color:'#888',alignment:'center',margin:[M,5,M,0]}
+      ]
+    }),
     content:[...buildPage(plan,front,'',true,sel,roster,fselMap),...buildPage(plan,back,'(OB · Zone · Press)',false,sel,roster,fselMap)]};
 }
 
