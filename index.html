@@ -441,6 +441,36 @@ let SYSTEM=load(PB_KEY)||DEFAULT_SYSTEM;
 function savePlaybook(){persist(PB_KEY,SYSTEM);}
 function resetPlaybook(){SYSTEM=[...DEFAULT_SYSTEM];savePlaybook();}
 
+// Playbook section color presets
+const SEC_COLORS=[
+  {name:'Gold',   color:'#C9A84C',bg:'#FEFCE8'},
+  {name:'Green',  color:'#1A5C3A',bg:'#EBF7F0'},
+  {name:'Blue',   color:'#1D4E89',bg:'#EBF2FB'},
+  {name:'Teal',   color:'#0E7490',bg:'#ECFEFF'},
+  {name:'Orange', color:'#C2410C',bg:'#FFF7ED'},
+  {name:'Red',    color:'#9B1C1C',bg:'#FEF2F2'},
+  {name:'Purple', color:'#5B2D8E',bg:'#F3EEFF'},
+  {name:'Navy',   color:'#0A1E3C',bg:'#EEF2F8'},
+];
+
+// Non-reactive pb color selections (avoid re-render on swatch click)
+let _pbColor={sec:SEC_COLORS[0],grp:null};
+
+// Read all pb form values from current DOM
+function pbReadForm(){
+  const q=k=>document.querySelector('[data-a="'+k+'"]');
+  return{
+    secLabel:   (q('pb-form-sec-label')?.value||'').trim(),
+    grpCode:    (q('pb-form-grp-code')?.value||'').trim(),
+    grpName:    (q('pb-form-grp-name')?.value||'').trim(),
+    subCode:    (q('pb-form-sub-code')?.value||'').trim(),
+    subName:    (q('pb-form-sub-name')?.value||'').trim(),
+    playCode:   (q('pb-form-play-code')?.value||'').trim(),
+    playName:   (q('pb-form-play-name')?.value||'').trim(),
+    playCtr:    q('pb-form-play-ctr')?.checked||false,
+  };
+}
+
 const S={
   roster:load(SK.roster)||[],
   plans:load(SK.plans)||[],
@@ -780,16 +810,6 @@ function renderCardPlay(play,color,alt,indent,players){
 
 
 // ── PLAYBOOK EDITOR ──────────────────────────────────────────────────────────
-const SEC_COLORS=[
-  {name:'Gold',   color:'#C9A84C',bg:'#FEFCE8'},
-  {name:'Green',  color:'#1A5C3A',bg:'#EBF7F0'},
-  {name:'Blue',   color:'#1D4E89',bg:'#EBF2FB'},
-  {name:'Teal',   color:'#0E7490',bg:'#ECFEFF'},
-  {name:'Orange', color:'#C2410C',bg:'#FFF7ED'},
-  {name:'Red',    color:'#9B1C1C',bg:'#FEF2F2'},
-  {name:'Purple', color:'#5B2D8E',bg:'#F3EEFF'},
-  {name:'Navy',   color:'#0A1E3C',bg:'#EEF2F8'},
-];
 
 function pbUid(){return 'pb'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
@@ -945,7 +965,7 @@ function renderPlaybookModal(){
         <span style="font-size:12px;color:#999">${isExpanded?'▾':'▸'}</span>
         <span class="pb-grp-code" style="color:${gc2}">${esc(grp.code)}</span>
         <span class="pb-grp-name">${esc(grp.name)}</span>
-        <div class="pb-row-actions" onclick="event.stopPropagation()">
+        <div class="pb-row-actions" >
           <button class="pb-btn pb-btn-move" data-a="pb-move-grp" data-target="${grpKey}" data-dir="-1">▲</button>
           <button class="pb-btn pb-btn-move" data-a="pb-move-grp" data-target="${grpKey}" data-dir="1">▼</button>
           <button class="pb-btn" data-a="pb-edit-grp" data-target="${grpKey}">Edit</button>
@@ -988,7 +1008,7 @@ function renderPlaybookModal(){
         <span class="pb-sec-label">${esc(sec.label)}</span>
         <span class="pb-sec-count">${sec.groups.length} groups · ${totalPlays} plays</span>
         <span style="margin-left:4px;color:#999">${isExpanded?'▾':'▸'}</span>
-        <div class="pb-row-actions" onclick="event.stopPropagation()">
+        <div class="pb-row-actions" >
           <button class="pb-btn pb-btn-move" data-a="pb-move-sec" data-target="${secKey}" data-dir="-1">▲</button>
           <button class="pb-btn pb-btn-move" data-a="pb-move-sec" data-target="${secKey}" data-dir="1">▼</button>
           <button class="pb-btn" data-a="pb-edit-sec" data-target="${secKey}">Edit</button>
@@ -1160,11 +1180,13 @@ function handleClick(e){
   }
   // expand/collapse
   else if(a==='pb-toggle-sec'){
+    if(e.target.closest('.pb-row-actions'))return;
     const es={...S.pb.expandSecs};
     es[el.dataset.target]=es[el.dataset.target]===false?true:false;
     setState({pb:{...S.pb,expandSecs:es,mode:null}});
   }
   else if(a==='pb-toggle-grp'){
+    if(e.target.closest('.pb-row-actions'))return;
     const eg={...S.pb.expandGrps};
     eg[el.dataset.target]=eg[el.dataset.target]===false?true:false;
     setState({pb:{...S.pb,expandGrps:eg,mode:null}});
@@ -1172,31 +1194,37 @@ function handleClick(e){
   // color picker
   else if(a==='pb-pick-color'){
     const c=SEC_COLORS[parseInt(el.dataset.idx)];
-    if(el.dataset.prefix==='sec') setState({pb:{...S.pb,secForm:{...S.pb.secForm,color:c.color,bg:c.bg}}});
-    else setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,color:c.color}}});
+    const pfx=el.dataset.prefix;
+    if(pfx==='sec') _pbColor.sec=c; else _pbColor.grp=c;
+    // Update swatch visuals directly — no re-render
+    document.querySelectorAll('[data-a="pb-pick-color"][data-prefix="'+pfx+'"]').forEach(sw=>{
+      sw.classList.toggle('active', sw.dataset.idx===el.dataset.idx);
+    });
   }
   // form field changes (handled via change/input events in attachHandlers)
   // cancel
   else if(a==='pb-cancel') setState({pb:{...S.pb,mode:null,target:null}});
   // ── SECTION ──────────────────────────────────────────────────────────────
   else if(a==='pb-add-sec'){
+    _pbColor.sec=SEC_COLORS[0];_pbColor.grp=null;
     setState({pb:{...S.pb,mode:'add-sec',target:'new',secForm:{label:'',color:'#C9A84C',bg:'#FEFCE8'}}});
   }
   else if(a==='pb-edit-sec'){
     const si=parseInt(el.dataset.target);
     const sec=SYSTEM[si];
+    _pbColor.sec=SEC_COLORS.find(c=>c.color===sec.color)||SEC_COLORS[0];
     setState({pb:{...S.pb,mode:'edit-sec',target:el.dataset.target,secForm:{label:sec.label,color:sec.color,bg:sec.bg}}});
   }
   else if(a==='pb-save-sec'){
     const t=el.dataset.target;
-    const f=S.pb.secForm;
-    if(!f.label.trim())return;
-    const c=SEC_COLORS.find(x=>x.color===f.color)||SEC_COLORS[0];
+    const f=pbReadForm();
+    if(!f.secLabel)return;
+    const c=_pbColor.sec||SEC_COLORS[0];
     if(t==='new'){
-      SYSTEM=[...SYSTEM,{id:pbUid(),label:f.label.trim(),color:f.color,bg:c.bg,groups:[]}];
+      SYSTEM=[...SYSTEM,{id:pbUid(),label:f.secLabel,color:c.color,bg:c.bg,groups:[]}];
     } else {
       const si=parseInt(t);
-      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,label:f.label.trim(),color:f.color,bg:c.bg}:s);
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,label:f.secLabel,color:c.color,bg:c.bg}:s);
     }
     savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
   }
@@ -1214,27 +1242,29 @@ function handleClick(e){
   }
   // ── GROUP ────────────────────────────────────────────────────────────────
   else if(a==='pb-add-grp'){
+    _pbColor.grp=null;
     setState({pb:{...S.pb,mode:'add-grp',target:el.dataset.target,grpForm:{code:'',name:'',color:''}}});
   }
   else if(a==='pb-edit-grp'){
     const [si,gi]=el.dataset.target.split('-').map(Number);
     const grp=SYSTEM[si].groups[gi];
+    _pbColor.grp=grp.color?SEC_COLORS.find(c=>c.color===grp.color)||null:null;
     setState({pb:{...S.pb,mode:'edit-grp',target:el.dataset.target,grpForm:{code:grp.code,name:grp.name,color:grp.color||''}}});
   }
   else if(a==='pb-save-grp'){
     const t=el.dataset.target;
-    const f=S.pb.grpForm;
-    if(!f.name.trim())return;
+    const f=pbReadForm();
+    if(!f.grpName)return;
     const parts=t.split('-').map(Number);
+    const grpColor=_pbColor.grp?_pbColor.grp.color:undefined;
     if(parts.length===1){
-      // add new group to section
       const si=parts[0];
-      const newGrp={id:pbUid(),code:f.code.trim(),name:f.name.trim(),plays:[]};
-      if(f.color) newGrp.color=f.color;
+      const newGrp={id:pbUid(),code:f.grpCode,name:f.grpName,plays:[]};
+      if(grpColor) newGrp.color=grpColor;
       SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:[...s.groups,newGrp]}:s);
     } else {
       const [si,gi]=parts;
-      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,code:f.code.trim(),name:f.name.trim(),color:f.color||undefined}:g)}:s);
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,code:f.grpCode,name:f.grpName,color:grpColor||undefined}:g)}:s);
     }
     savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
   }
@@ -1260,16 +1290,16 @@ function handleClick(e){
     setState({pb:{...S.pb,mode:'edit-sub',target:el.dataset.target,subForm:{code:sub.code,name:sub.name}}});
   }
   else if(a==='pb-save-sub'){
-    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=S.pb.subForm;
-    if(!f.name.trim())return;
+    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=pbReadForm();
+    if(!f.subName)return;
     if(parts.length===2){
       // add new sub to group
       const [si,gi]=parts;
-      const newSub={id:pbUid(),code:f.code.trim(),name:f.name.trim(),plays:[]};
+      const newSub={id:pbUid(),code:f.subCode,name:f.subName,plays:[]};
       SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:[...(g.subs||[]),newSub]}:g)}:s);
     } else {
       const [si,gi,subi]=parts;
-      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,code:f.code.trim(),name:f.name.trim()}:sub)}:g)}:s);
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,subs:g.subs.map((sub,k)=>k===subi?{...sub,code:f.subCode,name:f.subName}:sub)}:g)}:s);
     }
     savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
   }
@@ -1298,10 +1328,10 @@ function handleClick(e){
     setState({pb:{...S.pb,mode:'edit-play',target:el.dataset.target,playForm:{code:play.code,name:play.name,ctr:!!play.ctr}}});
   }
   else if(a==='pb-save-play'){
-    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=S.pb.playForm;
-    if(!f.name.trim())return;
-    const newPlay={id:pbUid(),code:f.code.trim(),name:f.name.trim()};
-    if(f.ctr)newPlay.ctr=true;
+    const t=el.dataset.target;const parts=t.split('-').map(Number);const f=pbReadForm();
+    if(!f.playName)return;
+    const newPlay={id:pbUid(),code:f.playCode,name:f.playName};
+    if(f.playCtr)newPlay.ctr=true;
     if(parts.length===2){
       // add to group.plays
       const[si,gi]=parts;
@@ -1499,21 +1529,7 @@ function applyPrintPadding(){
 document.addEventListener('click',handleClick);
 
   // Playbook form inputs (live update pb form state)
-  document.addEventListener('change',e=>{
-    const t=e.target;
-    if(t.dataset.a==='pb-form-play-ctr') setState({pb:{...S.pb,playForm:{...S.pb.playForm,ctr:t.checked}}});
-  });
-  document.addEventListener('input',e=>{
-    const t=e.target;
-    if(t.dataset.a==='pb-form-sec-label') setState({pb:{...S.pb,secForm:{...S.pb.secForm,label:t.value}}});
-    else if(t.dataset.a==='pb-form-grp-code') setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,code:t.value}}});
-    else if(t.dataset.a==='pb-form-grp-name') setState({pb:{...S.pb,grpForm:{...S.pb.grpForm,name:t.value}}});
-    else if(t.dataset.a==='pb-form-sub-code') setState({pb:{...S.pb,subForm:{...S.pb.subForm,code:t.value}}});
-    else if(t.dataset.a==='pb-form-sub-name') setState({pb:{...S.pb,subForm:{...S.pb.subForm,name:t.value}}});
-    else if(t.dataset.a==='pb-form-play-code') setState({pb:{...S.pb,playForm:{...S.pb.playForm,code:t.value}}});
-    else if(t.dataset.a==='pb-form-play-name') setState({pb:{...S.pb,playForm:{...S.pb.playForm,name:t.value}}});
-    else if(t.dataset.a==='pb-form-play-ctr') setState({pb:{...S.pb,playForm:{...S.pb.playForm,ctr:t.checked}}});
-  });
+  // pb form inputs read from DOM on save (no live setState)
 render();
 
 
