@@ -435,7 +435,8 @@ const DEFAULT_SYSTEM=[
   ]},
 ];
 
-const SK={roster:'bd_roster_v1',plans:'bd_plans_v1'};
+const SK={roster:'bd_roster_v1',plans:'bd_plans_v1',templates:'bd_gc_templates_v1'};
+const BK_KEY='bd_gc_last_export';
 const load=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
 const persist=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
@@ -563,6 +564,7 @@ function renderHome(){
           </div>
           <div class="plan-card-actions">
             <button class="btn btn-ghost-sm" data-a="print-plan" data-id="${p.id}">&#128424; Print</button>
+            <button class="btn btn-ghost-sm" data-a="dup-plan" data-id="${p.id}" title="Duplicate this game plan">&#10697; Copy</button>
             <button class="btn btn-navy-sm" data-a="edit-plan" data-id="${p.id}">Edit</button>
             ${S.confirmDel===p.id?`
               <button class="btn btn-danger-sm" data-a="confirm-del" data-id="${p.id}">Delete</button>
@@ -600,6 +602,7 @@ function renderBuilder(){
     <input class="inp-dark" id="date-input" type="date" value="${esc(p.date||'')}" style="width:140px;">
     <span style="color:rgba(255,255,255,.4);font-size:12px;flex:1;">${n} play${n!==1?'s':''} selected</span>
     <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster</button>
+    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export (Ctrl+S)">&#11014; Export<span id="gc-bk-ind-b" style="margin-left:4px"></span></button>
     <button class="btn btn-ghost btn-sm" data-a="go-print">&#128424; Preview</button>
     <button class="btn btn-ghost btn-sm" data-a="save-template" title="Save selections as reusable template">&#128204; Template</button>
     <button class="btn btn-gold btn-sm" id="save-btn" data-a="save-plan" style="min-width:68px">${S.savedMsg?'&#10003; Saved':'Save'}</button>
@@ -1430,6 +1433,18 @@ function handleClick(e){
     }
     savePlaybook();setState({pb:{...S.pb,mode:null}});
   }
+  else if(a==='dup-plan'){
+    const src=S.plans.find(x=>x.id===el.dataset.id);
+    if(src){
+      const copy={...JSON.parse(JSON.stringify(src)),
+        id:uid(),
+        opponent:(src.opponent?src.opponent+' (copy)':'Copy'),
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()};
+      setState({plans:[copy,...S.plans]});
+      showToast('Game plan copied');
+    }
+  }
   else if(a==='save-template'){
     const name=prompt('Template name (e.g. "vs Zone" or "Conference Game"):');
     if(!name||!name.trim()) return;
@@ -1482,14 +1497,16 @@ function doSavePlan(){
 }
 
 function doExport(){
+  try{
   const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans,playbook:SYSTEM};
   localStorage.setItem(BK_KEY,new Date().toISOString());
-  const bkEl=document.getElementById('gc-bk-ind');if(bkEl)bkEl.innerHTML='<span style="color:#4ade80"> ✓</span>';
+  ['gc-bk-ind','gc-bk-ind-b'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<span style="color:#4ade80"> ✓</span>';});
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;a.download='saints-gamecard-'+new Date().toISOString().split('T')[0]+'.json';
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  }catch(err){console.error('Export error:',err);alert('Export failed: '+err.message);}
 }
 
 function doImport(file){
@@ -1616,14 +1633,15 @@ function applyPrintPadding(){
 document.addEventListener('click',handleClick);
   // Update backup indicator
   (function updateBkInd(){
-    const el=document.getElementById('gc-bk-ind');
-    if(!el)return;
     const l=localStorage.getItem(BK_KEY);
     const age=l?(Date.now()-new Date(l).getTime()):Infinity;
     const d=Math.floor(age/86400000);
-    el.innerHTML=d>7?'<span style="color:#f87171;font-weight:bold"> ⚠ '+d+'d</span>':
-                 d>1?'<span style="color:#fbbf24"> '+d+'d</span>':
-                 l?'<span style="color:#4ade80"> ✓</span>':'';
+    const html=d>7?'<span style="color:#f87171;font-weight:bold"> ⚠ '+d+'d</span>':
+               d>1?'<span style="color:#fbbf24"> '+d+'d</span>':
+               l?'<span style="color:#4ade80"> ✓</span>':'';
+    ['gc-bk-ind','gc-bk-ind-b'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.innerHTML=html;
+    });
   })();
   document.addEventListener('keydown',e=>{
     if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();doExport();}
