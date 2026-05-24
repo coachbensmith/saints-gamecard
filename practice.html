@@ -408,7 +408,17 @@ function render(){
   if(S.showRoster)       html+=renderRosterPanel();
   if(S.showSegModal)     html+=renderSegModal();
   if(S.showLibModal)     html+=renderLibModal();
+  // Save scroll positions of any open scrollable panels/modals
+  const _sb=document.querySelector('.side-body');
+  const _sbSc=_sb?_sb.scrollTop:0;
+  const _mb=document.querySelector('.modal-body');
+  const _mbSc=_mb?_mb.scrollTop:0;
   document.getElementById('app').innerHTML=html;
+  // Restore scroll positions after re-render
+  const _sbNew=document.querySelector('.side-body');
+  if(_sbNew) _sbNew.scrollTop=_sbSc;
+  const _mbNew=document.querySelector('.modal-body');
+  if(_mbNew) _mbNew.scrollTop=_mbSc;
   attachHandlers();
 }
 

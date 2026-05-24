@@ -517,7 +517,13 @@ function render(){
   if(S.view==='print')   html=renderPrint();
   if(S.showRoster)       html+=renderRosterModal();
   if(S.showPlaybook)     html+=renderPlaybookModal();
+  // Save pb-body scroll position before replacing DOM
+  const pbBody=document.querySelector('.pb-body');
+  const pbScroll=pbBody?pbBody.scrollTop:0;
   document.getElementById('app').innerHTML=html;
+  // Restore pb-body scroll position after re-render
+  const pbBodyNew=document.querySelector('.pb-body');
+  if(pbBodyNew) pbBodyNew.scrollTop=pbScroll;
   attachHandlers();
 
   // Apply dynamic padding to print view after DOM settles
