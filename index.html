@@ -81,16 +81,16 @@ input,select{font-family:inherit;}
 .card-date{color:rgba(255,255,255,.65);font-size:11px;margin-top:2px;}
 .card-coach{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px;}
 .card-body{padding:12px 14px;display:grid;gap:10px;}
-.card-col{border:1px solid #E0E0E0;border-radius:4px;overflow:hidden;font-size:12px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.card-col{border:1px solid #E0E0E0;border-radius:3px;overflow:hidden;font-size:12px;background:#fff;}
 .card-sec-hdr{padding:6px 10px;background:#fff;border-left:none;border-bottom:2.5px solid;}
 .card-sec-label{font-weight:800;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;}
-.card-grp-hdr{padding:4px 8px;display:flex;gap:5px;align-items:center;border-bottom:1px solid #EEEEEE;border-left:none;}
+.card-grp-hdr{padding:5px 8px 3px 8px;display:flex;gap:5px;align-items:center;border:none;}
 .card-grp-code{font-weight:bold;font-size:8px;min-width:36px;}
 .card-grp-name{color:#0D1B2A;font-weight:800;font-size:10.5px;}
-.card-sub-hdr{padding:3px 8px 3px 13px;display:flex;gap:5px;background:#f2f2f2;border-bottom:1px solid #e8e8e8;border-left-width:2px;border-left-style:solid;}
+.card-sub-hdr{padding:3px 8px 2px 13px;display:flex;gap:5px;background:#fff;border:none;border-top:0.5px solid #F0F0F0;}
 .card-sub-code{font-weight:bold;font-size:8px;}
 .card-sub-name{color:var(--navy);font-weight:bold;font-size:9px;}
-.card-play{border-bottom:0.5px solid #E2DDD0;padding:3px 8px 3px 16px;}
+.card-play{border:none;padding:3px 8px 3px 16px;}
 .card-play.indent{padding-left:18px;}
 .card-play-line{display:flex;gap:5px;align-items:baseline;}
 .card-play-code{font-size:8px;min-width:42px;font-weight:600;}
@@ -125,15 +125,15 @@ input,select{font-family:inherit;}
 
   /* Grid — must be explicit in print */
   .card-body{display:grid!important;padding:5pt 7pt;gap:5pt;}
-  .card-col{overflow:hidden;border-width:0.5pt;border-radius:2pt;break-inside:avoid;page-break-inside:avoid;}
+  .card-col{overflow:hidden;border:0.5pt solid #E0E0E0;border-radius:2pt;break-inside:avoid;page-break-inside:avoid;}
 
   /* Front page defaults — JS overrides padding dynamically */
   .card-sec-hdr{padding:4pt 8pt;background:#fff;border-left:none;border-bottom:2pt solid;}
   .card-sec-label{font-size:9pt;font-weight:800;letter-spacing:0.4pt;}
-  .card-grp-hdr{padding:3pt 7pt;border-left:none;border-bottom:0.5pt solid #EEEEEE;}
+  .card-grp-hdr{padding:4pt 7pt 2pt 7pt;border:none;}
   .card-grp-code{font-size:8pt;min-width:28pt;}
   .card-grp-name{font-size:10pt;font-weight:800;color:#0D1B2A;}
-  .card-sub-hdr{padding:3pt 7pt 3pt 10pt;border-left-width:2pt;}
+  .card-sub-hdr{padding:2pt 7pt 1pt 10pt;border:none;border-top:0.4pt solid #F0F0F0;}
   .card-sub-code{font-size:7pt;}
   .card-sub-name{font-size:9pt;}
   .card-play{padding:3pt 7pt 3pt 12pt;border-bottom-width:0.3pt;}
@@ -164,10 +164,10 @@ input,select{font-family:inherit;}
   .card-col{font-size:6pt;border-radius:2pt;border-width:0.5pt;}
   .card-sec-hdr{padding:2pt 6pt;background:#fff;border-left:none;border-bottom:1.5pt solid;}
   .card-sec-label{font-size:7pt;font-weight:800;letter-spacing:0.6pt;}
-  .card-grp-hdr{padding:2pt 4pt;border-left:none;border-bottom:0.5pt solid #EEEEEE;}
+  .card-grp-hdr{padding:3pt 4pt 2pt 4pt;border:none;}
   .card-grp-code{font-size:5.5pt;min-width:22pt;}
   .card-grp-name{font-size:7.5pt;}
-  .card-sub-hdr{padding:1.5pt 4pt 1.5pt 7pt;border-left-width:1.5pt;}
+  .card-sub-hdr{padding:1.5pt 4pt 1pt 7pt;border:none;border-top:0.3pt solid #F0F0F0;}
   .card-sub-code{font-size:5.5pt;}
   .card-sub-name{font-size:6.5pt;}
   .card-play{padding:1.5pt 4pt 1.5pt 8pt;border-bottom-width:0.25pt;}
@@ -201,12 +201,12 @@ input,select{font-family:inherit;}
   .card-sec-label{font-size:7px;font-weight:800;letter-spacing:0.6px;}
 
   /* ── Group headers ── */
-  .card-grp-hdr{padding:2px 4px;border-left:none;border-bottom:0.5px solid #EEEEEE;}
+  .card-grp-hdr{padding:3px 4px 2px 4px;border:none;}
   .card-grp-code{font-size:5.5px;min-width:22px;}
   .card-grp-name{font-size:7.5px;}
 
   /* ── Sub headers ── */
-  .card-sub-hdr{padding:1px 4px 1px 7px;border-left-width:1.5px;}
+  .card-sub-hdr{padding:1px 4px 1px 7px;border:none;border-top:0.3px solid #F0F0F0;}
   .card-sub-code{font-size:5.5px;}
   .card-sub-name{font-size:7px;}
 
@@ -1593,16 +1593,17 @@ function countItems(sec, fselMap={}){
 
 function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
   const PAD=2;
-  // Dry-erase whiteboard palette
-  const WHITE='#FFFFFF', RULE='#E8E8E8', SUBHDR='#F7F7F7';
+  const WHITE='#FFFFFF', STRIPE='#FAFAFA', SUBLINE='#F0F0F0';
   const body=[], heights=[], sc=sec.color;
   const getAssigned=pid=>(sel[pid]||[]).map(id=>roster.find(r=>r.id===id)).filter(Boolean).sort((a,b)=>a.number-b.number);
   const add=(cells,h)=>{body.push(cells);heights.push(h);};
 
-  // ── Section header — bold colored label + solid underline (marker stroke) ──
+  // ── Section header ─────────────────────────────────────────────────────────
+  // Containment: colored bottom stroke only — the marker underline.
+  // No box. No fill. Just the heading and its underline.
   add([{
     text:sec.label.toUpperCase(),
-    fontSize:8.5,bold:true,color:sc,fillColor:WHITE,colSpan:2,
+    fontSize:8.5, bold:true, color:sc, fillColor:WHITE, colSpan:2,
     border:[false,false,false,true],
     borderColor:['','','',sc]
   },{}], itemH+3);
@@ -1611,60 +1612,70 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
     const gc=grp.color||sc;
     const isFam=fselMap[grp.id]===true;
 
-    // ── Group header — bold name, code in section color ───────────────────────
+    // ── Group header ────────────────────────────────────────────────────────
+    // No border — bold weight + size create the hierarchy.
+    // A small top margin (via extra height) gives breathing room after plays.
     add([
-      {text:isFam?'★':grp.code, fontSize:7.5,bold:true,color:isFam?gc:sc,fillColor:WHITE,
-       border:[false,false,false,true],borderColor:['','','',RULE]},
-      {text:grp.name, fontSize:9.5,bold:true,color:'#0D1B2A',fillColor:WHITE,
-       border:[false,false,false,true],borderColor:['','','',RULE]}
-    ], itemH);
+      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc,
+       fillColor:WHITE, border:[false,false,false,false]},
+      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A',
+       fillColor:WHITE, border:[false,false,false,false]}
+    ], itemH+1);
     if(isFam) return;
 
-    if(grp.subs) grp.subs.forEach(sub=>{
-      // ── Sub-group header — indented, medium weight ────────────────────────
+    if(grp.subs) grp.subs.forEach((sub,si)=>{
+      // ── Sub-group header ──────────────────────────────────────────────────
+      // Faint top border only on 2nd+ subs — signals "new sub" without boxing.
+      const topBorder=si>0;
       add([
-        {text:sub.code,fontSize:7,color:sc,fillColor:SUBHDR,
-         border:[false,false,false,true],borderColor:['','','',RULE]},
-        {text:sub.name,fontSize:8,bold:true,color:'#333',fillColor:SUBHDR,
-         border:[false,false,false,true],borderColor:['','','',RULE]}
+        {text:sub.code, fontSize:7, color:sc, fillColor:WHITE,
+         border:[false,topBorder,false,false],
+         borderColor:['',SUBLINE,'','']},
+        {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:WHITE,
+         border:[false,topBorder,false,false],
+         borderColor:['',SUBLINE,'','']}
       ], itemH);
 
-      sub.plays.forEach(play=>{
+      sub.plays.forEach((play,pi)=>{
         const ctr=!!play.ctr;
-        const nameColor=ctr?'#5B2D8E':'#0D1B2A';
-        const codeColor=ctr?'#5B2D8E':sc;
+        const nameCol=ctr?'#5B2D8E':'#0D1B2A';
+        const codeCol=ctr?'#5B2D8E':sc;
+        const bg=pi%2===0?WHITE:STRIPE;
         const ap=getAssigned(play.id);
         const nm=ap.length
-          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameColor},
-                  {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#999'}]}
-          :{text:play.name,fontSize:8.5,italics:ctr,color:nameColor};
+          ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},
+                  {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+          :{text:play.name, fontSize:8.5, italics:ctr, color:nameCol};
         add([
-          {text:'  '+play.code,fontSize:6.5,color:codeColor,fillColor:WHITE,
-           border:[false,false,false,true],borderColor:['','','',RULE]},
-          {...nm,fillColor:WHITE,border:[false,false,false,true],borderColor:['','','',RULE]}
+          {text:'  '+play.code, fontSize:6.5, color:codeCol, fillColor:bg,
+           border:[false,false,false,false]},
+          {...nm, fillColor:bg, border:[false,false,false,false]}
         ], itemH);
       });
     });
-    else grp.plays.forEach(play=>{
+    else grp.plays.forEach((play,pi)=>{
+      const bg=pi%2===0?WHITE:STRIPE;
       const ap=getAssigned(play.id);
       const nm=ap.length
         ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},
-                {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#999'}]}
-        :{text:play.name,fontSize:8.5,color:'#0D1B2A'};
+                {text:ap.map(p=>'#'+p.number).join(' '),fontSize:6.5,color:'#AAA'}]}
+        :{text:play.name, fontSize:8.5, color:'#0D1B2A'};
       add([
-        {text:play.code,fontSize:7,color:sc,fillColor:WHITE,
-         border:[false,false,false,true],borderColor:['','','',RULE]},
-        {...nm,fillColor:WHITE,border:[false,false,false,true],borderColor:['','','',RULE]}
+        {text:play.code, fontSize:7, color:sc, fillColor:bg,
+         border:[false,false,false,false]},
+        {...nm, fillColor:bg, border:[false,false,false,false]}
       ], itemH);
     });
   });
 
+  // No vertical line between code and name — color difference handles it.
   return {
-    table:{widths:[32,'*'],heights,body},
+    table:{widths:[32,'*'], heights, body},
     layout:{
-      hLineWidth:()=>0,vLineWidth:()=>0,
-      paddingLeft:()=>4,paddingRight:()=>4,
-      paddingTop:()=>PAD,paddingBottom:()=>PAD
+      hLineWidth:()=>0,
+      vLineWidth:()=>0,
+      paddingLeft:()=>4, paddingRight:()=>4,
+      paddingTop:()=>PAD, paddingBottom:()=>PAD
     }
   };
 }
