@@ -478,6 +478,7 @@ function pbReadForm(){
 const S={
   roster:load(SK.roster)||[],
   plans:load(SK.plans)||[],
+  templates:load(SK.templates)||[],
   view:'home',
   plan:null,
   showRoster:false,
@@ -571,6 +572,21 @@ function renderHome(){
         </div>`;
       }).join('')}
     `}
+  ${S.templates.length?`
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:bold;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">⚡ Templates</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${S.templates.map(t=>`
+          <div style="background:#fff;border:1px solid #E0E0E0;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px">
+            <span style="font-weight:600;font-size:13px;color:var(--navy)">${esc(t.name)}</span>
+            <span style="font-size:11px;color:#999">${Object.keys(t.selections||{}).length+Object.keys(t.familySelections||{}).length} plays</span>
+            <button class="btn btn-navy-sm" data-a="load-template" data-id="${t.id}">Load</button>
+            <button class="btn btn-ghost-sm" data-a="del-template" data-id="${t.id}">✕</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `:''}
   </div>`;
 }
 
@@ -585,6 +601,7 @@ function renderBuilder(){
     <span style="color:rgba(255,255,255,.4);font-size:12px;flex:1;">${n} play${n!==1?'s':''} selected</span>
     <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster</button>
     <button class="btn btn-ghost btn-sm" data-a="go-print">&#128424; Preview</button>
+    <button class="btn btn-ghost btn-sm" data-a="save-template" title="Save selections as reusable template">&#128204; Template</button>
     <button class="btn btn-gold btn-sm" id="save-btn" data-a="save-plan" style="min-width:68px">${S.savedMsg?'&#10003; Saved':'Save'}</button>
   </div>
   <div class="content">
@@ -1413,7 +1430,39 @@ function handleClick(e){
     }
     savePlaybook();setState({pb:{...S.pb,mode:null}});
   }
+  else if(a==='save-template'){
+    const name=prompt('Template name (e.g. "vs Zone" or "Conference Game"):');
+    if(!name||!name.trim()) return;
+    const t={id:uid(),name:name.trim(),createdAt:new Date().toISOString(),
+      selections:{...S.plan.selections},familySelections:{...S.plan.familySelections||{}}};
+    const templates=[t,...S.templates];
+    persist(SK.templates,templates);
+    setState({templates});
+    showToast('Template saved: '+name.trim());
+  }
+  else if(a==='load-template'){
+    const t=S.templates.find(x=>x.id===el.dataset.id);
+    if(!t) return;
+    if(!confirm('Load template "'+t.name+'"? This will replace current play selections.')) return;
+    setState({plan:{...S.plan,selections:{...t.selections},familySelections:{...t.familySelections||{}}}});
+    showToast('Template loaded: '+t.name);
+  }
+  else if(a==='del-template'){
+    const templates=S.templates.filter(x=>x.id!==el.dataset.id);
+    persist(SK.templates,templates);
+    setState({templates});
+  }
   else if(a==='export-data') doExport();
+}
+
+function showToast(msg,duration=2500){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0A1E3C;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{t.style.opacity='0';},duration);
 }
 
 function doAddPlayer(){
@@ -1433,7 +1482,8 @@ function doSavePlan(){
 }
 
 function doExport(){
-  const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans};
+  const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans,playbook:SYSTEM};
+  localStorage.setItem(BK_KEY,new Date().toISOString());
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1563,6 +1613,14 @@ function applyPrintPadding(){
   }
 }
 document.addEventListener('click',handleClick);
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();doExport();}
+  });
+  window.addEventListener('beforeunload',e=>{
+    const last=localStorage.getItem(BK_KEY);
+    const age=last?(Date.now()-new Date(last).getTime()):Infinity;
+    if(age>24*60*60*1000){e.preventDefault();e.returnValue='Download a backup before leaving?';}
+  });
 
   // Playbook form inputs (live update pb form state)
   // pb form inputs read from DOM on save (no live setState)
@@ -1770,15 +1828,18 @@ function downloadPDF() {
     alert('PDF library still loading, please try again in a moment.');
     return;
   }
-  try {
+  showToast('Generating PDF…');
+  setTimeout(()=>{try {
     const docDef = buildGameCardDoc(S.plan, S.roster);
     const opp = (S.plan.opponent||'game').replace(/[^a-z0-9]/gi,'_');
     const date = S.plan.date || new Date().toISOString().slice(0,10);
     pdfMake.createPdf(docDef).download('game-card-' + opp + '-' + date + '.pdf');
+    showToast('PDF downloaded ✓');
   } catch(e) {
     console.error('PDF error:', e);
     alert('PDF generation error: ' + e.message);
   }
+  },50);
 }
 
 </script>

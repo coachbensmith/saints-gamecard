@@ -331,6 +331,7 @@ const CAT_BG={
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
 const SK={roster:'bd_roster_v1',plans:'bd_pp_plans_v1',library:'bd_pp_library_v1'};
+const BK_KEY='bd_pp_last_export';
 const load=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
 const persist=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
@@ -412,6 +413,85 @@ function render(){
 }
 
 // ── HOME ──────────────────────────────────────────────────────────────────────
+
+function renderSeasonStats(){
+  const roster=[...S.roster].sort((a,b)=>a.number-b.number);
+  const plans=S.plans;
+  if(!plans.length) return `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No plans yet</div></div>`;
+
+  // Aggregate stats across all plans
+  const totals={};
+  roster.forEach(r=>{totals[r.id]={ftm:0,fta:0,tpm:0,tpa:0,practices:0};});
+  plans.forEach(p=>{
+    const stats=p.shootingStats||{};
+    const att=p.attendance||{};
+    roster.forEach(r=>{
+      if((att[r.id]||'present')!=='absent'){
+        if(totals[r.id]) totals[r.id].practices++;
+      }
+      const s=stats[r.id];
+      if(s&&totals[r.id]){
+        totals[r.id].ftm+=(s.ft?.makes||0);
+        totals[r.id].fta+=(s.ft?.attempts||0);
+        totals[r.id].tpm+=(s.tp?.makes||0);
+        totals[r.id].tpa+=(s.tp?.attempts||0);
+      }
+    });
+  });
+
+  const pct=(m,a)=>a>0?Math.round(m/a*100)+'%':'—';
+  const bar=(m,a,color)=>{
+    if(!a) return '<span style="color:#ccc">—</span>';
+    const w=Math.round(m/a*100);
+    return `<div style="display:flex;align-items:center;gap:6px">
+      <div style="flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden">
+        <div style="width:${w}%;height:100%;background:${color};border-radius:3px"></div>
+      </div>
+      <span style="font-size:11px;min-width:36px;text-align:right">${pct(m,a)}</span>
+    </div>`;
+  };
+
+  const teamTotals={ftm:0,fta:0,tpm:0,tpa:0};
+  roster.forEach(r=>{const t=totals[r.id]||{};teamTotals.ftm+=t.ftm||0;teamTotals.fta+=t.fta||0;teamTotals.tpm+=t.tpm||0;teamTotals.tpa+=t.tpa||0;});
+
+  return `
+    <div style="background:#fff;border-radius:8px;border:1px solid #E0E0E0;overflow:hidden;margin-bottom:16px">
+      <div style="background:var(--navy);padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-weight:bold;font-size:14px">Season Shooting Stats</span>
+        <span style="color:rgba(255,255,255,.55);font-size:12px">${plans.length} practice${plans.length!==1?'s':''}</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="stats-table" style="width:100%">
+          <thead><tr>
+            <th style="text-align:left;width:28px">#</th>
+            <th style="text-align:left">Player</th>
+            <th>Prac.</th>
+            <th>FT M</th><th>FT A</th><th style="min-width:120px">FT %</th>
+            <th>3P M</th><th>3P A</th><th style="min-width:120px">3P %</th>
+          </tr></thead>
+          <tbody>
+            ${roster.map((r,i)=>{
+              const t=totals[r.id]||{};
+              return`<tr class="${i%2===1?'stripe-row':''}">
+                <td class="left">${r.number}</td>
+                <td class="left">${esc(r.name)}</td>
+                <td>${t.practices||0}</td>
+                <td>${t.ftm||0}</td><td>${t.fta||0}</td><td>${bar(t.ftm,t.fta,'var(--navy)')}</td>
+                <td>${t.tpm||0}</td><td>${t.tpa||0}</td><td>${bar(t.tpm,t.tpa,'var(--gold)')}</td>
+              </tr>`;
+            }).join('')}
+            <tr class="total-row">
+              <td colspan="2" class="left">Team Total</td>
+              <td>—</td>
+              <td><b>${teamTotals.ftm}</b></td><td><b>${teamTotals.fta}</b></td><td>${bar(teamTotals.ftm,teamTotals.fta,'var(--navy)')}</td>
+              <td><b>${teamTotals.tpm}</b></td><td><b>${teamTotals.tpa}</b></td><td>${bar(teamTotals.tpm,teamTotals.tpa,'var(--gold)')}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
 function renderHome(){
   const plans=[...S.plans];
   return`
@@ -422,7 +502,7 @@ function renderHome(){
     </div>
     <button class="btn btn-ghost btn-sm" data-a="open-roster">👥 Roster${S.roster.length?` (${S.roster.length})`:''}</button>
     <button class="btn btn-ghost btn-sm" data-a="go-library">📚 Drill Library${S.library.length?` (${S.library.length})`:''}</button>
-    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export all data">⬆ Export</button>
+    <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export all data (Ctrl+S)">⬆ Export${(()=>{const l=localStorage.getItem('bd_pp_last_export');const age=l?(Date.now()-new Date(l).getTime()):Infinity;const days=Math.floor(age/86400000);return days>7?` <span style="color:#dc2626;font-weight:bold">⚠ ${days}d</span>`:days>1?` <span style="color:#d97706">${days}d</span>`:' <span style="color:#16a34a">✓</span>';})()} </button>
     <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Import exported file">⬇ Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
     <button class="btn btn-gold" data-a="new-plan">+ New Plan</button>
   </div>
@@ -445,6 +525,7 @@ function renderHome(){
           </div>
           <div class="plan-actions">
             <button class="btn btn-ghost-sm" data-a="print-plan" data-id="${p.id}">🖨 Print</button>
+            <button class="btn btn-ghost-sm" data-a="dup-plan" data-id="${p.id}" title="Duplicate this plan">⧉ Copy</button>
             <button class="btn btn-navy-sm" data-a="edit-plan" data-id="${p.id}">Edit</button>
             ${S.confirmDel===p.id?`
               <button class="btn btn-danger-sm" data-a="confirm-del" data-id="${p.id}">Delete</button>
@@ -453,7 +534,7 @@ function renderHome(){
           </div>
         </div>`;
       }).join('')}
-    `}
+    `}}
   </div>`;
 }
 
@@ -1196,6 +1277,7 @@ function handleClick(e){
 
   // Navigation
   if(a==='go-home')    setState({view:'home',plan:null});
+  else if(a==='home-tab')   setState({homeTab:el.dataset.tab});
   else if(a==='go-library') setState({view:'library'});
   else if(a==='go-library-from-modal') {setState({showSegModal:false,view:'library'});}
   else if(a==='go-builder') setState({view:'builder'});
@@ -1207,6 +1289,14 @@ function handleClick(e){
     setState({plan:{...p},view:'builder',builderTab:'plan',expandedSegs:{},savedMsg:false});
   }
   else if(a==='print-plan'){const p=S.plans.find(x=>x.id===el.dataset.id);setState({plan:{...p},view:'print'});}
+  else if(a==='dup-plan'){
+    const src=S.plans.find(x=>x.id===el.dataset.id);
+    if(src){const copy={...JSON.parse(JSON.stringify(src)),id:uid(),
+      createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+      location:(src.location?src.location+' (copy)':'Copy'),
+      attendance:{},shootingStats:{}};
+      setState({plans:[copy,...S.plans]});showToast('Plan duplicated — edit date and location');}
+  }
   else if(a==='ask-del')     setState({confirmDel:el.dataset.id});
   else if(a==='cancel-del')  setState({confirmDel:null});
   else if(a==='confirm-del'){
@@ -1339,6 +1429,16 @@ function doAddPlayer(){
   setState({roster:[...S.roster,{id:uid(),number:num,name,type:S.rType}],rNum:'',rName:'',rType:'varsity',rErr:''});
 }
 
+function showToast(msg,duration=2500){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0A1E3C;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{t.style.opacity='0';},duration);
+}
+
 function doSavePlan(){
   const up={...S.plan,updatedAt:new Date().toISOString()};
   const plans=S.plans.some(x=>x.id===up.id)?S.plans.map(x=>x.id===up.id?up:x):[up,...S.plans];
@@ -1383,6 +1483,7 @@ function doSaveDrill(){
 
 function doExport(){
   const data={version:1,exportedAt:new Date().toISOString(),roster:S.roster,plans:S.plans,library:S.library};
+  localStorage.setItem(BK_KEY,new Date().toISOString());
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1447,6 +1548,14 @@ document.addEventListener('input',function(e){
 });
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.addEventListener('click',handleClick);
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();doExport();}
+});
+window.addEventListener('beforeunload',e=>{
+  const last=localStorage.getItem(BK_KEY);
+  const age=last?(Date.now()-new Date(last).getTime()):Infinity;
+  if(age>24*60*60*1000){e.preventDefault();e.returnValue='You have unsaved changes. Download a backup before leaving?';}
+});
 render();
 
 
@@ -1684,15 +1793,18 @@ function downloadPDF() {
     alert('PDF library still loading, please try again in a moment.');
     return;
   }
-  try {
+  showToast('Generating PDF…');
+  setTimeout(()=>{try {
     const docDef = buildPracticePlanDoc(S.plan, S.roster);
     const date = S.plan.date || new Date().toISOString().slice(0,10);
     const loc = (S.plan.location||'').replace(/[^a-z0-9]/gi,'_')||'plan';
     pdfMake.createPdf(docDef).download('practice-plan-' + date + '-' + loc + '.pdf');
+    showToast('PDF downloaded ✓');
   } catch(e) {
     console.error('PDF error:', e);
     alert('PDF generation error: ' + e.message);
   }
+  },50);
 }
 
 </script>
