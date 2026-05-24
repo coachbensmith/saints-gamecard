@@ -1451,7 +1451,8 @@ render();
 
 
 function buildPracticePlanDoc(plan, roster) {
-  const NAVY='#0A1E3C', GOLD='#C9A84C', LGOLD='#FFFBEB', LGRAY='#F9F9F9', WHITE='#ffffff';
+  const NAVY='#0A1E3C', GOLD='#C9A84C', LGOLD='#FEFCE8', LGRAY='#F8F8F8', WHITE='#ffffff';
+  const RULE='#E0E0E0', GRULE='#BBBBBB';
   const PW=612, PH=792, M=28, CW=PW-2*M;
   const segs = plan.segments || [];
   const n = segs.length;
@@ -1459,12 +1460,23 @@ function buildPracticePlanDoc(plan, roster) {
   function fmtClock(total,el){const r=Math.max(0,total-el);return String(Math.floor(r)).padStart(2,'0')+':00';}
   function pct(m,a){return a>0?Math.round(m/a*100)+'%':'—';}
   function plName(pid){const p=roster.find(r=>r.id===pid);return p?`#${p.number} ${p.name}`:'';}
-  function secHdr(lbl){return{table:{widths:['*'],body:[[{text:lbl.toUpperCase(),fontSize:7,bold:true,color:GOLD,characterSpacing:1.5,fillColor:NAVY,margin:[6,4,6,4]}]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0},margin:[0,8,0,4]};}
+  function secHdr(lbl){return{
+    table:{widths:['*'],body:[[{
+      text:lbl.toUpperCase(),fontSize:8,bold:true,color:NAVY,
+      characterSpacing:0.6,fillColor:LGOLD,margin:[6,5,6,5]
+    }]]},
+    layout:{
+      hLineWidth:(i)=>i===0?0.3:i===1?1.5:0.3,
+      hLineColor:(i)=>i===1?GOLD:RULE,
+      vLineWidth:()=>0
+    },
+    margin:[0,8,0,4]
+  };}
 
   // ── PAGE 1 ────────────────────────────────────────────────────────────────
   const HDR_H=62, GOLD_H=3, PAD_CELL=3, TH_H=20, FTR_H=18;
   // Available for table body (heights array = content height, padding is additional)
-  const tableTotal = PH - 2*M - HDR_H - GOLD_H - 8 - FTR_H - 4;
+  const tableTotal = PH - 2*M - HDR_H - GOLD_H - 8 - 32 - 4;  // 32 = bottom margin for doc-level footer
   const cellPad = PAD_CELL * 2;  // top + bottom padding per cell
   const thTotal = TH_H + cellPad;
   const rowTotal = Math.max(18, Math.floor((tableTotal - thTotal) / n));
@@ -1474,7 +1486,7 @@ function buildPracticePlanDoc(plan, roster) {
   const rows = segs.map((seg, i) => {
     const clock = fmtClock(parseInt(plan.totalMinutes)||0, elapsed);
     elapsed += parseInt(seg.duration)||0;
-    const fill = seg.isTeam ? LGOLD : (i%2===0 ? null : LGRAY);
+    const fill = seg.isTeam ? LGOLD : (i%2===0 ? WHITE : LGRAY);
     const nameStack = [{text:seg.name+(seg.isTeam?'  ★ TEAM':''), bold:true, fontSize:9, lineHeight:1.15}];
     if(seg.teamGoal) nameStack.push({text:'Goal: '+seg.teamGoal, italics:true, fontSize:7.5, color:'#555', lineHeight:1.1, margin:[0,1,0,0]});
     return [
@@ -1490,7 +1502,7 @@ function buildPracticePlanDoc(plan, roster) {
     // Navy header
     {table:{widths:['*','auto'],body:[[
       {stack:[
-        {text:'B I S H O P  D W E N G E R  H I G H  S C H O O L   ·   F O R T  W A Y N E ,  I N D I A N A', fontSize:6.5, color:GOLD, characterSpacing:0.3, margin:[0,0,0,3]},
+        {text:'BISHOP DWENGER HIGH SCHOOL  ·  FORT WAYNE, INDIANA', fontSize:6.5, color:GOLD, bold:true, characterSpacing:0.5, margin:[0,0,0,3]},
         {text:"Boys' Basketball — Practice Plan", fontSize:14, bold:true, color:WHITE}
       ],fillColor:NAVY},
       {stack:[
@@ -1508,22 +1520,38 @@ function buildPracticePlanDoc(plan, roster) {
       widths:[44,'*',18,125,'*'],
       heights:[TH_H, ...Array(n).fill(rowH)],
       body:[
-        [{text:'CLOCK',bold:true,fontSize:7.5,color:WHITE,alignment:'center',fillColor:NAVY},
-         {text:'SEGMENT',bold:true,fontSize:7.5,color:WHITE,fillColor:NAVY},
+        [{text:'CLOCK',bold:true,fontSize:7.5,color:NAVY,alignment:'center',fillColor:LGRAY},
+         {text:'SEGMENT',bold:true,fontSize:7.5,color:NAVY,fillColor:LGRAY},
          {text:'MIN',bold:true,fontSize:7.5,color:WHITE,alignment:'center',fillColor:NAVY},
-         {text:'SETUP / EQUIPMENT',bold:true,fontSize:7.5,color:WHITE,fillColor:NAVY},
-         {text:'EMPHASIS / GOAL',bold:true,fontSize:7.5,color:WHITE,fillColor:NAVY}],
+         {text:'SETUP / EQUIPMENT',bold:true,fontSize:7.5,color:NAVY,fillColor:LGRAY},
+         {text:'EMPHASIS / GOAL',bold:true,fontSize:7.5,color:NAVY,fillColor:LGRAY}],
         ...rows
       ]
     },layout:{
-      hLineWidth:(i,n)=>i===0||i===1||i===n.table.body.length?0.75:0.35,
-      vLineWidth:()=>0, hLineColor:()=>'#d8d8d8',
+      // i=0: top of table; i=1: below header; i=n: bottom of table
+      hLineWidth:(i,node)=>{
+        const n=node.table.body.length;
+        if(i===0||i===n) return 0.3;        // thin outer border
+        if(i===1)        return 0.75;        // bold line below column headers
+        return 0.3;                           // thin gridline between rows
+      },
+      hLineColor:(i,node)=>{
+        const n=node.table.body.length;
+        if(i===0||i===n) return RULE;
+        if(i===1) return GRULE;
+        return RULE;
+      },
+      // Thin vertical separators between every column
+      vLineWidth:(i,node)=>{
+        const nc=node.table.widths.length;
+        if(i===0||i===nc) return 0;          // no outer left/right border
+        return 0.4;                           // separator between columns
+      },
+      vLineColor:()=>RULE,
       paddingLeft:()=>5, paddingRight:()=>5,
       paddingTop:()=>PAD_CELL, paddingBottom:()=>PAD_CELL,
     }},
-    // Footer
-    {text:"Bishop Dwenger Boys' Basketball  ·  Practice Plan  ·  Ben Smith  ·  Head Coach",
-     fontSize:7, color:'#bbb', alignment:'center', margin:[0,4,0,0]}
+    // Footer handled at doc level
   ];
 
   // ── PAGE 2 ────────────────────────────────────────────────────────────────
@@ -1576,7 +1604,7 @@ function buildPracticePlanDoc(plan, roster) {
   const teamsSection=[
     secHdr('Teams'),
     {table:{widths:['*','*','*'],body:[[
-      teamBox('Blue Team','🟦','#EEF2F8',NAVY,      teams.navy||[]),
+      teamBox('Blue Team','🟦','#EEF2F8','#1D4E89',teams.navy||[]),
       teamBox('White Team','⚪','#F5F5F5','#64748B',teams.white||[]),
       teamBox('Gold Team','🟡',LGOLD,'#C9A84C',      teams.gold||[]),
     ]]},layout:{hLineWidth:()=>0,vLineWidth:(i)=>i>0&&i<3?0.5:0,vLineColor:()=>'#ccc',paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0},margin:[0,0,0,8]}
@@ -1601,28 +1629,42 @@ function buildPracticePlanDoc(plan, roster) {
     {table:{widths:['*','auto'],body:[[
       {text:"Boys' Basketball — Roster & Groups",bold:true,fontSize:11,color:WHITE,fillColor:NAVY},
       {text:fmtDate(plan.date)+(plan.location?' · '+plan.location:''),bold:true,fontSize:8.5,color:GOLD,alignment:'right',fillColor:NAVY}
-    ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>8,paddingBottom:()=>8},margin:[0,0,0,3]},
+    ]]},layout:{hLineWidth:()=>0,vLineWidth:()=>0,paddingLeft:()=>8,paddingRight:()=>8,paddingTop:()=>9,paddingBottom:()=>9},margin:[0,0,0,3]},
     {canvas:[{type:'rect',x:0,y:0,w:CW,h:2.5,color:GOLD}],margin:[0,0,0,8]},
     ...partnerSection, ...groupSection, ...teamsSection,
     secHdr('Attendance & Shooting Stats'),
     {table:{headerRows:1,widths:[18,'*',18,22,22,22,22,22,22],body:[
-      [{text:'#',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'PLAYER',bold:true,fontSize:7,color:WHITE,fillColor:NAVY},
-       {text:'ATT',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'FT M',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'FT A',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'FT %',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'3P M',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'3P A',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY},
-       {text:'3P %',bold:true,fontSize:7,color:WHITE,alignment:'center',fillColor:NAVY}],
+      [{text:'#',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'PLAYER',bold:true,fontSize:7,color:NAVY,fillColor:LGRAY},
+       {text:'ATT',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'FT M',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'FT A',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'FT %',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'3P M',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'3P A',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY},
+       {text:'3P %',bold:true,fontSize:7,color:NAVY,alignment:'center',fillColor:LGRAY}],
       ...statsRows
-    ]},layout:{hLineWidth:(i,n)=>i===0||i===1||i===n.table.body.length?0.75:0.3,vLineWidth:()=>0,hLineColor:()=>'#ddd',paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>3,paddingBottom:()=>3}},
-    {text:"Bishop Dwenger Boys' Basketball  ·  Practice Plan  ·  Ben Smith  ·  Head Coach",fontSize:7,color:'#bbb',alignment:'center',margin:[0,6,0,0]}
+    ]},layout:{
+        hLineWidth:(i,node)=>{const n=node.table.body.length;return i===0||i===n?0.3:i===1?0.75:0.3;},
+        hLineColor:(i,node)=>{const n=node.table.body.length;return i===0||i===n?RULE:i===1?GRULE:RULE;},
+        vLineWidth:(i,node)=>{const nc=node.table.widths.length;return i===0||i===nc?0:0.3;},
+        vLineColor:()=>RULE,
+        paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>3,paddingBottom:()=>3
+      }},
+    // Footer handled at doc level
   ];
 
   return {
-    pageSize:'LETTER', pageMargins:[M,M,M,M],
+    pageSize:'LETTER', pageMargins:[M,M,M,32],
     defaultStyle:{font:'Roboto',lineHeight:1.1},
+    footer:()=>({
+      margin:[0,6,0,0],
+      stack:[
+        {canvas:[{type:'line',x1:M,y1:0,x2:584,y2:0,lineWidth:0.5,lineColor:'#CCCCCC'}]},
+        {text:"Bishop Dwenger Boys' Basketball  ·  Practice Plan  ·  Ben Smith  ·  Head Coach",
+         fontSize:7,color:'#AAAAAA',alignment:'center',margin:[0,5,0,0]}
+      ]
+    }),
     content:[...page1,{text:'',pageBreak:'before'},...page2]
   };
 }
