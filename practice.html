@@ -1271,9 +1271,17 @@ function attachHandlers(){
   if(pp2) pp2.addEventListener('change',e=>{setState({pairForm:{...S.pairForm,p2:e.target.value}});});
 
   // Import file
-  const impFile=document.getElementById('import-file');
-  if(impFile) impFile.addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);});
 }
+
+// One-time import listener — deferred until DOM is ready
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('import-file').addEventListener('change',function(e){
+    if(e.target.files&&e.target.files[0]){
+      doImport(e.target.files[0]);
+      this.value='';
+    }
+  });
+});
 
 // ── CLICK HANDLER ─────────────────────────────────────────────────────────────
 function handleClick(e){

@@ -278,6 +278,8 @@ input,select{font-family:inherit;}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 </head>
+<input type="file" accept=".json" id="import-file" style="display:none;position:fixed;top:-999px">
+
 <body>
 <div id="app"></div>
 <script>
@@ -541,7 +543,7 @@ function renderHome(){
     <button class="btn btn-ghost btn-sm" data-a="open-roster">&#128101; Roster${S.roster.length?' ('+S.roster.length+')':''}</button>
     <button class="btn btn-ghost btn-sm" data-a="open-playbook">&#128218; Playbook</button>
     <button class="btn btn-ghost btn-sm" data-a="export-data" title="Export (Ctrl+S)">&#11014; Export<span id="gc-bk-ind" style="margin-left:4px"></span></button>
-    <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0" title="Import exported file">&#11015; Import<input type="file" accept=".json" id="import-file" style="display:none"></label>
+    <button class="btn btn-ghost btn-sm" title="Import exported file" onclick="document.getElementById('import-file').click()">&#11015; Import</button>
     <button class="btn btn-gold" data-a="new-plan">+ New Game Plan</button>
   </div>
   ${S.pendingImport?`<div style="background:#fff8e1;border-bottom:3px solid var(--gold);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -1169,9 +1171,17 @@ function attachHandlers(){
       setState({plan:{...S.plan,selections:sel},showDropFor:null});
     });
   });
-  const impFile=document.getElementById('import-file');
-  if(impFile) impFile.addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);});
 }
+
+// One-time import listener — deferred until DOM is ready
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('import-file').addEventListener('change',function(e){
+    if(e.target.files&&e.target.files[0]){
+      doImport(e.target.files[0]);
+      this.value='';
+    }
+  });
+});
 
 function handleClick(e){
   if(e.target.id==='modal-overlay'){setState({showRoster:false});return;}
