@@ -546,14 +546,8 @@ function renderHome(){
     <button class="btn btn-ghost btn-sm" title="Import exported file" onclick="document.getElementById('import-file').click()">&#11015; Import</button>
     <button class="btn btn-gold" data-a="new-plan">+ New Game Plan</button>
   </div>
-  ${S.pendingImport?`<div style="background:#fff8e1;border-bottom:3px solid var(--gold);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-    ${S.pendingImport.error
-      ?`<span style="color:#c00;font-size:13px;flex:1">&#10005; Invalid file — please use a file exported from the Saints Game Card Builder.</span>
-        <button class="btn btn-ghost-sm" data-a="cancel-import">Dismiss</button>`
-      :`<span style="font-size:13px;flex:1;color:var(--navy)"><strong>Import ready:</strong> ${S.pendingImport.plans.length} game plan${S.pendingImport.plans.length!==1?'s':''} and ${S.pendingImport.roster.length} player${S.pendingImport.roster.length!==1?'s':''}. This will replace your current data.</span>
-        <button class="btn btn-danger-sm" data-a="cancel-import">Cancel</button>
-        <button class="btn btn-gold" data-a="confirm-import">&#10003; Confirm Import</button>`}
-  </div>`:''}
+
+
   <div class="content">
     ${plans.length===0?`
       <div class="empty-state">
@@ -1554,10 +1548,17 @@ function doImport(file){
     try{
       const data=JSON.parse(e.target.result);
       if(!Array.isArray(data.roster)||!Array.isArray(data.plans)){
-        setState({pendingImport:{error:true}});return;
+        alert('Invalid file — please use a file exported from the Saints Game Card Builder.');
+        return;
       }
-      setState({pendingImport:data});
-    }catch{setState({pendingImport:{error:true}});}
+      // Apply immediately — no confirm step (mobile-friendly)
+      if(data.playbook&&Array.isArray(data.playbook)){
+        SYSTEM=data.playbook;
+        savePlaybook();
+      }
+      setState({roster:data.roster,plans:data.plans,pendingImport:null});
+      showToast('Imported: '+data.plans.length+' game plan'+(data.plans.length!==1?'s':'')+' ✓');
+    }catch(err){alert('Import failed: '+err.message);}
   };
   reader.readAsText(file);
 }

@@ -1520,9 +1520,10 @@ function doImport(file){
       if(!Array.isArray(data.roster)||!Array.isArray(data.plans)){
         alert('Invalid file. Use a file exported from the Saints Practice Plan Builder.');return;
       }
-      const msg='Import '+data.plans.length+' plan(s), '+data.roster.length+' player(s), and '+(data.library||[]).length+' drill(s)?\n\nThis replaces your current data.';
-      if(confirm(msg)){setState({roster:data.roster,plans:data.plans,library:data.library||[]});}
-    }catch{alert('Could not read file.');}
+      // Apply immediately — no confirm step (mobile-friendly)
+      setState({roster:data.roster,plans:data.plans,library:data.library||[]});
+      showToast('Imported: '+data.plans.length+' plan'+(data.plans.length!==1?'s':'')+', '+data.roster.length+' players ✓');
+    }catch(err){alert('Import failed: '+err.message);}
   };
   reader.readAsText(file);
 }
