@@ -986,7 +986,25 @@ function renderPlaybookModal(){
             ${mode!=='add-play'||pb.target!==subKey?`<button class="pb-add-btn" data-a="pb-add-play" data-target="${subKey}">+ Add Play</button>`:''}
           </div>`;
         }).join('')+
-        `<button class="pb-add-btn" data-a="pb-add-sub" data-target="${grpKey}">+ Add Sub-Group</button>
+        `${mode==='add-sub'&&pb.target===grpKey?`
+          <div class="pb-form">
+            <div class="pb-form-title">New Sub-Group</div>
+            <div class="pb-form-row">
+              <div class="pb-form-col" style="max-width:90px">
+                <div class="pb-form-lbl">Code</div>
+                <input class="inp" style="font-size:12px;padding:4px 7px" placeholder='"51"' value="${pb.subForm.code}" data-a="pb-form-sub-code">
+              </div>
+              <div class="pb-form-col">
+                <div class="pb-form-lbl">Name</div>
+                <input class="inp" style="font-size:12px;padding:4px 7px" placeholder="Sub-group name" value="${pb.subForm.name}" data-a="pb-form-sub-name">
+              </div>
+            </div>
+            <div class="pb-form-actions">
+              <button class="btn btn-ghost btn-sm" data-a="pb-cancel">Cancel</button>
+              <button class="btn btn-navy btn-sm" data-a="pb-save-sub" data-target="${grpKey}">Save</button>
+            </div>
+          </div>
+        `:`<button class="pb-add-btn" data-a="pb-add-sub" data-target="${grpKey}">+ Add Sub-Group</button>`}
         ${addPlayForm(grpKey+'--extra')}`;
       } else {
         grpBodyHtml=playRows(grp.plays||[],secIdx,grpIdx,null)+
@@ -1707,7 +1725,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
 
     // ── Group header ──────────────────────────────────────────────────────
     add([
-      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:WHITE},
+      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:WHITE, noWrap:true},
       {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A', fillColor:WHITE}
     ], itemH+1, 'grp-hdr');
     if(isFam) return;
@@ -1715,7 +1733,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
     if(grp.subs) grp.subs.forEach(sub=>{
       // ── Sub-group header ────────────────────────────────────────────
       add([
-        {text:sub.code, fontSize:7, color:sc, fillColor:STRIPE},
+        {text:sub.code, fontSize:7, color:sc, fillColor:STRIPE, noWrap:true},
         {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:STRIPE}
       ], itemH, 'sub-hdr');
       sub.plays.forEach((play,pi)=>{
@@ -1725,7 +1743,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
         const nm=ap.length
           ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
           :{text:play.name,fontSize:8.5,italics:ctr,color:nameCol};
-        add([{text:'  '+play.code,fontSize:6.5,color:codeCol,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
+        add([{text:'  '+play.code,fontSize:6.5,color:codeCol,fillColor:bg,noWrap:true},{...nm,fillColor:bg}], itemH, 'play');
       });
     });
     else grp.plays.forEach((play,pi)=>{
@@ -1734,13 +1752,13 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       const nm=ap.length
         ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
         :{text:play.name,fontSize:8.5,color:'#0D1B2A'};
-      add([{text:play.code,fontSize:7,color:sc,fillColor:bg},{...nm,fillColor:bg}], itemH, 'play');
+      add([{text:play.code,fontSize:7,color:sc,fillColor:bg,noWrap:true},{...nm,fillColor:bg}], itemH, 'play');
     });
   });
 
   const n=body.length;
   return {
-    table:{widths:[32,'*'],heights,body},
+    table:{widths:[44,'*'],heights,body},
     layout:{
       // hLineWidth(i): line between row[i-1] and row[i]. i=0=top, i=n=bottom.
       hLineWidth:(i)=>{
