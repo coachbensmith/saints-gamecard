@@ -1246,7 +1246,12 @@ function handleClick(e){
   else if(a==='show-drop')  setState({showDropFor:el.dataset.pid});
   else if(a==='confirm-import'){
     if(S.pendingImport&&!S.pendingImport.error){
-      setState({roster:S.pendingImport.roster,plans:S.pendingImport.plans,pendingImport:null});
+      const imp=S.pendingImport;
+      if(imp.playbook&&Array.isArray(imp.playbook)){
+        SYSTEM=imp.playbook;
+        savePlaybook();
+      }
+      setState({roster:imp.roster,plans:imp.plans,pendingImport:null});
     }
   }
   else if(a==='cancel-import') setState({pendingImport:null});
