@@ -1755,12 +1755,15 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       });
     });
     else grp.plays.forEach((play,pi)=>{
-      const bg=pi%2===0?WHITE:STRIPE;
+      const ctr=!!play.ctr;
+      const nameCol=ctr?'#5B2D8E':'#0D1B2A';
+      const codeCol=ctr?'#5B2D8E':sc;
+      const bg=ctr?'#F3EEFF':(pi%2===0?WHITE:STRIPE);
       const ap=getAssigned(play.id);
       const nm=ap.length
-        ?{text:[{text:play.name+' ',fontSize:8.5,color:'#0D1B2A'},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
-        :{text:play.name,fontSize:8.5,color:'#0D1B2A'};
-      add([{text:play.code,fontSize:7,color:sc,fillColor:bg,noWrap:true},{...nm,fillColor:bg}], itemH, 'play');
+        ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:nameCol}]}
+        :{text:play.name,fontSize:8.5,italics:ctr,color:nameCol};
+      add([{text:play.code,fontSize:7,color:codeCol,fillColor:bg,noWrap:true},{...nm,fillColor:bg}], itemH, 'play');
     });
   });
 
