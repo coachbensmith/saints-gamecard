@@ -448,6 +448,7 @@ let SYSTEM=load(PB_KEY)||DEFAULT_SYSTEM;
 function savePlaybook(){persist(PB_KEY,SYSTEM);}
 function resetPlaybook(){SYSTEM=[...DEFAULT_SYSTEM];savePlaybook();}
 
+
 // Playbook section color presets
 const SEC_COLORS=[
   {name:'Gold',   color:'#C9A84C',bg:'#FEFCE8'},
@@ -459,6 +460,18 @@ const SEC_COLORS=[
   {name:'Purple', color:'#5B2D8E',bg:'#F3EEFF'},
   {name:'Navy',   color:'#0A1E3C',bg:'#EEF2F8'},
 ];
+
+// Ensure groups with a custom color have a bg tint (self-healing for old exports)
+function normalizePlaybook(){
+  const colorToBg={};
+  SEC_COLORS.forEach(c=>{colorToBg[c.color]=c.bg;});
+  SYSTEM=SYSTEM.map(sec=>({...sec,groups:sec.groups.map(grp=>{
+    if(grp.color&&!grp.bg&&colorToBg[grp.color]) return{...grp,bg:colorToBg[grp.color]};
+    return grp;
+  })}));
+}
+normalizePlaybook();
+
 
 // Non-reactive pb color selections (avoid re-render on swatch click)
 let _pbColor={sec:SEC_COLORS[0],grp:null};
