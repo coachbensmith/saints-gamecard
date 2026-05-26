@@ -781,7 +781,7 @@ function renderPrint(){
         const isFamSel=(p.familySelections||{})[grp.id]===true;
         return`<div>
           <div class="card-grp-hdr" style="background:${gb};border-color:${gc}">
-            <span class="card-grp-code" style="color:${gc}">${isFamSel?'':esc(grp.code)}</span>
+            <span class="card-grp-code" style="color:${gc}">${esc(grp.code)}</span>
             <span class="card-grp-name">${esc(grp.name)}</span>
           </div>
           ${isFamSel?'':(grp.subs?grp.subs.map(sub=>`
@@ -1757,7 +1757,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
     // Always derive tint from CURRENT color — grp.bg may be stale if color was changed
     const grpBg=COLOR_BG[gc]||sec.bg||WHITE;
     add([
-      {text:isFam?'':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:grpBg, noWrap:true},
+      {text:grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:grpBg, noWrap:true},
       {text:grp.name, fontSize:9.5, bold:true, color:isFam?gc:'#0D1B2A', fillColor:grpBg}
     ], itemH+1, 'grp-hdr');
     if(isFam) return;
