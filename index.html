@@ -82,8 +82,8 @@ input,select{font-family:inherit;}
 .card-coach{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px;}
 .card-body{padding:12px 14px;display:grid;gap:10px;}
 .card-col{border:1px solid #E0E0E0;border-radius:3px;overflow:hidden;font-size:12px;background:#fff;}
-.card-sec-hdr{padding:6px 10px;background:#fff;border-left:none;border-top:1px solid #E0E0E0;border-bottom:2.5px solid;}
-.card-sec-label{font-weight:800;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;}
+.card-sec-hdr{padding:6px 10px;border:none;}
+.card-sec-label{font-weight:800;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;color:#fff;}
 .card-grp-hdr{padding:4px 8px;display:flex;gap:5px;align-items:center;border:none;border-bottom:1px solid #CCCCCC;}
 .card-grp-code{font-weight:bold;font-size:8px;min-width:36px;}
 .card-grp-name{color:#0D1B2A;font-weight:800;font-size:10.5px;}
@@ -128,8 +128,8 @@ input,select{font-family:inherit;}
   .card-col{overflow:hidden;border:0.5pt solid #E0E0E0;border-radius:2pt;break-inside:avoid;page-break-inside:avoid;}
 
   /* Front page defaults — JS overrides padding dynamically */
-  .card-sec-hdr{padding:4pt 8pt;background:#fff;border-left:none;border-top:0.5pt solid #E0E0E0;border-bottom:2pt solid;}
-  .card-sec-label{font-size:9pt;font-weight:800;letter-spacing:0.4pt;}
+  .card-sec-hdr{padding:4pt 8pt;border:none;}
+  .card-sec-label{font-size:9pt;font-weight:800;letter-spacing:0.4pt;color:#fff;}
   .card-grp-hdr{padding:3pt 7pt;border:none;border-bottom:0.6pt solid #CCCCCC;}
   .card-grp-code{font-size:8pt;min-width:28pt;}
   .card-grp-name{font-size:10pt;font-weight:800;color:#0D1B2A;}
@@ -162,8 +162,8 @@ input,select{font-family:inherit;}
   .card-coach{font-size:6pt;margin-top:0;}
   .card-body{padding:5pt 6pt;gap:5pt;}
   .card-col{font-size:6pt;border-radius:2pt;border-width:0.5pt;}
-  .card-sec-hdr{padding:2pt 6pt;background:#fff;border-left:none;border-top:0.3pt solid #E0E0E0;border-bottom:1.5pt solid;}
-  .card-sec-label{font-size:7pt;font-weight:800;letter-spacing:0.6pt;}
+  .card-sec-hdr{padding:2pt 6pt;border:none;}
+  .card-sec-label{font-size:7pt;font-weight:800;letter-spacing:0.6pt;color:#fff;}
   .card-grp-hdr{padding:2pt 4pt;border:none;border-bottom:0.5pt solid #CCCCCC;}
   .card-grp-code{font-size:5.5pt;min-width:22pt;}
   .card-grp-name{font-size:7.5pt;}
@@ -197,8 +197,8 @@ input,select{font-family:inherit;}
   .card-col{font-size:6.5px;border-radius:2px;}
 
   /* ── Section headers ── */
-  .card-sec-hdr{padding:2px 6px;background:#fff;border-left:none;border-top:0.3px solid #E0E0E0;border-bottom:1.5px solid;}
-  .card-sec-label{font-size:7px;font-weight:800;letter-spacing:0.6px;}
+  .card-sec-hdr{padding:2px 6px;border:none;}
+  .card-sec-label{font-size:7px;font-weight:800;letter-spacing:0.6px;color:#fff;}
 
   /* ── Group headers ── */
   .card-grp-hdr{padding:2px 4px;border:none;border-bottom:0.5px solid #CCCCCC;}
@@ -612,7 +612,7 @@ function renderBuilder(){
 
 function renderSectionBlock(sec){
   return`<div class="section-block">
-    <div class="sec-hdr" style="background:${sec.bg||'#F4F4F4'};border-bottom:2.5px solid ${sec.color};border-color:${sec.color}">
+    <div class="sec-hdr" style="background:${sec.color};">
       <span style="color:${sec.color};font-weight:800;font-size:10px;letter-spacing:2px;text-transform:uppercase">${esc(sec.label)}</span>
     </div>
     ${sec.groups.map(grp=>renderGroupBlock(grp,sec)).join('')}
@@ -755,7 +755,7 @@ function renderPrint(){
   const renderSecs=secs=>secs.map(sec=>{
     const sc=sec.color;
     return`<div class="card-col">
-      <div class="card-sec-hdr" style="background:${sec.bg||'#F4F4F4'};border-color:${sc}">
+      <div class="card-sec-hdr" style="background:${sc};border-color:${sc}">
         <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
       </div>
       ${sec.groups.map(grp=>{
@@ -1724,7 +1724,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
 
   // ── Section header ────────────────────────────────────────────────────────
   add([
-    {text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:sc,fillColor:sec.bg||'#F4F4F4',colSpan:2},{}
+    {text:sec.label.toUpperCase(),fontSize:8.5,bold:true,color:'#FFFFFF',fillColor:sc,colSpan:2},{}
   ], itemH+3, 'sec-hdr');
 
   sec.groups.forEach(grp=>{
@@ -1732,21 +1732,22 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
     const isFam=fselMap[grp.id]===true;
 
     // ── Group header ──────────────────────────────────────────────────────
+    const grpBg=grp.bg||sec.bg||WHITE;
     add([
-      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:WHITE, noWrap:true},
-      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A', fillColor:WHITE}
+      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:grpBg, noWrap:true},
+      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A', fillColor:grpBg}
     ], itemH+1, 'grp-hdr');
     if(isFam) return;
 
     if(grp.subs) grp.subs.forEach(sub=>{
       // ── Sub-group header ────────────────────────────────────────────
       add([
-        {text:sub.code, fontSize:7, color:sc, fillColor:STRIPE, noWrap:true},
-        {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:STRIPE}
+        {text:sub.code, fontSize:7, color:sc, fillColor:grpBg, noWrap:true},
+        {text:sub.name, fontSize:8, bold:true, color:'#333', fillColor:grpBg}
       ], itemH, 'sub-hdr');
       sub.plays.forEach((play,pi)=>{
         const ctr=!!play.ctr, nameCol=ctr?'#5B2D8E':'#0D1B2A', codeCol=ctr?'#5B2D8E':sc;
-        const bg=pi%2===0?WHITE:STRIPE;
+        const bg=ctr?'#F3EEFF':(pi%2===0?grpBg:WHITE);
         const ap=getAssigned(play.id);
         const nm=ap.length
           ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
@@ -1758,7 +1759,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       const ctr=!!play.ctr;
       const nameCol=ctr?'#5B2D8E':'#0D1B2A';
       const codeCol=ctr?'#5B2D8E':sc;
-      const bg=ctr?'#F3EEFF':(pi%2===0?WHITE:STRIPE);
+      const bg=ctr?'#F3EEFF':(pi%2===0?grpBg:WHITE);
       const ap=getAssigned(play.id);
       const nm=ap.length
         ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:nameCol}]}
@@ -1787,7 +1788,6 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       hLineColor:(i)=>{
         if(i===0||i===n) return RULE;
         const prev=rowTypes[i-1];
-        if(prev==='sec-hdr') return sc;   // section accent color
         if(prev==='grp-hdr') return GRULE;
         return RULE;
       },
