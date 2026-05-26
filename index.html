@@ -1822,7 +1822,7 @@ function makeHeader(plan, subtitle){
 
 function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[], fselMap={}){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
-  const M=28, CW=556, COL_AVAIL=667, PAD=2;
+  const M=28, CW=556, COL_AVAIL=640, PAD=2;
   if(!secs.length) return [{text:'',fontSize:1}];
   const numCols=Math.min(secs.length,3);
   const numGridRows=Math.ceil(secs.length/numCols);
@@ -1860,7 +1860,7 @@ function buildPage(plan, secs, subtitle, firstPage=true, sel={}, roster=[], fsel
 
 function buildGameCardDoc(plan, roster){
   const NAVY='#0A1E3C', GOLD='#C9A84C', WHITE='#ffffff';
-  const M=28, CW=556, COL_AVAIL=667, PAD=2;
+  const M=28, CW=556, COL_AVAIL=640, PAD=2;
   const sel=plan.selections||{};
   const fselMap=plan.familySelections||{};
   const active=SYSTEM.map(sec=>{
