@@ -465,8 +465,9 @@ const SEC_COLORS=[
 function normalizePlaybook(){
   const colorToBg={};
   SEC_COLORS.forEach(c=>{colorToBg[c.color]=c.bg;});
+  // Always sync grp.bg to match grp.color in case color was changed but bg wasn't updated
   SYSTEM=SYSTEM.map(sec=>({...sec,groups:sec.groups.map(grp=>{
-    if(grp.color&&!grp.bg&&colorToBg[grp.color]) return{...grp,bg:colorToBg[grp.color]};
+    if(grp.color&&colorToBg[grp.color]) return{...grp,bg:colorToBg[grp.color]};
     return grp;
   })}));
 }
@@ -773,7 +774,10 @@ function renderPrint(){
       </div>
       ${sec.groups.map(grp=>{
         const gc=grp.color||sec.color;
-        const gb=grp.bg||sec.bg;
+        const COLOR_BG2={'#C9A84C':'#FEFCE8','#1A5C3A':'#EBF7F0','#1D4E89':'#EBF2FB',
+          '#0E7490':'#ECFEFF','#C2410C':'#FFF7ED','#9B1C1C':'#FEF2F2',
+          '#5B2D8E':'#F3EEFF','#0A1E3C':'#EEF2F8'};
+        const gb=COLOR_BG2[gc]||sec.bg;
         const isFamSel=(p.familySelections||{})[grp.id]===true;
         return`<div>
           <div class="card-grp-hdr" style="background:${gb};border-color:${gc}">
@@ -1351,14 +1355,15 @@ function handleClick(e){
     if(!f.grpName)return;
     const parts=t.split('-').map(Number);
     const grpColor=_pbColor.grp?_pbColor.grp.color:undefined;
+    const grpBgNew=_pbColor.grp?_pbColor.grp.bg:undefined;
     if(parts.length===1){
       const si=parts[0];
       const newGrp={id:pbUid(),code:f.grpCode,name:f.grpName,plays:[]};
-      if(grpColor) newGrp.color=grpColor;
+      if(grpColor){newGrp.color=grpColor;newGrp.bg=grpBgNew;}
       SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:[...s.groups,newGrp]}:s);
     } else {
       const [si,gi]=parts;
-      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,code:f.grpCode,name:f.grpName,color:grpColor||undefined}:g)}:s);
+      SYSTEM=SYSTEM.map((s,i)=>i===si?{...s,groups:s.groups.map((g,j)=>j===gi?{...g,code:f.grpCode,name:f.grpName,color:grpColor||undefined,bg:grpBgNew||undefined}:g)}:s);
     }
     savePlaybook();setState({pb:{...S.pb,mode:null,target:null}});
   }
@@ -1559,6 +1564,7 @@ function doImport(file){
       // Apply immediately — no confirm step (mobile-friendly)
       if(data.playbook&&Array.isArray(data.playbook)){
         SYSTEM=data.playbook;
+        normalizePlaybook();
         savePlaybook();
       }
       setState({roster:data.roster,plans:data.plans,pendingImport:null});
@@ -1745,10 +1751,14 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
     const isFam=fselMap[grp.id]===true;
 
     // ── Group header ──────────────────────────────────────────────────────
-    const grpBg=grp.bg||sec.bg||WHITE;
+    const COLOR_BG={'#C9A84C':'#FEFCE8','#1A5C3A':'#EBF7F0','#1D4E89':'#EBF2FB',
+      '#0E7490':'#ECFEFF','#C2410C':'#FFF7ED','#9B1C1C':'#FEF2F2',
+      '#5B2D8E':'#F3EEFF','#0A1E3C':'#EEF2F8'};
+    // Always derive tint from CURRENT color — grp.bg may be stale if color was changed
+    const grpBg=COLOR_BG[gc]||sec.bg||WHITE;
     add([
-      {text:isFam?'★':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:grpBg, noWrap:true},
-      {text:grp.name, fontSize:9.5, bold:true, color:'#0D1B2A', fillColor:grpBg}
+      {text:isFam?'FAM':grp.code, fontSize:7.5, bold:true, color:isFam?gc:sc, fillColor:grpBg, noWrap:true},
+      {text:grp.name, fontSize:9.5, bold:true, color:isFam?gc:'#0D1B2A', fillColor:grpBg}
     ], itemH+1, 'grp-hdr');
     if(isFam) return;
 
