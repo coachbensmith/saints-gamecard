@@ -756,7 +756,7 @@ function renderPrint(){
     const sc=sec.color;
     return`<div class="card-col">
       <div class="card-sec-hdr" style="background:${sc};border-color:${sc}">
-        <span class="card-sec-label" style="color:${sc}">${esc(sec.label)}</span>
+        <span class="card-sec-label" style="color:#fff">${esc(sec.label)}</span>
       </div>
       ${sec.groups.map(grp=>{
         const gc=grp.color||sec.color;
@@ -1747,7 +1747,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       ], itemH, 'sub-hdr');
       sub.plays.forEach((play,pi)=>{
         const ctr=!!play.ctr, nameCol=ctr?'#5B2D8E':'#0D1B2A', codeCol=ctr?'#5B2D8E':sc;
-        const bg=ctr?'#F3EEFF':(pi%2===0?grpBg:WHITE);
+        const bg=ctr?'#F3EEFF':(pi%2===0?WHITE:STRIPE);
         const ap=getAssigned(play.id);
         const nm=ap.length
           ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:'#0D1B2A'}]}
@@ -1759,7 +1759,7 @@ function sectionTable(sec, itemH, sel={}, roster=[], fselMap={}){
       const ctr=!!play.ctr;
       const nameCol=ctr?'#5B2D8E':'#0D1B2A';
       const codeCol=ctr?'#5B2D8E':sc;
-      const bg=ctr?'#F3EEFF':(pi%2===0?grpBg:WHITE);
+      const bg=ctr?'#F3EEFF':(pi%2===0?WHITE:STRIPE);
       const ap=getAssigned(play.id);
       const nm=ap.length
         ?{text:[{text:play.name+' ',fontSize:8.5,italics:ctr,color:nameCol},{text:'  '+ap.map(p=>'#'+p.number).join(' '),fontSize:8,bold:true,color:nameCol}]}
